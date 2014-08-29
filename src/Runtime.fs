@@ -2,5 +2,5 @@
 
 open Microsoft.FSharp.Core.CompilerServices
 
-[<assembly:TypeProviderAssembly("FSharp.Data.Bson.DesignTime")>]
+[<assembly:TypeProviderAssembly("BsonProvider.DesignTime")>]
 do()
