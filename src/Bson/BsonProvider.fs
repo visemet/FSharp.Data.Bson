@@ -52,17 +52,6 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
 
             [
                 let getSampleCode = fun _ ->
-                    let exhausted = ref false
-
-                    use file = File.Open(sample, FileMode.Open)
-                    let samples =
-                        seq {
-                            while not !exhausted do
-                                match BsonSerializer.Deserialize<BsonDocument>(file) with
-                                | null -> exhausted := true
-                                | doc -> yield doc
-                        }
-
                     result.GetConverter ctx <@@ BsonTop.CreateList(File.Open(sample, FileMode.Open)) @@>
 
                 let resultTypeArray = result.ConvertedType.MakeArrayType()
@@ -73,8 +62,8 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
 
             { GeneratedType = tpType
               RepresentationType = result.ConvertedType
-              CreateFromTextReader = fun _reader -> failwith "not implemented yet"
-              CreateFromTextReaderForSampleList = fun _reader -> failwith "not implemented yet" }
+              CreateFromTextReader = fun _reader -> failwith "not implemented"
+              CreateFromTextReaderForSampleList = fun _reader -> failwith "not implemented" }
 
         let exhausted = ref false
 

@@ -116,10 +116,10 @@ module BsonTypeBuilder =
       Converter = None
       ConversionCallingType = BsonDocument }
 
-  let replaceJDocWithJValue (ctx:BsonGenerationContext) (typ:Type) = 
-    if typ = ctx.IBsonDocumentType then 
+  let replaceJDocWithJValue (ctx:BsonGenerationContext) (typ:Type) =
+    if typ = ctx.IBsonDocumentType then
         ctx.BsonValueType
-    elif typ.IsArray && typ.GetElementType() = ctx.IBsonDocumentType then 
+    elif typ.IsArray && typ.GetElementType() = ctx.IBsonDocumentType then
         ctx.BsonValueType.MakeArrayType()
     elif typ.IsGenericType && typ.GetGenericArguments() = [| ctx.IBsonDocumentType |] then
         typ.GetGenericTypeDefinition().MakeGenericType ctx.BsonValueType

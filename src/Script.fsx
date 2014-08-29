@@ -1,7 +1,7 @@
 ﻿#I "../packages/mongocsharpdriver.1.9.2/lib/net35"
 #r "../packages/mongocsharpdriver.1.9.2/lib/net35/MongoDB.Bson.dll"
-#I "../packages/FSharp.Data.2.0.12/lib/net40"
-#r "../packages/FSharp.Data.2.0.12/lib/net40/FSharp.Data.dll"
+#I "../packages/FSharp.Data.2.0.9/lib/net40"
+#r "../packages/FSharp.Data.2.0.9/lib/net40/FSharp.Data.dll"
 #r "bin/Debug/BsonProvider.dll"
 
 open System
@@ -11,8 +11,7 @@ open MongoDB.Bson
 open BsonProvider
 open BsonProvider.Runtime
 
-type Messages = BsonProvider<"C:/Users/10gen/Dropbox/messages.bson">
-let samples = Messages.GetSamples()
+type Zips = BsonProvider<"/Users/maxh/Dropbox/zips.bson">
+let samples = Zips.GetSamples()
 
-let sample = samples.[0]
-printf "%A\n" <| sample.Headers.XFrom
+printf "%A\n" samples.[0].Loc
