@@ -78,7 +78,6 @@ type BsonTop =
         }
         |> Seq.take 10
         |> Seq.toArray
-        // [| BsonTop.Create(BsonDocument(), "") |]
 
 /// [omit]
 type BsonValueOptionAndPath =
@@ -121,7 +120,6 @@ type BsonRuntime =
 
     /// Convert BSON array to array of target types
     static member ConvertArray<'T>(top:IBsonTop, mapping:Func<IBsonTop,'T>) =
-        let inline bArray (x:'T[]) = BsonArray(x)
         match top.BsonValue.BsonType with
         | BsonType.Array ->
             top.BsonValue.AsBsonArray.Values
@@ -132,9 +130,8 @@ type BsonRuntime =
             |> Seq.mapi (fun i value -> top.Create(value, sprintf "[%d]" i))
             |> Seq.map mapping.Invoke
             |> Seq.toArray
-            |> bArray
 
-        | BsonType.Null -> BsonArray()
+        | BsonType.Null -> [| |]
         | _ -> failwithf "Expecting a list at '%s', got %A" (top.Path()) top
 
     /// Optionally get bson property
@@ -266,7 +263,7 @@ type BsonRuntime =
 
     /// Creates a BsonArray and wraps it in a bson top
     static member CreateArray elements =
-        let inline barray (x:BsonValue[]) = BsonArray(x)
+        let inline bArray (x:BsonValue[]) = BsonArray(x)
         let bson =
             elements
             |> Seq.collect (BsonRuntime.ToBsonValue >> (fun value ->
@@ -275,6 +272,6 @@ type BsonRuntime =
                 | BsonType.Null -> Seq.empty
                 | _ -> Seq.singleton value))
             |> Seq.toArray
-            |> barray
+            |> bArray
 
         BsonTop.Create(bson, "")
