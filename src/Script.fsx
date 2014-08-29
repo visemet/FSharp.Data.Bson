@@ -2,7 +2,7 @@
 #r "../packages/mongocsharpdriver.1.9.2/lib/net35/MongoDB.Bson.dll"
 #I "../packages/FSharp.Data.2.0.9/lib/net40"
 #r "../packages/FSharp.Data.2.0.9/lib/net40/FSharp.Data.dll"
-#r "bin/Debug/BsonProvider.dll"
+#r "bin/Debug/FSharp.Data.Bson.dll"
 
 open System
 open System.IO

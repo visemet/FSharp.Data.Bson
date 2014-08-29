@@ -7,11 +7,11 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>4925635e-b1b4-4fb1-9843-2cb8c16cf38f</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BsonProvider</RootNamespace>
-    <AssemblyName>BsonProvider</AssemblyName>
+    <RootNamespace>FSharp.Data.Bson</RootNamespace>
+    <AssemblyName>FSharp.Data.Bson</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <Name>BsonProvider</Name>
+    <Name>FSharp.Data.Bson</Name>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -24,7 +24,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\BsonProvider.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.Data.Bson.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,7 +33,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\BsonProvider.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.Data.Bson.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

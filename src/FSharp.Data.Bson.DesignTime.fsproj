@@ -7,11 +7,11 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>57a1d652-87dc-4a82-8700-b22e373190e4</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BsonProvider.DesignTime</RootNamespace>
-    <AssemblyName>BsonProvider.DesignTime</AssemblyName>
+    <RootNamespace>FSharp.Data.Bson.DesignTime</RootNamespace>
+    <AssemblyName>FSharp.Data.Bson.DesignTime</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <Name>BsonProvider.DesignTime</Name>
+    <Name>FSharp.Data.Bson.DesignTime</Name>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
@@ -23,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\BsonProvider.DesignTime.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.Data.Bson.DesignTime.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,7 +32,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\BsonProvider.DesignTime.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.Data.Bson.DesignTime.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.Data.DesignTime">
