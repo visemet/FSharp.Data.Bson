@@ -20,10 +20,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "library", "library", "{BD28ABC6-1273-49D2-8D00-2FECCEEF1680}"
 	ProjectSection(SolutionItems) = preProject
-		docs\content\library\BsonTypeProvider.fsx = docs\content\library\BsonTypeProvider.fsx
+		docs\content\library\BsonProvider.fsx = docs\content\library\BsonProvider.fsx
 	EndProjectSection
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "BsonTypeProvider.DesignTime.Tests", "tests\BsonTypeProvider.DesignTime.Tests\BsonTypeProvider.DesignTime.Tests.fsproj", "{1BD89248-02F0-43EA-8706-BA721BCBA9C5}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider.DesignTime.Tests", "tests\BsonProvider.DesignTime.Tests\BsonProvider.DesignTime.Tests.fsproj", "{1BD89248-02F0-43EA-8706-BA721BCBA9C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,11 +35,6 @@ Global
 		{1BD89248-02F0-43EA-8706-BA721BCBA9C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BD89248-02F0-43EA-8706-BA721BCBA9C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BD89248-02F0-43EA-8706-BA721BCBA9C5}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = tests\BsonTypeProvider.DesignTime.Tests\BsonTypeProvider.DesignTime.Tests.fsproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

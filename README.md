@@ -1,5 +1,5 @@
-BsonTypeProvider
-================
+BsonProvider
+============
 
 A type provider for [BSON][bson_spec].
 
@@ -8,7 +8,7 @@ You can see the version history [here][release_notes].
 Building
 --------
 
-  - Simply build `BsonTypeProvider.sln` in Visual Studio, Mono Develop, or Xamarin Studio.
+  - Simply build the `BsonProvider.sln` solution in Visual Studio, Xamarin Studio, or Mono Develop.
     You can also use the FAKE script:
 
       * Windows: Run _build.cmd_
@@ -31,7 +31,7 @@ The documentation is automatically generated from the `*.fsx` files in the [cont
 and from the comments within the code. If you find a typo, then please [submit a pull request][pull_requests]!
 
   - The [BSON Type Provider home page][home_page] has more information about the library, examples, etc.
-  - The samples from the documentation are included as part of `BsonTypeProvider.Tests.sln`,
+  - The samples from the documentation are included as part of the `BsonProvider.Tests.sln` solution,
     so make sure you build the solution before trying out the samples to ensure that all necessary packages are installed.
 
 Community and Support

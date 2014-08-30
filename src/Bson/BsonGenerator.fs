@@ -12,10 +12,10 @@ open FSharp.Data
 open FSharp.Data.Runtime
 open FSharp.Data.Runtime.StructuralTypes
 open ProviderImplementation
-open BsonProvider.ProviderImplementation.BsonInference
-open BsonProvider.ProviderImplementation.BsonConversionsGenerator
 open ProviderImplementation.ProvidedTypes
 open BsonProvider.Runtime
+open BsonProvider.ProviderImplementation.BsonInference
+open BsonProvider.ProviderImplementation.BsonConversionsGenerator
 
 #nowarn "10001"
 

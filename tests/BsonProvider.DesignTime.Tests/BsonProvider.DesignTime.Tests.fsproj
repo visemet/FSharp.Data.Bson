@@ -7,11 +7,11 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1BD89248-02F0-43EA-8706-BA721BCBA9C5}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>FSharp.Data.Bson.DesignTime.Tests</RootNamespace>
-    <AssemblyName>FSharp.Data.Bson.DesignTime.Tests</AssemblyName>
+    <RootNamespace>BsonProvider.DesignTime.Tests</RootNamespace>
+    <AssemblyName>BsonProvider.DesignTime.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <Name>FSharp.Data.Bson.DesignTime.Tests</Name>
+    <Name>BsonProvider.DesignTime.Tests</Name>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -24,7 +24,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\FSharp.Data.Bson.DesignTime.Tests.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\BsonProvider.DesignTime.Tests.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,7 +33,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\FSharp.Data.Bson.DesignTime.Tests.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\BsonProvider.DesignTime.Tests.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CSharpFormat">

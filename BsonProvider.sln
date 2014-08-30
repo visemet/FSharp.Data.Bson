@@ -1,11 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio 2012
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonTypeProvider", "src\BsonTypeProvider.fsproj", "{4925635E-B1B4-4FB1-9843-2CB8C16CF38F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7787B536-67E6-4CA7-98A0-9C50015D701A}"
+	ProjectSection(SolutionItems) = preProject
+		build.fsx = build.fsx
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+		RELEASE_NOTES.md = RELEASE_NOTES.md
+		src\SetupTesting.fsx = src\SetupTesting.fsx
+	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonTypeProvider.DesignTime", "src\BsonTypeProvider.DesignTime.fsproj", "{57A1D652-87DC-4A82-8700-B22E373190E4}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider", "src\BsonProvider.fsproj", "{4925635E-B1B4-4FB1-9843-2CB8C16CF38F}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider.DesignTime", "src\BsonProvider.DesignTime.fsproj", "{57A1D652-87DC-4A82-8700-B22E373190E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

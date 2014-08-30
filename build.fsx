@@ -23,7 +23,7 @@ let (!!) includes = (!! includes).SetBaseDirectory __SOURCE_DIRECTORY__
 // Information about the project to be used at NuGet and in AssemblyInfo files
 // --------------------------------------------------------------------------------------
 
-let project = "BsonTypeProvider"
+let project = "BsonProvider"
 let authors = ["Max Hirschhorn"]
 let summary = "Type provider for BSON."
 let description = "Type provider for BSON."
@@ -56,7 +56,7 @@ Target "AssemblyInfo" <| fun () ->
         let title =
             Path.GetFileNameWithoutExtension file
             |> replace ".Portable47" ""
-            |> replace "AssemblyInfo" "BsonTypeProvider"
+            |> replace "AssemblyInfo" "BsonProvider"
         let versionSuffix =
             if file.Contains ".Portable47" then ".47"
             else ".0"
@@ -83,12 +83,12 @@ Target "CleanDocs" <| fun () ->
 // Build library & test projects
 
 Target "Build" <| fun () ->
-    !! "BsonTypeProvider.sln"
+    !! "BsonProvider.sln"
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 
 Target "BuildTests" <| fun () ->
-    !! "BsonTypeProvider.Tests.sln"
+    !! "BsonProvider.Tests.sln"
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 
@@ -109,7 +109,7 @@ let runTestTask name =
                 OutputFile = "TestResults.xml" })
     taskName ==> "RunTests" |> ignore
 
-["BsonTypeProvider.DesignTime.Tests"]
+["BsonProvider.DesignTime.Tests"]
 |> List.iter runTestTask
 
 // --------------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ Target "NuGet" <| fun () ->
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             Dependencies = [] })
-        "nuget/BsonTypeProvider.nuspec"
+        "nuget/BsonProvider.nuspec"
 
 // --------------------------------------------------------------------------------------
 // Generate the documentation
