@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Data.Bson", "src\FSharp.Data.Bson.fsproj", "{4925635E-B1B4-4FB1-9843-2CB8C16CF38F}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonTypeProvider", "src\BsonTypeProvider.fsproj", "{4925635E-B1B4-4FB1-9843-2CB8C16CF38F}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Data.Bson.DesignTime", "src\FSharp.Data.Bson.DesignTime.fsproj", "{57A1D652-87DC-4A82-8700-B22E373190E4}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonTypeProvider.DesignTime", "src\BsonTypeProvider.DesignTime.fsproj", "{57A1D652-87DC-4A82-8700-B22E373190E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

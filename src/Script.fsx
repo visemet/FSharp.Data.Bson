@@ -1,5 +1,5 @@
 ﻿#I "../bin"
-#r "../bin/FSharp.Data.Bson.dll"
+#r "FSharp.Data.Bson.dll"
 
 open System
 open System.IO
