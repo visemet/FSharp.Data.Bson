@@ -1,0 +1,6 @@
+<NUnitProject>
+  <Settings activeconfig="Default" />
+  <Config name="Default" binpathtype="Auto">
+    <assembly path="BsonProvider.DesignTime.Tests\bin\Debug\BsonProvider.DesignTime.Tests.dll" />
+  </Config>
+</NUnitProject>

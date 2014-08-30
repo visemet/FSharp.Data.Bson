@@ -10,7 +10,7 @@
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #else
-module ApiaryProvider.DesignTime.Tests.DocumentationTests
+module BsonProvider.DesignTime.Tests.DocumentationTests
 #endif
 
 open FsUnit
@@ -26,7 +26,7 @@ let (@@) a b = Path.Combine(a, b)
 
 let sources = __SOURCE_DIRECTORY__ @@ "../../docs/content"
 
-let output = Path.GetTempPath() @@ "ApiaryProvider.Docs"
+let output = Path.GetTempPath() @@ "BsonProvider.Docs"
 
 if Directory.Exists(output) then Directory.Delete(output, true)
 Directory.CreateDirectory(output) |> ignore
@@ -51,7 +51,7 @@ let processFile file =
 // Core API documentation
 
 let docFiles =
-  seq { for sub in [ "library"; "ja/library" ] do
+  seq { for sub in [ "library" ] do
           for file in Directory.EnumerateFiles(Path.Combine(sources, sub), "*.fsx") do
             yield sub + "/" + Path.GetFileName(file) }
 

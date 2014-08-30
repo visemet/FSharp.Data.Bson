@@ -1,16 +1,16 @@
 ﻿#if INTERACTIVE
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #r "../../bin/FSharp.Data.DesignTime.dll"
-#r "../../bin/ApiaryProvider.DesignTime.dll"
+#r "../../bin/BsonProvider.DesignTime.dll"
 #load "../Common/FsUnit.fs"
 #else
-module ApiaryProvider.DesignTime.Tests.SignatureTests
+module BsonProvider.DesignTime.Tests.SignatureTests
 #endif
 
 open System.IO
 open FsUnit
 open NUnit.Framework
-open ApiaryProvider.ProviderImplementation
+open BsonProvider.ProviderImplementation
 
 let (++) a b = Path.Combine(a, b)
 
@@ -24,7 +24,7 @@ let testCases =
 let expectedDirectory = sourceDirectory ++ "expected"
 
 let resolutionFolder = ""
-let assemblyName = "ApiaryProvider.dll"
+let assemblyName = "BsonProvider.dll"
 let runtimeAssembly = sourceDirectory ++ ".." ++ ".." ++ "bin" ++ assemblyName
 let portable47RuntimeAssembly = sourceDirectory ++ ".." ++ ".." ++ "bin" ++ "portable47" ++ assemblyName
 
