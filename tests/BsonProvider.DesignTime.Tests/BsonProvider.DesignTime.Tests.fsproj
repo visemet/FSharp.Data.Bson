@@ -116,7 +116,7 @@
     <Content Include="TestData/projects.bson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestData/Contacts.bson">
+    <Content Include="TestData/contacts.bson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData/Dates.bson">

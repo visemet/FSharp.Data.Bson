@@ -23,7 +23,7 @@ let testCases =
 
 let expectedDirectory = sourceDirectory ++ "expected"
 
-let resolutionFolder = ""
+let resolutionFolder = sourceDirectory ++ "TestData"
 let assemblyName = "FSharp.Data.Bson.dll"
 let runtimeAssembly = sourceDirectory ++ ".." ++ ".." ++ "bin" ++ assemblyName
 
