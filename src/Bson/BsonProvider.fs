@@ -13,6 +13,7 @@ open FSharp.Data.Runtime
 open FSharp.Data.Runtime.StructuralTypes
 open BsonProvider
 open BsonProvider.Runtime
+open BsonProvider.Runtime.IO
 
 // ----------------------------------------------------------------------------------------------
 
@@ -41,6 +42,19 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
         let resolutionFolder = args.[5] :?> string
         let resource = args.[6] :?> string
 
+        let invalidChars = [ for c in "\"|<>{}[]," -> c ] @ [ for i in 0..31 -> char i ] |> set
+        let tryGetUri str =
+            match Uri.TryCreate(str, UriKind.RelativeOrAbsolute) with
+            | false, _ -> None
+            | true, uri ->
+                if str.Trim() = "" || not uri.IsAbsoluteUri && Seq.exists invalidChars.Contains str
+                then None else Some uri
+
+        let uri =
+            match tryGetUri sample with
+            | Some uri -> uri
+            | None -> failwith "was not a file"
+
         let getSpecFromSamples samples =
 
             let inferedType =
@@ -67,7 +81,17 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
 
         let exhausted = ref false
 
-        use file = File.Open(sample, FileMode.Open)
+        let resolver =
+            { ResolutionType = DesignTime
+              DefaultResolutionFolder = cfg.ResolutionFolder
+              ResolutionFolder = resolutionFolder }
+
+        let path =
+            match resolver.TryResolveToPath uri with
+            | Some path -> path
+            | None -> failwith "could not resolve as file"
+
+        use file = File.Open(path, FileMode.Open)
         let samples =
             seq {
                 while not !exhausted do

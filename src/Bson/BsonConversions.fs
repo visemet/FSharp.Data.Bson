@@ -47,3 +47,8 @@ type BsonConversions =
         match bsonValue.BsonType with
         | BsonType.DateTime -> Some bsonValue.AsBsonDateTime
         | _ -> None
+
+    static member AsObjectId (bsonValue : BsonValue) =
+        match bsonValue.BsonType with
+        | BsonType.ObjectId -> Some bsonValue.AsObjectId
+        | _ -> None

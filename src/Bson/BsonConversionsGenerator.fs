@@ -29,8 +29,9 @@ let getConversionQuotation typ (value:Expr<BsonValue option>) =
         <@@ BsonRuntime.ConvertFloat(%value) @@>
     elif typ = typeof<DateTime> then
         <@@ BsonRuntime.ConvertDateTime(%value) @@>
-    // TODO: add ObjectId?
-    else failwith "getConversionQuotation: Unsupported primitive type"
+    elif typ = typeof<ObjectId> then
+        <@@ BsonRuntime.ConvertObjectId(%value) @@>
+    else failwithf "getConversionQuotation: Unsupported primitive type '%A'" typ
 
 type BsonConversionCallingType = 
     BsonDocument | BsonValueOption | BsonValueOptionAndPath

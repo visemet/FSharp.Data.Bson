@@ -102,6 +102,8 @@ type BsonRuntime =
 
     static member ConvertDateTime value = value |> Option.bind BsonConversions.AsDateTime
 
+    static member ConvertObjectId value = value |> Option.bind BsonConversions.AsObjectId
+
     /// Operation that extracts the value from an option and reports a meaningful error message when the value is not there
     /// If the originalValue is a scalar, for missing strings we return "", and for missing doubles we return NaN
     /// For other types an error is thrown
@@ -256,7 +258,7 @@ type BsonRuntime =
         let inline bDoc (x:seq<BsonElement>) = BsonDocument(x)
         let bson =
             properties
-            |> Seq.map (fun (k, v) -> BsonElement(k, BsonRuntime.ToBsonValue v))
+            |> Array.map (fun (k, v) -> BsonElement(k, BsonRuntime.ToBsonValue v))
             |> bDoc
 
         BsonTop.Create(bson, "")
