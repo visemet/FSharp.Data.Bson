@@ -4,18 +4,18 @@
 // --------------------------------------------------------------------------------------
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "ApiaryProvider.dll" ]
+let referenceBinaries = [ "BsonProvider.dll" ]
 // Web site location for the generated documentation
-let repo = "https://github.com/fsprojects/ApiaryProvider/tree/master/"
-let website = "/ApiaryProvider"
+let repo = "https://github.com/visemet/FSharp.Data.Bson/tree/master/"
+let website = "/BsonProvider"
 
 // Specify more information about your project
 let info =
-  [ "project-name", "Apiary Provider"
-    "project-author", "Tomas Petricek; Gustavo Guerra"
-    "project-summary", "Type provider for Apiary.io"
-    "project-github", "http://github.com/fsprojects/ApiaryProvider"
-    "project-nuget", "https://nuget.org/packages/ApiaryProvider" ]
+  [ "project-name", "Bson Provider"
+    "project-author", "Max Hirschhorn"
+    "project-summary", "A type provider for BSON."
+    "project-github", "http://github.com/visemet/FSharp.Data.Bson"
+    "project-nuget", "https://nuget.org/packages/BsonProvider" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below
