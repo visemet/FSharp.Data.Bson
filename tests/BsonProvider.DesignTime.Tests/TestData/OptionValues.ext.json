@@ -1,1 +1,13 @@
-﻿{ "authors": [{ "name": "Steffen", "age": 29 }, { "name": "Tomas" }]}
+[
+  {
+    "authors": [
+      {
+        "name": "Steffen",
+        "age": 29
+      },
+      {
+        "name": "Tomas"
+      }
+    ]
+  }
+]

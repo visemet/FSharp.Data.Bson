@@ -1,1 +1,12 @@
-﻿{ "items": [{ "id": "Open"}, {"id": "Pause"}]}
+[
+  {
+    "items": [
+      {
+        "id": "Open"
+      },
+      {
+        "id": "Pause"
+      }
+    ]
+  }
+]
