@@ -24,7 +24,7 @@ let testCases =
 let expectedDirectory = sourceDirectory ++ "expected"
 
 let resolutionFolder = ""
-let assemblyName = "BsonProvider.dll"
+let assemblyName = "FSharp.Data.Bson.dll"
 let runtimeAssembly = sourceDirectory ++ ".." ++ ".." ++ "bin" ++ assemblyName
 let portable47RuntimeAssembly = sourceDirectory ++ ".." ++ ".." ++ "bin" ++ "portable47" ++ assemblyName
 

@@ -91,6 +91,7 @@
     <Compile Include="../Common/FsUnit.fs">
       <Link>FsUnit.fs</Link>
     </Compile>
+    <Compile Include="InferenceTests.fs" />
     <None Include="SignatureTestCases.config" />
     <Compile Include="SignatureTests.fs" />
     <Compile Include="DocumentationTests.fs" />
