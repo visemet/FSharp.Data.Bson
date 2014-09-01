@@ -79,8 +79,6 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
               CreateFromTextReader = fun _reader -> failwith "not implemented"
               CreateFromTextReaderForSampleList = fun _reader -> failwith "not implemented" }
 
-        let exhausted = ref false
-
         let resolver =
             { ResolutionType = DesignTime
               DefaultResolutionFolder = cfg.ResolutionFolder
@@ -94,15 +92,13 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
         use file = File.Open(path, FileMode.Open)
         let samples =
             seq {
-                while not !exhausted do
-                    match BsonSerializer.Deserialize<BsonDocument>(file) with
-                    | null -> exhausted := true
-                    | doc -> yield doc
+                while file.Position <> file.Length do
+                    yield BsonSerializer.Deserialize<BsonDocument>(file)
             }
 
         let spec =
             samples
-            |> Seq.take 10
+            |> Seq.truncate 10
             |> getSpecFromSamples
 
         spec.GeneratedType

@@ -268,12 +268,11 @@ type BsonRuntime =
         let inline bArray (x:BsonValue[]) = BsonArray(x)
         let bson =
             elements
-            |> Seq.collect (BsonRuntime.ToBsonValue >> (fun value ->
+            |> Array.collect (BsonRuntime.ToBsonValue >> (fun value ->
                 match value.BsonType with
-                | BsonType.Array -> value.AsBsonArray.Values
-                | BsonType.Null -> Seq.empty
-                | _ -> Seq.singleton value))
-            |> Seq.toArray
+                | BsonType.Array -> Array.ofSeq value.AsBsonArray.Values
+                | BsonType.Null -> [| |]
+                | _ -> [| value |]))
             |> bArray
 
         BsonTop.Create(bson, "")

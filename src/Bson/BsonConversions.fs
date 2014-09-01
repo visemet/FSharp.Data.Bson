@@ -45,7 +45,7 @@ type BsonConversions =
 
     static member AsDateTime (bsonValue : BsonValue) =
         match bsonValue.BsonType with
-        | BsonType.DateTime -> Some bsonValue.AsBsonDateTime
+        | BsonType.DateTime -> Some <| bsonValue.AsBsonDateTime.ToUniversalTime()
         | _ -> None
 
     static member AsObjectId (bsonValue : BsonValue) =
