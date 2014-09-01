@@ -22,7 +22,6 @@ open BsonProvider.ProviderImplementation.BsonConversionsGenerator
 /// Context that is used to generate the BSON types.
 type BsonGenerationContext =
     {
-        CultureStr : string
         TypeProviderType : ProvidedTypeDefinition
         Replacer : AssemblyReplacer
         // to nameclash type names
@@ -34,14 +33,13 @@ type BsonGenerationContext =
         GenerateConstructors : bool
     }
 
-    static member Create(cultureStr, tpType, replacer, ?uniqueNiceName, ?typeCache) =
+    static member Create(tpType, replacer, ?uniqueNiceName, ?typeCache) =
         let uniqueNiceName = defaultArg uniqueNiceName (NameUtils.uniqueGenerator NameUtils.nicePascalName)
         let typeCache = defaultArg typeCache (Dictionary())
-        BsonGenerationContext.Create(cultureStr, tpType, replacer, uniqueNiceName, typeCache, true)
+        BsonGenerationContext.Create(tpType, replacer, uniqueNiceName, typeCache, true)
 
-    static member Create(cultureStr, tpType, replacer, uniqueNiceName, typeCache, generateConstructors) =
+    static member Create(tpType, replacer, uniqueNiceName, typeCache, generateConstructors) =
         {
-            CultureStr = cultureStr
             TypeProviderType = tpType
             Replacer = replacer
             UniqueNiceName = uniqueNiceName
@@ -212,8 +210,6 @@ module BsonTypeBuilder =
 
     if ctx.GenerateConstructors then
 
-        let cultureStr = ctx.CultureStr
-
         if forCollection then
             let ctor = ProvidedConstructor(parameters, InvokeCode = fun args ->
                 let elements = Expr.NewArray(typeof<obj>, args |> List.map (fun a -> Expr.Coerce(a, typeof<obj>)))
@@ -224,10 +220,10 @@ module BsonTypeBuilder =
             for param in parameters do
                 let ctor = ProvidedConstructor([param], InvokeCode = fun (Singleton arg) -> 
                     let arg = Expr.Coerce(arg, typeof<obj>)
-                    ctx.Replacer.ToRuntime <@@ BsonRuntime.CreateValue((%%arg:obj), cultureStr) @@>)
+                    ctx.Replacer.ToRuntime <@@ BsonRuntime.CreateValue(%%arg:obj) @@>)
                 objectTy.AddMember ctor
 
-            let defaultCtor = ProvidedConstructor([], InvokeCode = fun _ -> ctx.Replacer.ToRuntime <@@ BsonRuntime.CreateValue(null :> obj, cultureStr) @@>)
+            let defaultCtor = ProvidedConstructor([], InvokeCode = fun _ -> ctx.Replacer.ToRuntime <@@ BsonRuntime.CreateValue(null :> obj) @@>)
             objectTy.AddMember defaultCtor
 
         objectTy.AddMember <| 
