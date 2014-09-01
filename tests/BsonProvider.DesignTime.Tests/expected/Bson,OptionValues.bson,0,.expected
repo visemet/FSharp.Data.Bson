@@ -1,55 +1,44 @@
-class JsonProvider
-    static member AsyncGetSample: () -> JsonProvider+Root async
-    let f = new Func<_,_>(fun (t:TextReader) -> JsonDocument.Create(t, ""))
-    TextRuntime.AsyncMap((IO.asyncReadTextAtRuntimeWithDesignTimeRules @"<RESOLUTION_FOLDER>" "" "JSON" "" "OptionValues.json"), f)
+class BsonProvider
+    static member GetSamples: () -> BsonProvider+Root[]
+    BsonTop.CreateList((File.Open("<RESOLUTION_FOLDER>/OptionValues.bson", Open, Read, Read) :> Stream))
 
-    static member AsyncLoad: uri:string -> JsonProvider+Root async
-    let f = new Func<_,_>(fun (t:TextReader) -> JsonDocument.Create(t, ""))
-    TextRuntime.AsyncMap((IO.asyncReadTextAtRuntime false @"<RESOLUTION_FOLDER>" "" "JSON" "" uri), f)
-
-    static member GetSample: () -> JsonProvider+Root
-    JsonDocument.Create(FSharpAsync.RunSynchronously((IO.asyncReadTextAtRuntimeWithDesignTimeRules @"<RESOLUTION_FOLDER>" "" "JSON" "" "OptionValues.json")), "")
-
-    static member Load: stream:System.IO.Stream -> JsonProvider+Root
-    JsonDocument.Create(((new StreamReader(stream)) :> TextReader), "")
-
-    static member Load: reader:System.IO.TextReader -> JsonProvider+Root
-    JsonDocument.Create(reader, "")
-
-    static member Load: uri:string -> JsonProvider+Root
-    JsonDocument.Create(FSharpAsync.RunSynchronously((IO.asyncReadTextAtRuntime false @"<RESOLUTION_FOLDER>" "" "JSON" "" uri)), "")
-
-    static member Parse: text:string -> JsonProvider+Root
-    JsonDocument.Create(((new StringReader(text)) :> TextReader), "")
+    static member ReadAll: stream:System.IO.Stream -> BsonProvider+Root[]
+    BsonTop.CreateList(stream)
 
 
-class JsonProvider+Root : FDR.IJsonDocument
-    new : authors:JsonProvider+Author[] -> JsonProvider+Root
-    JsonRuntime.CreateRecord([| ("authors",
-                                 (authors :> obj)) |], "")
+class BsonProvider+Root : BsonProvider.Runtime.IBsonTop
+    new : id:MongoDB.Bson.ObjectId -> authors:BsonProvider+Author[] -> BsonProvider+Root
+    BsonRuntime.CreateDocument([| ("_id",
+                                   (id :> obj))
+                                  ("authors",
+                                   (authors :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+Root
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Root
+    BsonTop.Create(bsonValue, "")
 
-    member Authors: JsonProvider+Author[] with get
-    JsonRuntime.ConvertArray(JsonRuntime.GetPropertyPackedOrNull(this, "authors"), new Func<_,_>(id)))
+    member Authors: BsonProvider+Author[] with get
+    BsonRuntime.ConvertArray(BsonRuntime.GetPropertyPackedOrNull(this, "authors"), new Func<_,_>(id)))
+
+    member Id: MongoDB.Bson.ObjectId with get
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "_id")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertObjectId(value.BsonOpt), value.BsonOpt)
 
 
-class JsonProvider+Author : FDR.IJsonDocument
-    new : name:string -> age:int option -> JsonProvider+Author
-    JsonRuntime.CreateRecord([| ("name",
-                                 (name :> obj))
-                                ("age",
-                                 (age :> obj)) |], "")
+class BsonProvider+Author : BsonProvider.Runtime.IBsonTop
+    new : name:string -> age:int option -> BsonProvider+Author
+    BsonRuntime.CreateDocument([| ("name",
+                                   (name :> obj))
+                                  ("age",
+                                   (age :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+Author
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Author
+    BsonTop.Create(bsonValue, "")
 
     member Age: int option with get
-    JsonRuntime.ConvertInteger("", JsonRuntime.TryGetPropertyUnpacked(this, "age"))
+    BsonRuntime.ConvertInteger(BsonRuntime.TryGetPropertyUnpacked(this, "age"))
 
     member Name: string with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "name")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertString("", value.JsonOpt), value.JsonOpt)
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "name")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertString(value.BsonOpt), value.BsonOpt)
 
 

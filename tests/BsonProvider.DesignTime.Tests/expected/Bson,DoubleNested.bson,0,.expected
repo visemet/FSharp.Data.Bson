@@ -1,68 +1,57 @@
-class JsonProvider
-    static member AsyncGetSample: () -> JsonProvider+Root async
-    let f = new Func<_,_>(fun (t:TextReader) -> JsonDocument.Create(t, ""))
-    TextRuntime.AsyncMap((IO.asyncReadTextAtRuntimeWithDesignTimeRules @"<RESOLUTION_FOLDER>" "" "JSON" "" "DoubleNested.json"), f)
+class BsonProvider
+    static member GetSamples: () -> BsonProvider+Root[]
+    BsonTop.CreateList((File.Open("<RESOLUTION_FOLDER>/DoubleNested.bson", Open, Read, Read) :> Stream))
 
-    static member AsyncLoad: uri:string -> JsonProvider+Root async
-    let f = new Func<_,_>(fun (t:TextReader) -> JsonDocument.Create(t, ""))
-    TextRuntime.AsyncMap((IO.asyncReadTextAtRuntime false @"<RESOLUTION_FOLDER>" "" "JSON" "" uri), f)
-
-    static member GetSample: () -> JsonProvider+Root
-    JsonDocument.Create(FSharpAsync.RunSynchronously((IO.asyncReadTextAtRuntimeWithDesignTimeRules @"<RESOLUTION_FOLDER>" "" "JSON" "" "DoubleNested.json")), "")
-
-    static member Load: stream:System.IO.Stream -> JsonProvider+Root
-    JsonDocument.Create(((new StreamReader(stream)) :> TextReader), "")
-
-    static member Load: reader:System.IO.TextReader -> JsonProvider+Root
-    JsonDocument.Create(reader, "")
-
-    static member Load: uri:string -> JsonProvider+Root
-    JsonDocument.Create(FSharpAsync.RunSynchronously((IO.asyncReadTextAtRuntime false @"<RESOLUTION_FOLDER>" "" "JSON" "" uri)), "")
-
-    static member Parse: text:string -> JsonProvider+Root
-    JsonDocument.Create(((new StringReader(text)) :> TextReader), "")
+    static member ReadAll: stream:System.IO.Stream -> BsonProvider+Root[]
+    BsonTop.CreateList(stream)
 
 
-class JsonProvider+Root : FDR.IJsonDocument
-    new : main:JsonProvider+Main -> JsonProvider+Root
-    JsonRuntime.CreateRecord([| ("main",
-                                 (main :> obj)) |], "")
+class BsonProvider+Root : BsonProvider.Runtime.IBsonTop
+    new : id:MongoDB.Bson.ObjectId -> main:BsonProvider+Main -> BsonProvider+Root
+    BsonRuntime.CreateDocument([| ("_id",
+                                   (id :> obj))
+                                  ("main",
+                                   (main :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+Root
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Root
+    BsonTop.Create(bsonValue, "")
 
-    member Main: JsonProvider+Main with get
-    JsonRuntime.GetPropertyPacked(this, "main")
+    member Id: MongoDB.Bson.ObjectId with get
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "_id")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertObjectId(value.BsonOpt), value.BsonOpt)
+
+    member Main: BsonProvider+Main with get
+    BsonRuntime.GetPropertyPacked(this, "main")
 
 
-class JsonProvider+Main : FDR.IJsonDocument
-    new : title:string -> nested:JsonProvider+Nested -> JsonProvider+Main
-    JsonRuntime.CreateRecord([| ("title",
-                                 (title :> obj))
-                                ("nested",
-                                 (nested :> obj)) |], "")
+class BsonProvider+Main : BsonProvider.Runtime.IBsonTop
+    new : title:string -> nested:BsonProvider+Nested -> BsonProvider+Main
+    BsonRuntime.CreateDocument([| ("title",
+                                   (title :> obj))
+                                  ("nested",
+                                   (nested :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+Main
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Main
+    BsonTop.Create(bsonValue, "")
 
-    member Nested: JsonProvider+Nested with get
-    JsonRuntime.GetPropertyPacked(this, "nested")
+    member Nested: BsonProvider+Nested with get
+    BsonRuntime.GetPropertyPacked(this, "nested")
 
     member Title: string with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "title")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertString("", value.JsonOpt), value.JsonOpt)
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "title")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertString(value.BsonOpt), value.BsonOpt)
 
 
-class JsonProvider+Nested : FDR.IJsonDocument
-    new : nestedTitle:string -> JsonProvider+Nested
-    JsonRuntime.CreateRecord([| ("nestedTitle",
-                                 (nestedTitle :> obj)) |], "")
+class BsonProvider+Nested : BsonProvider.Runtime.IBsonTop
+    new : nestedTitle:string -> BsonProvider+Nested
+    BsonRuntime.CreateDocument([| ("nestedTitle",
+                                   (nestedTitle :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+Nested
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Nested
+    BsonTop.Create(bsonValue, "")
 
     member NestedTitle: string with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "nestedTitle")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertString("", value.JsonOpt), value.JsonOpt)
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "nestedTitle")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertString(value.BsonOpt), value.BsonOpt)
 
 

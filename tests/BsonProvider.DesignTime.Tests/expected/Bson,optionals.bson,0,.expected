@@ -1,410 +1,439 @@
-class JsonProvider
-    static member AsyncGetSample: () -> JsonProvider+Root async
-    let f = new Func<_,_>(fun (t:TextReader) -> JsonDocument.Create(t, ""))
-    TextRuntime.AsyncMap((IO.asyncReadTextAtRuntimeWithDesignTimeRules @"<RESOLUTION_FOLDER>" "" "JSON" "" "optionals.json"), f)
+class BsonProvider
+    static member GetSamples: () -> BsonProvider+Root[]
+    BsonTop.CreateList((File.Open("<RESOLUTION_FOLDER>/optionals.bson", Open, Read, Read) :> Stream))
 
-    static member AsyncLoad: uri:string -> JsonProvider+Root async
-    let f = new Func<_,_>(fun (t:TextReader) -> JsonDocument.Create(t, ""))
-    TextRuntime.AsyncMap((IO.asyncReadTextAtRuntime false @"<RESOLUTION_FOLDER>" "" "JSON" "" uri), f)
-
-    static member GetSample: () -> JsonProvider+Root
-    JsonDocument.Create(FSharpAsync.RunSynchronously((IO.asyncReadTextAtRuntimeWithDesignTimeRules @"<RESOLUTION_FOLDER>" "" "JSON" "" "optionals.json")), "")
-
-    static member Load: stream:System.IO.Stream -> JsonProvider+Root
-    JsonDocument.Create(((new StreamReader(stream)) :> TextReader), "")
-
-    static member Load: reader:System.IO.TextReader -> JsonProvider+Root
-    JsonDocument.Create(reader, "")
-
-    static member Load: uri:string -> JsonProvider+Root
-    JsonDocument.Create(FSharpAsync.RunSynchronously((IO.asyncReadTextAtRuntime false @"<RESOLUTION_FOLDER>" "" "JSON" "" uri)), "")
-
-    static member Parse: text:string -> JsonProvider+Root
-    JsonDocument.Create(((new StringReader(text)) :> TextReader), "")
+    static member ReadAll: stream:System.IO.Stream -> BsonProvider+Root[]
+    BsonTop.CreateList(stream)
 
 
-class JsonProvider+Root : FDR.IJsonDocument
-    new : recordProperty:JsonProvider+RecordProperty -> nullProperty:JsonValue -> emptyStringProperty:JsonValue -> emptyArrayProperty:JsonValue[] -> oneElementArrayProperty:int[] -> multipleElementsArrayProperty:int[] -> arrayOfObjects:JsonProvider+ArrayOfObject[] -> optionalPrimitives:JsonProvider+OptionalPrimitive[] -> optionalRecords:JsonProvider+OptionalRecord[] -> heterogeneousArray:JsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray -> heterogeneousRecords:JsonProvider+HeterogeneousRecord[] -> JsonProvider+Root
-    JsonRuntime.CreateRecord([| ("recordProperty",
-                                 (recordProperty :> obj))
-                                ("nullProperty",
-                                 (nullProperty :> obj))
-                                ("emptyStringProperty",
-                                 (emptyStringProperty :> obj))
-                                ("emptyArrayProperty",
-                                 (emptyArrayProperty :> obj))
-                                ("oneElementArrayProperty",
-                                 (oneElementArrayProperty :> obj))
-                                ("multipleElementsArrayProperty",
-                                 (multipleElementsArrayProperty :> obj))
-                                ("arrayOfObjects",
-                                 (arrayOfObjects :> obj))
-                                ("optionalPrimitives",
-                                 (optionalPrimitives :> obj))
-                                ("optionalRecords",
-                                 (optionalRecords :> obj))
-                                ("heterogeneousArray",
-                                 (heterogeneousArray :> obj))
-                                ("heterogeneousRecords",
-                                 (heterogeneousRecords :> obj)) |], "")
+class BsonProvider+Root : BsonProvider.Runtime.IBsonTop
+    new : id:MongoDB.Bson.ObjectId -> recordProperty:BsonProvider+RecordProperty -> nullProperty:MongoDB.Bson.BsonValue -> emptyStringProperty:string -> emptyArrayProperty:MongoDB.Bson.BsonValue[] -> oneElementArrayProperty:int[] -> multipleElementsArrayProperty:int[] -> arrayOfObjects:BsonProvider+ArrayOfObject[] -> optionalPrimitives:BsonProvider+OptionalPrimitive[] -> optionalRecords:BsonProvider+OptionalRecord[] -> heterogeneousArray:BsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray -> heterogeneousRecords:BsonProvider+HeterogeneousRecord[] -> BsonProvider+Root
+    BsonRuntime.CreateDocument([| ("_id",
+                                   (id :> obj))
+                                  ("recordProperty",
+                                   (recordProperty :> obj))
+                                  ("nullProperty",
+                                   (nullProperty :> obj))
+                                  ("emptyStringProperty",
+                                   (emptyStringProperty :> obj))
+                                  ("emptyArrayProperty",
+                                   (emptyArrayProperty :> obj))
+                                  ("oneElementArrayProperty",
+                                   (oneElementArrayProperty :> obj))
+                                  ("multipleElementsArrayProperty",
+                                   (multipleElementsArrayProperty :> obj))
+                                  ("arrayOfObjects",
+                                   (arrayOfObjects :> obj))
+                                  ("optionalPrimitives",
+                                   (optionalPrimitives :> obj))
+                                  ("optionalRecords",
+                                   (optionalRecords :> obj))
+                                  ("heterogeneousArray",
+                                   (heterogeneousArray :> obj))
+                                  ("heterogeneousRecords",
+                                   (heterogeneousRecords :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+Root
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Root
+    BsonTop.Create(bsonValue, "")
 
-    member ArrayOfObjects: JsonProvider+ArrayOfObject[] with get
-    JsonRuntime.ConvertArray(JsonRuntime.GetPropertyPackedOrNull(this, "arrayOfObjects"), new Func<_,_>(id)))
+    member ArrayOfObjects: BsonProvider+ArrayOfObject[] with get
+    BsonRuntime.ConvertArray(BsonRuntime.GetPropertyPackedOrNull(this, "arrayOfObjects"), new Func<_,_>(id)))
 
-    member EmptyArrayProperty: FDR.IJsonDocument[] with get
-    JsonRuntime.ConvertArray(JsonRuntime.GetPropertyPackedOrNull(this, "emptyArrayProperty"), new Func<_,_>(id)))
+    member EmptyArrayProperty: BsonProvider.Runtime.IBsonTop[] with get
+    BsonRuntime.ConvertArray(BsonRuntime.GetPropertyPackedOrNull(this, "emptyArrayProperty"), new Func<_,_>(id)))
 
-    member EmptyStringProperty: FDR.IJsonDocument with get
-    JsonRuntime.GetPropertyPackedOrNull(this, "emptyStringProperty")
+    member EmptyStringProperty: string with get
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "emptyStringProperty")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertString(value.BsonOpt), value.BsonOpt)
 
-    member HeterogeneousArray: JsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray with get
-    JsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousArray")
+    member HeterogeneousArray: BsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousArray")
 
-    member HeterogeneousRecords: JsonProvider+HeterogeneousRecord[] with get
-    JsonRuntime.ConvertArray(JsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousRecords"), new Func<_,_>(id)))
+    member HeterogeneousRecords: BsonProvider+HeterogeneousRecord[] with get
+    BsonRuntime.ConvertArray(BsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousRecords"), new Func<_,_>(id)))
+
+    member Id: MongoDB.Bson.ObjectId with get
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "_id")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertObjectId(value.BsonOpt), value.BsonOpt)
 
     member MultipleElementsArrayProperty: int[] with get
-    JsonRuntime.ConvertArray(JsonRuntime.GetPropertyPackedOrNull(this, "multipleElementsArrayProperty"), new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertInteger("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.ConvertArray(BsonRuntime.GetPropertyPackedOrNull(this, "multipleElementsArrayProperty"), new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertInteger(Some t.BsonValue), Some t.BsonValue)))
 
-    member NullProperty: FDR.IJsonDocument with get
-    JsonRuntime.GetPropertyPackedOrNull(this, "nullProperty")
+    member NullProperty: BsonProvider.Runtime.IBsonTop with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "nullProperty")
 
     member OneElementArrayProperty: int[] with get
-    JsonRuntime.ConvertArray(JsonRuntime.GetPropertyPackedOrNull(this, "oneElementArrayProperty"), new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertInteger("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.ConvertArray(BsonRuntime.GetPropertyPackedOrNull(this, "oneElementArrayProperty"), new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertInteger(Some t.BsonValue), Some t.BsonValue)))
 
-    member OptionalPrimitives: JsonProvider+OptionalPrimitive[] with get
-    JsonRuntime.ConvertArray(JsonRuntime.GetPropertyPackedOrNull(this, "optionalPrimitives"), new Func<_,_>(id)))
+    member OptionalPrimitives: BsonProvider+OptionalPrimitive[] with get
+    BsonRuntime.ConvertArray(BsonRuntime.GetPropertyPackedOrNull(this, "optionalPrimitives"), new Func<_,_>(id)))
 
-    member OptionalRecords: JsonProvider+OptionalRecord[] with get
-    JsonRuntime.ConvertArray(JsonRuntime.GetPropertyPackedOrNull(this, "optionalRecords"), new Func<_,_>(id)))
+    member OptionalRecords: BsonProvider+OptionalRecord[] with get
+    BsonRuntime.ConvertArray(BsonRuntime.GetPropertyPackedOrNull(this, "optionalRecords"), new Func<_,_>(id)))
 
-    member RecordProperty: JsonProvider+RecordProperty with get
-    JsonRuntime.GetPropertyPacked(this, "recordProperty")
-
-
-class JsonProvider+ArrayOfObject : FDR.IJsonDocument
-    new : heterogeneousArrayProperty:JsonProvider+NumbersOrBooleanOrString -> heterogeneousProperty:JsonProvider+IntOrBooleanOrDateTime -> heterogeneousOptionalProperty:JsonProvider+IntOrBoolean -> JsonProvider+ArrayOfObject
-    JsonRuntime.CreateRecord([| ("heterogeneousArrayProperty",
-                                 (heterogeneousArrayProperty :> obj))
-                                ("heterogeneousProperty",
-                                 (heterogeneousProperty :> obj))
-                                ("heterogeneousOptionalProperty",
-                                 (heterogeneousOptionalProperty :> obj)) |], "")
-
-    new : jsonValue:JsonValue -> JsonProvider+ArrayOfObject
-    JsonDocument.Create(jsonValue, "")
-
-    member HeterogeneousArrayProperty: JsonProvider+NumbersOrBooleanOrString with get
-    JsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousArrayProperty")
-
-    member HeterogeneousOptionalProperty: JsonProvider+IntOrBoolean with get
-    JsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousOptionalProperty")
-
-    member HeterogeneousProperty: JsonProvider+IntOrBooleanOrDateTime with get
-    JsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousProperty")
+    member RecordProperty: BsonProvider+RecordProperty with get
+    BsonRuntime.GetPropertyPacked(this, "recordProperty")
 
 
-class JsonProvider+HeterogeneousRecord : FDR.IJsonDocument
-    new : b:JsonProvider+IntOrBooleanOrArrayOrB -> JsonProvider+HeterogeneousRecord
-    JsonRuntime.CreateRecord([| ("b",
-                                 (b :> obj)) |], "")
+class BsonProvider+ArrayOfObject : BsonProvider.Runtime.IBsonTop
+    new : heterogeneousArrayProperty:BsonProvider+NumbersOrBooleanOrString -> heterogeneousProperty:BsonProvider+IntOrBooleanOrString -> heterogeneousOptionalProperty:BsonProvider+IntOrBoolean -> BsonProvider+ArrayOfObject
+    BsonRuntime.CreateDocument([| ("heterogeneousArrayProperty",
+                                   (heterogeneousArrayProperty :> obj))
+                                  ("heterogeneousProperty",
+                                   (heterogeneousProperty :> obj))
+                                  ("heterogeneousOptionalProperty",
+                                   (heterogeneousOptionalProperty :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+HeterogeneousRecord
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+ArrayOfObject
+    BsonTop.Create(bsonValue, "")
 
-    member B: JsonProvider+IntOrBooleanOrArrayOrB with get
-    JsonRuntime.GetPropertyPackedOrNull(this, "b")
+    member HeterogeneousArrayProperty: BsonProvider+NumbersOrBooleanOrString with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousArrayProperty")
+
+    member HeterogeneousOptionalProperty: BsonProvider+IntOrBoolean with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousOptionalProperty")
+
+    member HeterogeneousProperty: BsonProvider+IntOrBooleanOrString with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "heterogeneousProperty")
 
 
-class JsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray : FDR.IJsonDocument
-    new : number:int -> boolean:bool -> arrays:JsonProvider+NumbersOrBooleanOrHeterogeneousArray[] -> record:JsonProvider+OptionalBecauseMissing -> JsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray
-    JsonRuntime.CreateArray([| (number :> obj)
+class BsonProvider+HeterogeneousRecord : BsonProvider.Runtime.IBsonTop
+    new : b:BsonProvider+IntOrBooleanOrArrayOrB -> BsonProvider+HeterogeneousRecord
+    BsonRuntime.CreateDocument([| ("b",
+                                   (b :> obj)) |])
+
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+HeterogeneousRecord
+    BsonTop.Create(bsonValue, "")
+
+    member B: BsonProvider+IntOrBooleanOrArrayOrB with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "b")
+
+
+class BsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray : BsonProvider.Runtime.IBsonTop
+    new : number:int -> boolean:bool -> arrays:BsonProvider+NumbersOrBooleanOrHeterogeneousArray[] -> record:BsonProvider+OptionalBecauseMissing -> BsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray
+    BsonRuntime.CreateArray([| (number :> obj)
                                (boolean :> obj)
                                (arrays :> obj)
-                               (record :> obj) |], "")
+                               (record :> obj) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+IntOrBooleanOrArraysOrHeterogeneousArray
+    BsonTop.Create(bsonValue, "")
 
-    member Arrays: JsonProvider+NumbersOrBooleanOrHeterogeneousArray[] with get
-    JsonRuntime.GetArrayChildrenByTypeTag(this, "", "Array", new Func<_,_>(id)))
+    member Arrays: BsonProvider+NumbersOrBooleanOrHeterogeneousArray[] with get
+    BsonRuntime.GetArrayChildrenByTypeTag(this, "Array", new Func<_,_>(id)))
 
     member Boolean: bool with get
-    let value = JsonRuntime.GetArrayChildByTypeTag(this, "", "Boolean")
-    JsonRuntime.GetNonOptionalValue(value.Path(), JsonRuntime.ConvertBoolean("", Some value.JsonValue), Some value.JsonValue)
+    let value = BsonRuntime.GetArrayChildByTypeTag(this, "Boolean")
+    BsonRuntime.GetNonOptionalValue(value.Path(), BsonRuntime.ConvertBoolean(Some value.BsonValue), Some value.BsonValue)
 
     member Number: int with get
-    let value = JsonRuntime.GetArrayChildByTypeTag(this, "", "Number")
-    JsonRuntime.GetNonOptionalValue(value.Path(), JsonRuntime.ConvertInteger("", Some value.JsonValue), Some value.JsonValue)
+    let value = BsonRuntime.GetArrayChildByTypeTag(this, "Number")
+    BsonRuntime.GetNonOptionalValue(value.Path(), BsonRuntime.ConvertInteger(Some value.BsonValue), Some value.BsonValue)
 
-    member Record: JsonProvider+OptionalBecauseMissing with get
-    JsonRuntime.GetArrayChildByTypeTag(this, "", "Record@heterogeneousArray")
+    member Record: BsonProvider+OptionalBecauseMissing with get
+    BsonRuntime.GetArrayChildByTypeTag(this, "Record@heterogeneousArray")
 
 
-class JsonProvider+OptionalPrimitive : FDR.IJsonDocument
-    new : optionalBecauseMissing:int option -> optionalBecauseNull:int option -> optionalBecauseEmptyString:int option -> notOptional:int -> nullNotOptional:JsonValue -> JsonProvider+OptionalPrimitive
-    JsonRuntime.CreateRecord([| ("optionalBecauseMissing",
-                                 (optionalBecauseMissing :> obj))
-                                ("optionalBecauseNull",
-                                 (optionalBecauseNull :> obj))
-                                ("optionalBecauseEmptyString",
-                                 (optionalBecauseEmptyString :> obj))
-                                ("notOptional",
-                                 (notOptional :> obj))
-                                ("nullNotOptional",
-                                 (nullNotOptional :> obj)) |], "")
+class BsonProvider+OptionalPrimitive : BsonProvider.Runtime.IBsonTop
+    new : optionalBecauseMissing:int option -> optionalBecauseNull:int option -> optionalBecauseEmptyString:BsonProvider+IntOrString -> notOptional:BsonProvider+IntOrString -> nullNotOptional:MongoDB.Bson.BsonValue -> BsonProvider+OptionalPrimitive
+    BsonRuntime.CreateDocument([| ("optionalBecauseMissing",
+                                   (optionalBecauseMissing :> obj))
+                                  ("optionalBecauseNull",
+                                   (optionalBecauseNull :> obj))
+                                  ("optionalBecauseEmptyString",
+                                   (optionalBecauseEmptyString :> obj))
+                                  ("notOptional",
+                                   (notOptional :> obj))
+                                  ("nullNotOptional",
+                                   (nullNotOptional :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+OptionalPrimitive
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+OptionalPrimitive
+    BsonTop.Create(bsonValue, "")
 
-    member NotOptional: int with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "notOptional")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertInteger("", value.JsonOpt), value.JsonOpt)
+    member NotOptional: BsonProvider+IntOrString with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "notOptional")
 
-    member NullNotOptional: FDR.IJsonDocument with get
-    JsonRuntime.GetPropertyPackedOrNull(this, "nullNotOptional")
+    member NullNotOptional: BsonProvider.Runtime.IBsonTop with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "nullNotOptional")
 
-    member OptionalBecauseEmptyString: int option with get
-    JsonRuntime.ConvertInteger("", JsonRuntime.TryGetPropertyUnpacked(this, "optionalBecauseEmptyString"))
+    member OptionalBecauseEmptyString: BsonProvider+IntOrString with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "optionalBecauseEmptyString")
 
     member OptionalBecauseMissing: int option with get
-    JsonRuntime.ConvertInteger("", JsonRuntime.TryGetPropertyUnpacked(this, "optionalBecauseMissing"))
+    BsonRuntime.ConvertInteger(BsonRuntime.TryGetPropertyUnpacked(this, "optionalBecauseMissing"))
 
     member OptionalBecauseNull: int option with get
-    JsonRuntime.ConvertInteger("", JsonRuntime.TryGetPropertyUnpacked(this, "optionalBecauseNull"))
+    BsonRuntime.ConvertInteger(BsonRuntime.TryGetPropertyUnpacked(this, "optionalBecauseNull"))
 
 
-class JsonProvider+OptionalRecord : FDR.IJsonDocument
-    new : optionalBecauseMissing:JsonProvider+OptionalBecauseMissing option -> optionalBecauseNull:JsonProvider+OptionalBecauseMissing option -> optionalBecauseEmptyString:JsonProvider+OptionalBecauseMissing option -> notOptional:JsonProvider+OptionalBecauseMissing -> JsonProvider+OptionalRecord
-    JsonRuntime.CreateRecord([| ("optionalBecauseMissing",
-                                 (optionalBecauseMissing :> obj))
-                                ("optionalBecauseNull",
-                                 (optionalBecauseNull :> obj))
-                                ("optionalBecauseEmptyString",
-                                 (optionalBecauseEmptyString :> obj))
-                                ("notOptional",
-                                 (notOptional :> obj)) |], "")
+class BsonProvider+OptionalRecord : BsonProvider.Runtime.IBsonTop
+    new : optionalBecauseMissing:BsonProvider+OptionalBecauseMissing option -> optionalBecauseNull:BsonProvider+OptionalBecauseMissing option -> optionalBecauseEmptyString:BsonProvider+StringOrOptionalBecauseEmptyString -> notOptional:BsonProvider+OptionalBecauseMissing -> BsonProvider+OptionalRecord
+    BsonRuntime.CreateDocument([| ("optionalBecauseMissing",
+                                   (optionalBecauseMissing :> obj))
+                                  ("optionalBecauseNull",
+                                   (optionalBecauseNull :> obj))
+                                  ("optionalBecauseEmptyString",
+                                   (optionalBecauseEmptyString :> obj))
+                                  ("notOptional",
+                                   (notOptional :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+OptionalRecord
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+OptionalRecord
+    BsonTop.Create(bsonValue, "")
 
-    member NotOptional: JsonProvider+OptionalBecauseMissing with get
-    JsonRuntime.GetPropertyPacked(this, "notOptional")
+    member NotOptional: BsonProvider+OptionalBecauseMissing with get
+    BsonRuntime.GetPropertyPacked(this, "notOptional")
 
-    member OptionalBecauseEmptyString: JsonProvider+OptionalBecauseMissing option with get
-    JsonRuntime.TryGetPropertyPacked(this, "optionalBecauseEmptyString")
+    member OptionalBecauseEmptyString: BsonProvider+StringOrOptionalBecauseEmptyString with get
+    BsonRuntime.GetPropertyPackedOrNull(this, "optionalBecauseEmptyString")
 
-    member OptionalBecauseMissing: JsonProvider+OptionalBecauseMissing option with get
-    JsonRuntime.TryGetPropertyPacked(this, "optionalBecauseMissing")
+    member OptionalBecauseMissing: BsonProvider+OptionalBecauseMissing option with get
+    BsonRuntime.TryGetPropertyPacked(this, "optionalBecauseMissing")
 
-    member OptionalBecauseNull: JsonProvider+OptionalBecauseMissing option with get
-    JsonRuntime.TryGetPropertyPacked(this, "optionalBecauseNull")
+    member OptionalBecauseNull: BsonProvider+OptionalBecauseMissing option with get
+    BsonRuntime.TryGetPropertyPacked(this, "optionalBecauseNull")
 
 
-class JsonProvider+RecordProperty : FDR.IJsonDocument
-    new : stringProperty:string -> intProperty:int -> int64Property:int64 -> decimalProperty:decimal -> floatProperty:float -> boolProperty:bool -> dateProperty:System.DateTime -> guidProperty:System.Guid -> JsonProvider+RecordProperty
-    JsonRuntime.CreateRecord([| ("stringProperty",
-                                 (stringProperty :> obj))
-                                ("intProperty",
-                                 (intProperty :> obj))
-                                ("int64Property",
-                                 (int64Property :> obj))
-                                ("decimalProperty",
-                                 (decimalProperty :> obj))
-                                ("floatProperty",
-                                 (floatProperty :> obj))
-                                ("boolProperty",
-                                 (boolProperty :> obj))
-                                ("dateProperty",
-                                 (dateProperty :> obj))
-                                ("guidProperty",
-                                 (guidProperty :> obj)) |], "")
+class BsonProvider+RecordProperty : BsonProvider.Runtime.IBsonTop
+    new : stringProperty:string -> intProperty:int -> int64Property:int64 -> decimalProperty:float -> floatProperty:float -> boolProperty:bool -> dateProperty:string -> guidProperty:string -> BsonProvider+RecordProperty
+    BsonRuntime.CreateDocument([| ("stringProperty",
+                                   (stringProperty :> obj))
+                                  ("intProperty",
+                                   (intProperty :> obj))
+                                  ("int64Property",
+                                   (int64Property :> obj))
+                                  ("decimalProperty",
+                                   (decimalProperty :> obj))
+                                  ("floatProperty",
+                                   (floatProperty :> obj))
+                                  ("boolProperty",
+                                   (boolProperty :> obj))
+                                  ("dateProperty",
+                                   (dateProperty :> obj))
+                                  ("guidProperty",
+                                   (guidProperty :> obj)) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+RecordProperty
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+RecordProperty
+    BsonTop.Create(bsonValue, "")
 
     member BoolProperty: bool with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "boolProperty")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertBoolean("", value.JsonOpt), value.JsonOpt)
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "boolProperty")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertBoolean(value.BsonOpt), value.BsonOpt)
 
-    member DateProperty: System.DateTime with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "dateProperty")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertDateTime("", value.JsonOpt), value.JsonOpt)
+    member DateProperty: string with get
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "dateProperty")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertString(value.BsonOpt), value.BsonOpt)
 
-    member DecimalProperty: decimal with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "decimalProperty")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertDecimal("", value.JsonOpt), value.JsonOpt)
+    member DecimalProperty: float with get
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "decimalProperty")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertFloat(value.BsonOpt), value.BsonOpt)
 
     member FloatProperty: float with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "floatProperty")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertFloat("", "", value.JsonOpt), value.JsonOpt)
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "floatProperty")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertFloat(value.BsonOpt), value.BsonOpt)
 
-    member GuidProperty: System.Guid with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "guidProperty")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertGuid(value.JsonOpt), value.JsonOpt)
+    member GuidProperty: string with get
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "guidProperty")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertString(value.BsonOpt), value.BsonOpt)
 
     member Int64Property: int64 with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "int64Property")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertInteger64("", value.JsonOpt), value.JsonOpt)
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "int64Property")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertInteger64(value.BsonOpt), value.BsonOpt)
 
     member IntProperty: int with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "intProperty")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertInteger("", value.JsonOpt), value.JsonOpt)
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "intProperty")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertInteger(value.BsonOpt), value.BsonOpt)
 
     member StringProperty: string with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "stringProperty")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertString("", value.JsonOpt), value.JsonOpt)
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "stringProperty")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertString(value.BsonOpt), value.BsonOpt)
 
 
-class JsonProvider+IntOrBoolean : FDR.IJsonDocument
-    new : number:int -> JsonProvider+IntOrBoolean
-    JsonRuntime.CreateValue((number :> obj), "")
+class BsonProvider+IntOrBoolean : BsonProvider.Runtime.IBsonTop
+    new : number:int -> BsonProvider+IntOrBoolean
+    BsonRuntime.CreateValue((number :> obj))
 
-    new : boolean:bool -> JsonProvider+IntOrBoolean
-    JsonRuntime.CreateValue((boolean :> obj), "")
+    new : boolean:bool -> BsonProvider+IntOrBoolean
+    BsonRuntime.CreateValue((boolean :> obj))
 
-    new : () -> JsonProvider+IntOrBoolean
-    JsonRuntime.CreateValue(null, "")
+    new : () -> BsonProvider+IntOrBoolean
+    BsonRuntime.CreateValue(null)
 
-    new : jsonValue:JsonValue -> JsonProvider+IntOrBoolean
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+IntOrBoolean
+    BsonTop.Create(bsonValue, "")
 
     member Boolean: bool option with get
-    JsonRuntime.TryGetValueByTypeTag(this, "", "Boolean", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertBoolean("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.TryGetValueByTypeTag(this, "Boolean", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertBoolean(Some t.BsonValue), Some t.BsonValue)))
 
     member Number: int option with get
-    JsonRuntime.TryGetValueByTypeTag(this, "", "Number", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertInteger("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.TryGetValueByTypeTag(this, "Number", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertInteger(Some t.BsonValue), Some t.BsonValue)))
 
 
-class JsonProvider+IntOrBooleanOrArrayOrB : FDR.IJsonDocument
-    new : number:int -> JsonProvider+IntOrBooleanOrArrayOrB
-    JsonRuntime.CreateValue((number :> obj), "")
+class BsonProvider+IntOrBooleanOrArrayOrB : BsonProvider.Runtime.IBsonTop
+    new : number:int -> BsonProvider+IntOrBooleanOrArrayOrB
+    BsonRuntime.CreateValue((number :> obj))
 
-    new : boolean:bool -> JsonProvider+IntOrBooleanOrArrayOrB
-    JsonRuntime.CreateValue((boolean :> obj), "")
+    new : boolean:bool -> BsonProvider+IntOrBooleanOrArrayOrB
+    BsonRuntime.CreateValue((boolean :> obj))
 
-    new : array:JsonProvider+NumbersOrBooleanOrB -> JsonProvider+IntOrBooleanOrArrayOrB
-    JsonRuntime.CreateValue((array :> obj), "")
+    new : array:BsonProvider+NumbersOrBooleanOrB -> BsonProvider+IntOrBooleanOrArrayOrB
+    BsonRuntime.CreateValue((array :> obj))
 
-    new : record:JsonProvider+OptionalBecauseMissing -> JsonProvider+IntOrBooleanOrArrayOrB
-    JsonRuntime.CreateValue((record :> obj), "")
+    new : record:BsonProvider+OptionalBecauseMissing -> BsonProvider+IntOrBooleanOrArrayOrB
+    BsonRuntime.CreateValue((record :> obj))
 
-    new : () -> JsonProvider+IntOrBooleanOrArrayOrB
-    JsonRuntime.CreateValue(null, "")
+    new : () -> BsonProvider+IntOrBooleanOrArrayOrB
+    BsonRuntime.CreateValue(null)
 
-    new : jsonValue:JsonValue -> JsonProvider+IntOrBooleanOrArrayOrB
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+IntOrBooleanOrArrayOrB
+    BsonTop.Create(bsonValue, "")
 
-    member Array: JsonProvider+NumbersOrBooleanOrB option with get
-    JsonRuntime.TryGetValueByTypeTag(this, "", "Array", new Func<_,_>(id)))
+    member Array: BsonProvider+NumbersOrBooleanOrB option with get
+    BsonRuntime.TryGetValueByTypeTag(this, "Array", new Func<_,_>(id)))
 
     member Boolean: bool option with get
-    JsonRuntime.TryGetValueByTypeTag(this, "", "Boolean", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertBoolean("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.TryGetValueByTypeTag(this, "Boolean", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertBoolean(Some t.BsonValue), Some t.BsonValue)))
 
     member Number: int option with get
-    JsonRuntime.TryGetValueByTypeTag(this, "", "Number", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertInteger("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.TryGetValueByTypeTag(this, "Number", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertInteger(Some t.BsonValue), Some t.BsonValue)))
 
-    member Record: JsonProvider+OptionalBecauseMissing option with get
-    JsonRuntime.TryGetValueByTypeTag(this, "", "Record@b", new Func<_,_>(id)))
+    member Record: BsonProvider+OptionalBecauseMissing option with get
+    BsonRuntime.TryGetValueByTypeTag(this, "Record@b", new Func<_,_>(id)))
 
 
-class JsonProvider+IntOrBooleanOrDateTime : FDR.IJsonDocument
-    new : number:int -> JsonProvider+IntOrBooleanOrDateTime
-    JsonRuntime.CreateValue((number :> obj), "")
+class BsonProvider+IntOrBooleanOrString : BsonProvider.Runtime.IBsonTop
+    new : number:int -> BsonProvider+IntOrBooleanOrString
+    BsonRuntime.CreateValue((number :> obj))
 
-    new : boolean:bool -> JsonProvider+IntOrBooleanOrDateTime
-    JsonRuntime.CreateValue((boolean :> obj), "")
+    new : boolean:bool -> BsonProvider+IntOrBooleanOrString
+    BsonRuntime.CreateValue((boolean :> obj))
 
-    new : dateTime:System.DateTime -> JsonProvider+IntOrBooleanOrDateTime
-    JsonRuntime.CreateValue((dateTime :> obj), "")
+    new : string:string -> BsonProvider+IntOrBooleanOrString
+    BsonRuntime.CreateValue((string :> obj))
 
-    new : () -> JsonProvider+IntOrBooleanOrDateTime
-    JsonRuntime.CreateValue(null, "")
+    new : () -> BsonProvider+IntOrBooleanOrString
+    BsonRuntime.CreateValue(null)
 
-    new : jsonValue:JsonValue -> JsonProvider+IntOrBooleanOrDateTime
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+IntOrBooleanOrString
+    BsonTop.Create(bsonValue, "")
 
     member Boolean: bool option with get
-    JsonRuntime.TryGetValueByTypeTag(this, "", "Boolean", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertBoolean("", Some t.JsonValue), Some t.JsonValue)))
-
-    member DateTime: System.DateTime option with get
-    JsonRuntime.TryGetValueByTypeTag(this, "", "DateTime", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertDateTime("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.TryGetValueByTypeTag(this, "Boolean", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertBoolean(Some t.BsonValue), Some t.BsonValue)))
 
     member Number: int option with get
-    JsonRuntime.TryGetValueByTypeTag(this, "", "Number", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertInteger("", Some t.JsonValue), Some t.JsonValue)))
-
-
-class JsonProvider+NumbersOrBooleanOrHeterogeneousArray : FDR.IJsonDocument
-    new : numbers:int[] -> boolean:bool option -> record:JsonProvider+OptionalBecauseMissing option -> JsonProvider+NumbersOrBooleanOrHeterogeneousArray
-    JsonRuntime.CreateArray([| (numbers :> obj)
-                               (boolean :> obj)
-                               (record :> obj) |], "")
-
-    new : jsonValue:JsonValue -> JsonProvider+NumbersOrBooleanOrHeterogeneousArray
-    JsonDocument.Create(jsonValue, "")
-
-    member Boolean: bool option with get
-    JsonRuntime.TryGetArrayChildByTypeTag(this, "", "Boolean", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertBoolean("", Some t.JsonValue), Some t.JsonValue)))
-
-    member Numbers: int[] with get
-    JsonRuntime.GetArrayChildrenByTypeTag(this, "", "Number", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertInteger("", Some t.JsonValue), Some t.JsonValue)))
-
-    member Record: JsonProvider+OptionalBecauseMissing option with get
-    JsonRuntime.TryGetArrayChildByTypeTag(this, "", "Record@heterogeneousArray", new Func<_,_>(id)))
-
-
-class JsonProvider+NumbersOrBooleanOrString : FDR.IJsonDocument
-    new : numbers:int[] -> boolean:bool -> string:string option -> JsonProvider+NumbersOrBooleanOrString
-    JsonRuntime.CreateArray([| (numbers :> obj)
-                               (boolean :> obj)
-                               (string :> obj) |], "")
-
-    new : jsonValue:JsonValue -> JsonProvider+NumbersOrBooleanOrString
-    JsonDocument.Create(jsonValue, "")
-
-    member Boolean: bool with get
-    let value = JsonRuntime.GetArrayChildByTypeTag(this, "", "Boolean")
-    JsonRuntime.GetNonOptionalValue(value.Path(), JsonRuntime.ConvertBoolean("", Some value.JsonValue), Some value.JsonValue)
-
-    member Numbers: int[] with get
-    JsonRuntime.GetArrayChildrenByTypeTag(this, "", "Number", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertInteger("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.TryGetValueByTypeTag(this, "Number", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertInteger(Some t.BsonValue), Some t.BsonValue)))
 
     member String: string option with get
-    JsonRuntime.TryGetArrayChildByTypeTag(this, "", "String", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertString("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.TryGetValueByTypeTag(this, "String", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertString(Some t.BsonValue), Some t.BsonValue)))
 
 
-class JsonProvider+OptionalBecauseMissing : FDR.IJsonDocument
-    new : a:int -> JsonProvider+OptionalBecauseMissing
-    JsonRuntime.CreateRecord([| ("a",
-                                 (a :> obj)) |], "")
+class BsonProvider+IntOrString : BsonProvider.Runtime.IBsonTop
+    new : number:int -> BsonProvider+IntOrString
+    BsonRuntime.CreateValue((number :> obj))
 
-    new : jsonValue:JsonValue -> JsonProvider+OptionalBecauseMissing
-    JsonDocument.Create(jsonValue, "")
+    new : string:string -> BsonProvider+IntOrString
+    BsonRuntime.CreateValue((string :> obj))
 
-    member A: int with get
-    let value = JsonRuntime.TryGetPropertyUnpackedWithPath(this, "a")
-    JsonRuntime.GetNonOptionalValue(value.Path, JsonRuntime.ConvertInteger("", value.JsonOpt), value.JsonOpt)
+    new : () -> BsonProvider+IntOrString
+    BsonRuntime.CreateValue(null)
+
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+IntOrString
+    BsonTop.Create(bsonValue, "")
+
+    member Number: int option with get
+    BsonRuntime.TryGetValueByTypeTag(this, "Number", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertInteger(Some t.BsonValue), Some t.BsonValue)))
+
+    member String: string option with get
+    BsonRuntime.TryGetValueByTypeTag(this, "String", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertString(Some t.BsonValue), Some t.BsonValue)))
 
 
-class JsonProvider+NumbersOrBooleanOrB : FDR.IJsonDocument
-    new : numbers:int[] -> boolean:bool option -> record:JsonProvider+OptionalBecauseMissing option -> JsonProvider+NumbersOrBooleanOrB
-    JsonRuntime.CreateArray([| (numbers :> obj)
+class BsonProvider+NumbersOrBooleanOrHeterogeneousArray : BsonProvider.Runtime.IBsonTop
+    new : numbers:int[] -> boolean:bool option -> record:BsonProvider+OptionalBecauseMissing option -> BsonProvider+NumbersOrBooleanOrHeterogeneousArray
+    BsonRuntime.CreateArray([| (numbers :> obj)
                                (boolean :> obj)
-                               (record :> obj) |], "")
+                               (record :> obj) |])
 
-    new : jsonValue:JsonValue -> JsonProvider+NumbersOrBooleanOrB
-    JsonDocument.Create(jsonValue, "")
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+NumbersOrBooleanOrHeterogeneousArray
+    BsonTop.Create(bsonValue, "")
 
     member Boolean: bool option with get
-    JsonRuntime.TryGetArrayChildByTypeTag(this, "", "Boolean", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertBoolean("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.TryGetArrayChildByTypeTag(this, "Boolean", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertBoolean(Some t.BsonValue), Some t.BsonValue)))
 
     member Numbers: int[] with get
-    JsonRuntime.GetArrayChildrenByTypeTag(this, "", "Number", new Func<_,_>(fun (t:IJsonDocument) -> JsonRuntime.GetNonOptionalValue(t.Path(), JsonRuntime.ConvertInteger("", Some t.JsonValue), Some t.JsonValue)))
+    BsonRuntime.GetArrayChildrenByTypeTag(this, "Number", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertInteger(Some t.BsonValue), Some t.BsonValue)))
 
-    member Record: JsonProvider+OptionalBecauseMissing option with get
-    JsonRuntime.TryGetArrayChildByTypeTag(this, "", "Record@b", new Func<_,_>(id)))
+    member Record: BsonProvider+OptionalBecauseMissing option with get
+    BsonRuntime.TryGetArrayChildByTypeTag(this, "Record@heterogeneousArray", new Func<_,_>(id)))
+
+
+class BsonProvider+NumbersOrBooleanOrString : BsonProvider.Runtime.IBsonTop
+    new : numbers:int[] -> boolean:bool -> string:string option -> BsonProvider+NumbersOrBooleanOrString
+    BsonRuntime.CreateArray([| (numbers :> obj)
+                               (boolean :> obj)
+                               (string :> obj) |])
+
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+NumbersOrBooleanOrString
+    BsonTop.Create(bsonValue, "")
+
+    member Boolean: bool with get
+    let value = BsonRuntime.GetArrayChildByTypeTag(this, "Boolean")
+    BsonRuntime.GetNonOptionalValue(value.Path(), BsonRuntime.ConvertBoolean(Some value.BsonValue), Some value.BsonValue)
+
+    member Numbers: int[] with get
+    BsonRuntime.GetArrayChildrenByTypeTag(this, "Number", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertInteger(Some t.BsonValue), Some t.BsonValue)))
+
+    member String: string option with get
+    BsonRuntime.TryGetArrayChildByTypeTag(this, "String", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertString(Some t.BsonValue), Some t.BsonValue)))
+
+
+class BsonProvider+OptionalBecauseMissing : BsonProvider.Runtime.IBsonTop
+    new : a:int -> BsonProvider+OptionalBecauseMissing
+    BsonRuntime.CreateDocument([| ("a",
+                                   (a :> obj)) |])
+
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+OptionalBecauseMissing
+    BsonTop.Create(bsonValue, "")
+
+    member A: int with get
+    let value = BsonRuntime.TryGetPropertyUnpackedWithPath(this, "a")
+    BsonRuntime.GetNonOptionalValue(value.Path, BsonRuntime.ConvertInteger(value.BsonOpt), value.BsonOpt)
+
+
+class BsonProvider+StringOrOptionalBecauseEmptyString : BsonProvider.Runtime.IBsonTop
+    new : string:string -> BsonProvider+StringOrOptionalBecauseEmptyString
+    BsonRuntime.CreateValue((string :> obj))
+
+    new : record:BsonProvider+OptionalBecauseMissing -> BsonProvider+StringOrOptionalBecauseEmptyString
+    BsonRuntime.CreateValue((record :> obj))
+
+    new : () -> BsonProvider+StringOrOptionalBecauseEmptyString
+    BsonRuntime.CreateValue(null)
+
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+StringOrOptionalBecauseEmptyString
+    BsonTop.Create(bsonValue, "")
+
+    member Record: BsonProvider+OptionalBecauseMissing option with get
+    BsonRuntime.TryGetValueByTypeTag(this, "Record@optionalBecauseEmptyString", new Func<_,_>(id)))
+
+    member String: string option with get
+    BsonRuntime.TryGetValueByTypeTag(this, "String", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertString(Some t.BsonValue), Some t.BsonValue)))
+
+
+class BsonProvider+NumbersOrBooleanOrB : BsonProvider.Runtime.IBsonTop
+    new : numbers:int[] -> boolean:bool option -> record:BsonProvider+OptionalBecauseMissing option -> BsonProvider+NumbersOrBooleanOrB
+    BsonRuntime.CreateArray([| (numbers :> obj)
+                               (boolean :> obj)
+                               (record :> obj) |])
+
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+NumbersOrBooleanOrB
+    BsonTop.Create(bsonValue, "")
+
+    member Boolean: bool option with get
+    BsonRuntime.TryGetArrayChildByTypeTag(this, "Boolean", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertBoolean(Some t.BsonValue), Some t.BsonValue)))
+
+    member Numbers: int[] with get
+    BsonRuntime.GetArrayChildrenByTypeTag(this, "Number", new Func<_,_>(fun (t:IBsonTop) -> BsonRuntime.GetNonOptionalValue(t.Path(), BsonRuntime.ConvertInteger(Some t.BsonValue), Some t.BsonValue)))
+
+    member Record: BsonProvider+OptionalBecauseMissing option with get
+    BsonRuntime.TryGetArrayChildByTypeTag(this, "Record@b", new Func<_,_>(id)))
 
 
