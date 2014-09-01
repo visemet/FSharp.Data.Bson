@@ -53,7 +53,7 @@ type BsonGenerationContext =
     member x.MakeOptionType(typ:Type) =
         (x.Replacer.ToRuntime typedefof<option<_>>).MakeGenericType typ
 
-type BsonGenerationResult = 
+type BsonGenerationResult =
     {
         ConvertedType : Type
         Converter : (Expr -> Expr) option
@@ -65,7 +65,7 @@ type BsonGenerationResult =
 
     member x.ConverterFunc ctx =
       ReflectionHelpers.makeDelegate (x.GetConverter ctx) ctx.IBsonDocumentType
- 
+
     member x.ConvertedTypeErased ctx =
       if x.ConvertedType.IsArray then
         match x.ConvertedType.GetElementType() with
@@ -82,17 +82,17 @@ module BsonTypeBuilder =
 
   // check if a type was already created for the inferedType before creating a new one
   let internal getOrCreateType ctx inferedType createType =
-    
+
     // normalize properties of the inferedType which don't affect code generation
     let rec normalize topLevel = function
-    | InferedType.Heterogeneous map -> 
-        map 
-        |> Map.map (fun _ inferedType -> normalize false inferedType) 
+    | InferedType.Heterogeneous map ->
+        map
+        |> Map.map (fun _ inferedType -> normalize false inferedType)
         |> InferedType.Heterogeneous
-    | InferedType.Collection (order, types) -> 
+    | InferedType.Collection (order, types) ->
         InferedType.Collection (order, Map.map (fun _ (multiplicity, inferedType) -> multiplicity, normalize false inferedType) types)
-    | InferedType.Record (_, props, optional) -> 
-        let props = 
+    | InferedType.Record (_, props, optional) ->
+        let props =
           props
           |> List.map (fun { Name = name; Type = inferedType } -> { InferedProperty.Name = name; Type = normalize false inferedType })
         // optional only affects the parent, so at top level always set to true regardless of the actual value
@@ -102,10 +102,10 @@ module BsonTypeBuilder =
     | x -> x
 
     let inferedType = normalize true inferedType
-    let typ = 
+    let typ =
       match ctx.TypeCache.TryGetValue inferedType with
       | true, typ -> typ
-      | _ -> 
+      | _ ->
         let typ = createType()
         ctx.TypeCache.Add(inferedType, typ)
         typ
@@ -124,36 +124,36 @@ module BsonTypeBuilder =
     else
         typ
 
-  /// Common code that is shared by code generators that generate 
+  /// Common code that is shared by code generators that generate
   /// "Choice" type. This is parameterized by the types (choices) to generate,
   /// by functions that get the multiplicity and the type tag for each option
   /// and also by function that generates the actual code.
   let rec internal generateMultipleChoiceType ctx types forCollection nameOverride codeGenerator =
 
-    let types = 
+    let types =
       types
       |> Seq.map (fun (KeyValue(tag, (multiplicity, inferedType))) -> tag, multiplicity, inferedType)
       |> Seq.sortBy (fun (tag, _, _) -> tag)
       |> Seq.toArray
 
     if types.Length <= 1 then failwithf "generateMultipleChoiceType: Invalid choice type: %A" types
-    
+
     for _, _, inferedType in types do
         match inferedType with
-        | InferedType.Null | InferedType.Top | InferedType.Heterogeneous _ -> 
+        | InferedType.Null | InferedType.Top | InferedType.Heterogeneous _ ->
             failwithf "generateMultipleChoiceType: Unsupported type: %A" inferedType
-        | x when x.IsOptional -> 
+        | x when x.IsOptional ->
             failwithf "generateMultipleChoiceType: Type shouldn't be optional: %A" inferedType
         | _ -> ()
 
-    let typeName = 
+    let typeName =
         if not (String.IsNullOrEmpty nameOverride)
         then nameOverride
         else
             let getTypeName (tag:InferedTypeTag, multiplicity, inferedType)  =
               match multiplicity with
               | InferedMultiplicity.Multiple -> NameUtils.pluralize tag.NiceName
-              | InferedMultiplicity.OptionalSingle | InferedMultiplicity.Single -> 
+              | InferedMultiplicity.OptionalSingle | InferedMultiplicity.Single ->
                   match inferedType with
                   | InferedType.Primitive(typ, _, _) ->
                       if typ = typeof<int> || typ = typeof<Bit0> || typ = typeof<Bit1> then "Int"
@@ -162,7 +162,7 @@ module BsonTypeBuilder =
                       elif typ = typeof<float> then "Float"
                       else tag.NiceName
                   | _ -> tag.NiceName
-            types 
+            types
             |> Array.map getTypeName
             |> String.concat "Or"
         |> ctx.UniqueNiceName
@@ -179,12 +179,12 @@ module BsonTypeBuilder =
       [ for tag, multiplicity, inferedType in types ->
 
           let result = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false "" inferedType
-          
+
           let propName =
               match tag with
               | InferedTypeTag.Record _ -> "Record"
               | _ -> tag.NiceName
-          
+
           let name, typ, constructorType =
               match multiplicity with
               | InferedMultiplicity.OptionalSingle ->
@@ -218,7 +218,7 @@ module BsonTypeBuilder =
             objectTy.AddMember ctor
         else
             for param in parameters do
-                let ctor = ProvidedConstructor([param], InvokeCode = fun (Singleton arg) -> 
+                let ctor = ProvidedConstructor([param], InvokeCode = fun (Singleton arg) ->
                     let arg = Expr.Coerce(arg, typeof<obj>)
                     ctx.Replacer.ToRuntime <@@ BsonRuntime.CreateValue(%%arg:obj) @@>)
                 objectTy.AddMember ctor
@@ -226,20 +226,20 @@ module BsonTypeBuilder =
             let defaultCtor = ProvidedConstructor([], InvokeCode = fun _ -> ctx.Replacer.ToRuntime <@@ BsonRuntime.CreateValue(null :> obj) @@>)
             objectTy.AddMember defaultCtor
 
-        objectTy.AddMember <| 
+        objectTy.AddMember <|
             ProvidedConstructor(
-                [ProvidedParameter("bsonValue", ctx.BsonValueType)], 
-                InvokeCode = fun (Singleton arg) -> 
+                [ProvidedParameter("bsonValue", ctx.BsonValueType)],
+                InvokeCode = fun (Singleton arg) ->
                     let arg = ctx.Replacer.ToDesignTime arg
                     <@@ BsonTop.Create((%%arg:BsonValue), "") @@> |> ctx.Replacer.ToRuntime)
 
     objectTy
 
-  /// Recursively walks over inferred type information and 
+  /// Recursively walks over inferred type information and
   /// generates types for read-only access to the document
   and generateBsonType ctx canPassAllConversionCallingTypes optionalityHandledByParent nameOverride inferedType =
 
-    let inferedType = 
+    let inferedType =
       match inferedType with
       | InferedType.Collection (order, types) ->
           InferedType.Collection (List.filter ((<>) InferedTypeTag.Null) order, Map.remove InferedTypeTag.Null types)
@@ -249,7 +249,7 @@ module BsonTypeBuilder =
 
     | InferedType.Primitive(inferedType, unit, optional) ->
 
-        let typ, conv, conversionCallingType = 
+        let typ, conv, conversionCallingType =
             PrimitiveInferedProperty.Create("", inferedType, optional, unit)
             |> convertBsonValue ctx.Replacer canPassAllConversionCallingTypes
 
@@ -257,8 +257,8 @@ module BsonTypeBuilder =
           Converter = Some (ctx.Replacer.ToDesignTime >> conv)
           ConversionCallingType = conversionCallingType }
 
-    | InferedType.Top 
-    | InferedType.Null -> 
+    | InferedType.Top
+    | InferedType.Null ->
 
         // Return the underlying BsonDocument without change
         { ConvertedType = ctx.IBsonDocumentType
@@ -266,23 +266,23 @@ module BsonTypeBuilder =
           ConversionCallingType = BsonDocument }
 
     | InferedType.Collection (_, SingletonMap(_, (_, typ)))
-    | InferedType.Collection (_, EmptyMap InferedType.Top typ) -> 
+    | InferedType.Collection (_, EmptyMap InferedType.Top typ) ->
 
         let elementResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false nameOverride typ
 
-        let conv = fun (jDoc:Expr) -> 
+        let conv = fun (jDoc:Expr) ->
           ctx.BsonRuntimeType?ConvertArray (elementResult.ConvertedTypeErased ctx) (ctx.Replacer.ToRuntime jDoc, elementResult.ConverterFunc ctx)
-        
+
         { ConvertedType = elementResult.ConvertedType.MakeArrayType()
           Converter = Some conv
           ConversionCallingType = BsonDocument }
 
     | InferedType.Record(name, props, optional) -> getOrCreateType ctx inferedType <| fun () ->
-        
+
         if optional && not optionalityHandledByParent then
           failwith "generateBsonType: optionality not handled for %A" inferedType
 
-        let name = 
+        let name =
             if String.IsNullOrEmpty nameOverride
             then match name with Some name -> name | _ -> "Record"
             else nameOverride
@@ -297,16 +297,16 @@ module BsonTypeBuilder =
         makeUnique "BsonValue" |> ignore
 
         // Add all record fields as properties
-        let members = 
+        let members =
             [for prop in props ->
-  
+
               let propResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)true (*optionalityHandledByParent*)true "" prop.Type
               let propName = prop.Name
               let optionalityHandledByProperty = propResult.ConversionCallingType <> BsonDocument
 
-              let getter = fun (Singleton jDoc) -> 
+              let getter = fun (Singleton jDoc) ->
 
-                if optionalityHandledByProperty then 
+                if optionalityHandledByProperty then
 
                   let jDoc = ctx.Replacer.ToDesignTime jDoc
                   propResult.GetConverter ctx <|
@@ -314,9 +314,9 @@ module BsonTypeBuilder =
                       <@@ BsonRuntime.TryGetPropertyUnpackedWithPath(%%jDoc, propName) @@>
                     else
                       <@@ BsonRuntime.TryGetPropertyUnpacked(%%jDoc, propName) @@>
-          
+
                 elif prop.Type.IsOptional then
-              
+
                   match propResult.Converter with
                   | Some _ ->
                       //TODO: not covered in tests
@@ -325,20 +325,20 @@ module BsonTypeBuilder =
                   | None ->
                       let jDoc = ctx.Replacer.ToDesignTime jDoc
                       ctx.Replacer.ToRuntime <@@ BsonRuntime.TryGetPropertyPacked(%%jDoc, propName) @@>
-          
+
                 else
 
                   let jDoc = ctx.Replacer.ToDesignTime jDoc
                   propResult.GetConverter ctx <|
                     match prop.Type with
-                    | InferedType.Collection _ 
-                    | InferedType.Heterogeneous _ 
-                    | InferedType.Top 
+                    | InferedType.Collection _
+                    | InferedType.Heterogeneous _
+                    | InferedType.Top
                     | InferedType.Null -> <@@ BsonRuntime.GetPropertyPackedOrNull(%%jDoc, propName) @@>
                     | _ -> <@@ BsonRuntime.GetPropertyPacked(%%jDoc, propName) @@>
 
-              let convertedType = 
-                if prop.Type.IsOptional && not optionalityHandledByProperty 
+              let convertedType =
+                if prop.Type.IsOptional && not optionalityHandledByProperty
                 then ctx.MakeOptionType propResult.ConvertedType
                 else propResult.ConvertedType
 
@@ -352,20 +352,20 @@ module BsonTypeBuilder =
 
         if ctx.GenerateConstructors then
 
-            objectTy.AddMember <| 
-                ProvidedConstructor(parameters, InvokeCode = fun args -> 
-                    let properties = 
-                        Expr.NewArray(typeof<string * obj>, 
-                                      args 
+            objectTy.AddMember <|
+                ProvidedConstructor(parameters, InvokeCode = fun args ->
+                    let properties =
+                        Expr.NewArray(typeof<string * obj>,
+                                      args
                                       |> List.mapi (fun i a -> Expr.NewTuple [ Expr.Value names.[i]
                                                                                Expr.Coerce(a, typeof<obj>) ]))
                     <@@ BsonRuntime.CreateDocument(%%properties) @@>
                     |> ctx.Replacer.ToRuntime)
 
-            objectTy.AddMember <| 
+            objectTy.AddMember <|
                     ProvidedConstructor(
-                        [ProvidedParameter("bsonValue", ctx.BsonValueType)], 
-                        InvokeCode = fun (Singleton arg) -> 
+                        [ProvidedParameter("bsonValue", ctx.BsonValueType)],
+                        InvokeCode = fun (Singleton arg) ->
                             let arg = ctx.Replacer.ToDesignTime arg
                             <@@ BsonTop.Create((%%arg:BsonValue), "") @@> |> ctx.Replacer.ToRuntime)
 
@@ -377,18 +377,18 @@ module BsonTypeBuilder =
         // or `GetArrayChildByTypeTag`, depending on the multiplicity of the item
         generateMultipleChoiceType ctx types (*forCollection*)true nameOverride (fun multiplicity result tagCode ->
           match multiplicity with
-          | InferedMultiplicity.Single -> fun (Singleton jDoc) -> 
+          | InferedMultiplicity.Single -> fun (Singleton jDoc) ->
               // Generate method that calls `GetArrayChildByTypeTag`
               let jDoc = ctx.Replacer.ToDesignTime jDoc
               result.GetConverter ctx <@@ BsonRuntime.GetArrayChildByTypeTag(%%jDoc, tagCode) @@>
-          
-          | InferedMultiplicity.Multiple -> fun (Singleton jDoc) -> 
-              // Generate method that calls `GetArrayChildrenByTypeTag` 
+
+          | InferedMultiplicity.Multiple -> fun (Singleton jDoc) ->
+              // Generate method that calls `GetArrayChildrenByTypeTag`
               // (unlike the previous easy case, this needs to call conversion function
               // from the runtime similarly to options and arrays)
               ctx.BsonRuntimeType?GetArrayChildrenByTypeTag (result.ConvertedTypeErased ctx) (jDoc, tagCode, result.ConverterFunc ctx)
-          
-          | InferedMultiplicity.OptionalSingle -> fun (Singleton jDoc) -> 
+
+          | InferedMultiplicity.OptionalSingle -> fun (Singleton jDoc) ->
               // Similar to the previous case, but call `TryGetArrayChildByTypeTag`
               ctx.BsonRuntimeType?TryGetArrayChildByTypeTag (result.ConvertedTypeErased ctx) (jDoc, tagCode, result.ConverterFunc ctx))
 
@@ -396,7 +396,7 @@ module BsonTypeBuilder =
 
         // Generate a choice type that always calls `TryGetValueByTypeTag`
         let types = types |> Map.map (fun _ v -> InferedMultiplicity.OptionalSingle, v)
-        generateMultipleChoiceType ctx types (*forCollection*)false nameOverride (fun multiplicity result tagCode -> fun (Singleton jDoc) -> 
+        generateMultipleChoiceType ctx types (*forCollection*)false nameOverride (fun multiplicity result tagCode -> fun (Singleton jDoc) ->
           assert (multiplicity = InferedMultiplicity.OptionalSingle)
           ctx.BsonRuntimeType?TryGetValueByTypeTag (result.ConvertedTypeErased ctx) (jDoc, tagCode, result.ConverterFunc ctx))
 

@@ -33,17 +33,17 @@ let getConversionQuotation typ (value:Expr<BsonValue option>) =
         <@@ BsonRuntime.ConvertObjectId(%value) @@>
     else failwithf "getConversionQuotation: Unsupported primitive type '%A'" typ
 
-type BsonConversionCallingType = 
+type BsonConversionCallingType =
     BsonDocument | BsonValueOption | BsonValueOptionAndPath
 
-/// Creates a function that takes Expr<BsonValue option> and converts it to 
+/// Creates a function that takes Expr<BsonValue option> and converts it to
 /// an expression of other type - the type is specified by `field`
 let convertBsonValue (replacer:AssemblyReplacer) canPassAllConversionCallingTypes (field:PrimitiveInferedProperty) =
 
     assert (field.TypeWithMeasure = field.RuntimeType)
     assert (field.Name = "")
 
-    let returnType = 
+    let returnType =
         match field.TypeWrapper with
         | TypeWrapper.None -> field.RuntimeType
         | TypeWrapper.Option -> typedefof<option<_>>.MakeGenericType field.RuntimeType

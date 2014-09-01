@@ -80,4 +80,4 @@ module internal Members =
               ResolutionFolder = resolutionFolder }
 
         [ createGetSamplesMember spec path resolver :> MethodInfo
-          createReadAllMember spec :> _ ]
+          createReadAllMember spec :> MethodInfo ]

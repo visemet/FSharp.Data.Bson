@@ -97,7 +97,7 @@ type BsonRuntime =
     static member ConvertBoolean value = value |> Option.bind BsonConversions.AsBoolean
 
     static member ConvertInteger value = value |> Option.bind BsonConversions.AsInteger
-    
+
     static member ConvertInteger64 value = value |> Option.bind BsonConversions.AsInteger64
 
     static member ConvertFloat value = value |> Option.bind BsonConversions.AsFloat
@@ -110,12 +110,12 @@ type BsonRuntime =
     /// If the originalValue is a scalar, for missing strings we return "", and for missing doubles we return NaN
     /// For other types an error is thrown
     static member GetNonOptionalValue<'T>(path:string, opt:option<'T>, originalValue : BsonValue option) : 'T =
-        let getTypeName() = 
+        let getTypeName() =
             let name = typeof<'T>.Name
-            if name.StartsWith "int" 
+            if name.StartsWith "int"
             then "an " + name
             else "a " + name
-        match opt, originalValue with 
+        match opt, originalValue with
         | Some value, _ -> value
         | None, _ when typeof<'T> = typeof<string> -> "" |> unbox
         | None, _ when typeof<'T> = typeof<float> -> Double.NaN |> unbox
