@@ -35,24 +35,18 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
         let tpType = ProvidedTypeDefinition(asm, ns, typeName, Some typeof<obj>)
 
         let path = args.[0] :?> string
-        let limit = args.[1] :?> int
+        let inferLimit = args.[1] :?> int
         let rootName = args.[2] :?> string
-        // let rootName = if String.IsNullOrWhiteSpace rootName then "Root" else NameUtils.singularize rootName
+        let rootName = if String.IsNullOrWhiteSpace rootName then "Root" else NameUtils.singularize rootName
         let resolutionFolder = args.[3] :?> string
         let resource = args.[4] :?> string
 
-        let invalidChars = [ for c in "\"|<>{}[]," -> c ] @ [ for i in 0..31 -> char i ] |> set
-        let tryGetUri str =
-            match Uri.TryCreate(str, UriKind.RelativeOrAbsolute) with
-            | false, _ -> None
-            | true, uri ->
-                if str.Trim() = "" || not uri.IsAbsoluteUri && Seq.exists invalidChars.Contains str
-                then None else Some uri
-
-        let uri =
-            match tryGetUri path with
-            | Some uri -> uri
-            | None -> failwith "path was not a file"
+        let parse (stream:Stream) =
+            seq {
+                use stream = stream
+                while stream.Position <> stream.Length do
+                    yield BsonSerializer.Deserialize<BsonDocument>(stream)
+            }
 
         let getSpecFromSamples samples =
 
@@ -63,35 +57,33 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
             let ctx = BsonGenerationContext.Create(tpType, replacer)
             let result = BsonTypeBuilder.generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false rootName inferedType
 
-            createAllMembers cfg ctx result path limit resolutionFolder resource
-            |> tpType.AddMembers
-
             { GeneratedType = tpType
               RepresentationType = result.ConvertedType
-              CreateFromTextReader = fun _reader -> failwith "not implemented"
-              CreateFromTextReaderForSampleList = fun _reader -> failwith "not implemented" }
+              CreateFromStream = fun stream -> <@@ BsonTop.CreateList(%stream, parse) @@> }
 
         let resolver =
             { ResolutionType = DesignTime
               DefaultResolutionFolder = cfg.ResolutionFolder
               ResolutionFolder = resolutionFolder }
 
-        let path =
-            match resolver.TryResolveToPath uri with
-            | Some path -> path
-            | None -> failwith "could not resolve as file"
+        let path = resolver |> getPath path
 
-        use file = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)
-        let samples =
-            seq {
-                while file.Position <> file.Length do
-                    yield BsonSerializer.Deserialize<BsonDocument>(file)
-            }
+        let limit =
+            if inferLimit <= 0 then None
+            else Some inferLimit
+
+        let maybeTruncate =
+            let flip f x y = f y x
+            flip <| Option.fold (flip Seq.truncate)
 
         let spec =
-            samples
-            |> Seq.truncate 10
+            File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)
+            |> parse
+            |> maybeTruncate limit
             |> getSpecFromSamples
+
+        createAllMembers cfg spec path resolutionFolder resource
+        |> tpType.AddMembers
 
         spec.GeneratedType
 

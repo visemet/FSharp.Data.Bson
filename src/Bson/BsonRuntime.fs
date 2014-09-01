@@ -66,17 +66,9 @@ type BsonTop =
     /// [omit]
     [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
     [<CompilerMessageAttribute("This method is intended for use in generated code only.", 10001, IsHidden=true, IsError=false)>]
-    static member CreateList(stream:FileStream) =
-        let exhausted = ref false
-        use stream = stream
-
-        seq {
-            while not !exhausted do
-                match BsonSerializer.Deserialize<BsonDocument>(stream) with
-                | null -> exhausted := true
-                | doc -> yield BsonTop.Create(doc, "")
-        }
-        |> Seq.take 10
+    static member CreateList(stream:Stream, parseFunc) =
+        parseFunc stream
+        |> Seq.mapi (fun i value -> BsonTop.Create(value, sprintf "[%d]" i))
         |> Seq.toArray
 
 /// [omit]
