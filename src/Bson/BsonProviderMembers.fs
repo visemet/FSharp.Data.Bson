@@ -45,14 +45,13 @@ module internal Helpers =
 module internal Members =
 
     /// Generates the static GetSamples() method
-    let private getSamples (spec:TypeProviderSpec)
-                           path (resolver:UriResolver) =
+    let private createGetSamplesMember (spec:TypeProviderSpec) path (resolver:UriResolver) =
 
         let resolver = { resolver with ResolutionType = DesignTime }
         let path = resolver |> getPath path
 
-        let resultTypeArray = spec.RepresentationType.MakeArrayType()
-        let m = ProvidedMethod("GetSamples", [], resultTypeArray, IsStaticMethod = true)
+        let returnType = spec.RepresentationType.MakeArrayType()
+        let m = ProvidedMethod("GetSamples", [], returnType, IsStaticMethod = true)
 
         m.InvokeCode <- fun _ ->
             <@ File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read) :> Stream @>
@@ -69,4 +68,4 @@ module internal Members =
               DefaultResolutionFolder = cfg.ResolutionFolder
               ResolutionFolder = resolutionFolder }
 
-        [ getSamples spec path resolver :> MethodInfo ]
+        [ createGetSamplesMember spec path resolver :> MethodInfo ]
