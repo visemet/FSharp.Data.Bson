@@ -390,13 +390,11 @@ module BsonTypeBuilder =
               // Generate method that calls `GetArrayChildrenByTypeTag` 
               // (unlike the previous easy case, this needs to call conversion function
               // from the runtime similarly to options and arrays)
-              let cultureStr = ctx.CultureStr
-              ctx.BsonRuntimeType?GetArrayChildrenByTypeTag (result.ConvertedTypeErased ctx) (jDoc, cultureStr, tagCode, result.ConverterFunc ctx)
+              ctx.BsonRuntimeType?GetArrayChildrenByTypeTag (result.ConvertedTypeErased ctx) (jDoc, tagCode, result.ConverterFunc ctx)
           
           | InferedMultiplicity.OptionalSingle -> fun (Singleton jDoc) -> 
               // Similar to the previous case, but call `TryGetArrayChildByTypeTag`
-              let cultureStr = ctx.CultureStr
-              ctx.BsonRuntimeType?TryGetArrayChildByTypeTag (result.ConvertedTypeErased ctx) (jDoc, cultureStr, tagCode, result.ConverterFunc ctx))
+              ctx.BsonRuntimeType?TryGetArrayChildByTypeTag (result.ConvertedTypeErased ctx) (jDoc, tagCode, result.ConverterFunc ctx))
 
     | InferedType.Heterogeneous types -> getOrCreateType ctx inferedType <| fun () ->
 
@@ -404,7 +402,6 @@ module BsonTypeBuilder =
         let types = types |> Map.map (fun _ v -> InferedMultiplicity.OptionalSingle, v)
         generateMultipleChoiceType ctx types (*forCollection*)false nameOverride (fun multiplicity result tagCode -> fun (Singleton jDoc) -> 
           assert (multiplicity = InferedMultiplicity.OptionalSingle)
-          let cultureStr = ctx.CultureStr
-          ctx.BsonRuntimeType?TryGetValueByTypeTag (result.ConvertedTypeErased ctx) (jDoc, cultureStr, tagCode, result.ConverterFunc ctx))
+          ctx.BsonRuntimeType?TryGetValueByTypeTag (result.ConvertedTypeErased ctx) (jDoc, tagCode, result.ConverterFunc ctx))
 
     | _ -> failwith "Bson type not supported"

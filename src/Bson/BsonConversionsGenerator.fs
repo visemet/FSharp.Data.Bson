@@ -73,9 +73,9 @@ let convertBsonValue (replacer:AssemblyReplacer) canPassAllConversionCallingType
             convert <@ (%%value:BsonValue option) @>
         | TypeWrapper.Option, false ->
             convert <@ Some (%%value:IBsonTop).BsonValue @>
-        | TypeWrapper.Nullable, true -> 
+        | TypeWrapper.Nullable, true ->
             typeof<TextRuntime>?OptionToNullable (field.RuntimeType) (convert <@ (%%value:BsonValue option) @>)
-        | TypeWrapper.Nullable, false -> 
+        | TypeWrapper.Nullable, false ->
             typeof<TextRuntime>?OptionToNullable (field.RuntimeType) (convert <@ Some (%%value:IBsonTop).BsonValue @>)
         |> replacer.ToRuntime
 

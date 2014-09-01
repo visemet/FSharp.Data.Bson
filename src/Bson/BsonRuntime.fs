@@ -216,6 +216,12 @@ type BsonRuntime =
         | [| child |] -> child
         | _ -> failwithf "Expecting an array with single element at '%s', got %A" (doc.Path()) doc
 
+    /// Returns a single or no value by tag type
+    static member TryGetValueByTypeTag<'T>(doc:IBsonTop, tagCode, mapping:Func<IBsonTop,'T>) =
+        if BsonRuntime.Matches (InferedTypeTag.ParseCode tagCode) doc.BsonValue
+        then Some (mapping.Invoke doc)
+        else None
+
     static member private ToBsonValue (value:obj) =
         let inline optionToBson f = function
             | None -> BsonNull.Value :> BsonValue
