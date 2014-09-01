@@ -6,6 +6,8 @@ open System.IO
 /// Helper functions called from the generated code for working with files
 module internal IO =
 
+    let private (++) a b = Path.Combine(a,b)
+
     let isWeb (uri:Uri) = uri.IsAbsoluteUri && not uri.IsUnc && uri.Scheme <> Uri.UriSchemeFile
 
     type UriResolutionType =
@@ -37,22 +39,21 @@ module internal IO =
         ///      * otherwise, use 'CurrentDomain.BaseDirectory'
         /// returns an absolute uri * isWeb flag
         member x.Resolve(uri:Uri) =
-          if uri.IsAbsoluteUri then uri, isWeb uri
-          else
-            let root =
-              match x.ResolutionType with
-              | DesignTime -> if String.IsNullOrEmpty x.ResolutionFolder
-                              then x.DefaultResolutionFolder
-                              else x.ResolutionFolder
+            if uri.IsAbsoluteUri then uri, isWeb uri
+            else
+                let root =
+                    match x.ResolutionType with
+                    | DesignTime ->
+                        if String.IsNullOrEmpty x.ResolutionFolder
+                        then x.DefaultResolutionFolder
+                        else x.ResolutionFolder
 
-              | RuntimeInFSI -> x.DefaultResolutionFolder
-              | Runtime -> AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\', '/')
+                    | RuntimeInFSI -> x.DefaultResolutionFolder
+                    | Runtime -> AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\', '/')
 
-            Uri(Path.Combine(root, uri.OriginalString), UriKind.Absolute), false
+                Uri(root ++ uri.OriginalString, UriKind.Absolute), false
 
         member x.TryResolveToPath(uri:Uri) =
             match x.Resolve uri with
             | _, true -> None
-            | uri, false ->
-                let path = uri.OriginalString.Replace(sprintf "%s://" Uri.UriSchemeFile, "")
-                Some path
+            | uri, false -> Some uri.AbsolutePath

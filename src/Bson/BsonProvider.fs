@@ -66,7 +66,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
                   DefaultResolutionFolder = cfg.ResolutionFolder
                   ResolutionFolder = resolutionFolder }
 
-            let path = resolver |> getPath path
+            let path = path |> getPath resolver
 
             let limit =
                 if inferLimit <= 0 then None

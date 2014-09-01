@@ -5,11 +5,8 @@ open System.IO
 open System.Reflection
 open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Quotations
-open MongoDB.Bson
-open MongoDB.Bson.Serialization
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
-open BsonProvider.Runtime
 open BsonProvider.Runtime.IO
 
 #nowarn "10001"
@@ -29,13 +26,13 @@ module internal Helpers =
     let invalidChars = [ for c in "\"|<>{}[]," -> c ] @ [ for i in 0..31 -> char i ] |> set
 
     let tryGetUri str =
-        match Uri.TryCreate(str, UriKind.RelativeOrAbsolute) with
-        | false, _ -> None
-        | true, uri ->
-            if str.Trim() = "" || not uri.IsAbsoluteUri && Seq.exists invalidChars.Contains str
-            then None else Some uri
+        if String.IsNullOrWhiteSpace str || Seq.exists invalidChars.Contains str then None
+        else
+            match Uri.TryCreate(str, UriKind.RelativeOrAbsolute) with
+            | false, _ -> None
+            | true, uri -> Some uri
 
-    let getPath path (resolver:UriResolver) =
+    let getPath (resolver:UriResolver) path =
         match tryGetUri path with
         | None -> failwith "path does not represent a location"
         | Some uri ->
@@ -49,7 +46,7 @@ module internal Members =
     let private createGetSamplesMember (spec:TypeProviderSpec) path (resolver:UriResolver) =
 
         let resolver = { resolver with ResolutionType = DesignTime }
-        let path = resolver |> getPath path
+        let path = path |> getPath resolver
 
         let returnType = spec.RepresentationType.MakeArrayType()
         let m = ProvidedMethod("GetSamples", [], returnType, IsStaticMethod = true)
