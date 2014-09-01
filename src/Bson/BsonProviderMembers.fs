@@ -7,6 +7,7 @@ open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Quotations
 open MongoDB.Bson
 open MongoDB.Bson.Serialization
+open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 open BsonProvider.Runtime
 open BsonProvider.Runtime.IO
@@ -60,6 +61,19 @@ module internal Members =
         m.AddXmlDoc "Returns the entire set of sample BSON documents"
         m
 
+    /// Generates the static ReadAll() method
+    let private createReadAllMember (spec:TypeProviderSpec) =
+
+        let args = [ ProvidedParameter("stream", typeof<Stream>) ]
+        let returnType = spec.RepresentationType.MakeArrayType()
+        let m = ProvidedMethod("ReadAll", args, returnType, IsStaticMethod = true)
+
+        m.InvokeCode <- fun (Singleton stream) ->
+            stream |> Expr.Cast |> spec.CreateFromStream
+
+        m.AddXmlDoc "Reads BSON from the specified stream"
+        m
+
     let createAllMembers (cfg:TypeProviderConfig) (spec:TypeProviderSpec)
                          path resolutionFolder resource =
 
@@ -68,4 +82,5 @@ module internal Members =
               DefaultResolutionFolder = cfg.ResolutionFolder
               ResolutionFolder = resolutionFolder }
 
-        [ createGetSamplesMember spec path resolver :> MethodInfo ]
+        [ createGetSamplesMember spec path resolver :> MethodInfo
+          createReadAllMember spec :> _ ]
