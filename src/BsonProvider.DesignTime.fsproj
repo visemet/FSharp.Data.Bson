@@ -60,6 +60,7 @@
     <Compile Include="Bson\BsonInference.fs" />
     <Compile Include="Bson\BsonConversionsGenerator.fs" />
     <Compile Include="Bson\BsonGenerator.fs" />
+    <Compile Include="Bson\BsonProviderMembers.fs" />
     <Compile Include="Bson\BsonProvider.fs" />
     <Compile Include="TypeProviderInstantiation.fs" />
     <None Include="Script.fsx" />

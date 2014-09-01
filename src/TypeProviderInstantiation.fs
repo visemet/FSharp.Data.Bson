@@ -6,11 +6,9 @@ open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 
 type BsonProviderArgs =
-    { Sample : string
-      SampleIsList : bool
+    { Path : string
+      InferLimit : int
       RootName : string
-      Culture : string
-      Encoding : string
       ResolutionFolder : string
       EmbeddedResource : string }
 
@@ -22,11 +20,9 @@ type TypeProviderInstantiation =
             match x with
             | Bson x ->
                 (fun cfg -> new BsonProvider(cfg) :> TypeProviderForNamespaces),
-                [| box x.Sample
-                   box x.SampleIsList
+                [| box x.Path
+                   box x.InferLimit
                    box x.RootName
-                   box x.Culture
-                   box x.Encoding
                    box x.ResolutionFolder
                    box x.EmbeddedResource |]
         Debug.generate resolutionFolder runtimeAssembly f args
@@ -35,10 +31,9 @@ type TypeProviderInstantiation =
         match x with
         | Bson x ->
             [ "Bson"
-              x.Sample
-              x.SampleIsList.ToString()
-              x.RootName
-              x.Culture ]
+              x.Path
+              x.InferLimit.ToString()
+              x.RootName ]
         |> String.concat ","
 
     member x.ExpectedPath outputFolder =
@@ -60,11 +55,9 @@ type TypeProviderInstantiation =
         let args = line.Split [|','|]
         match args.[0] with
         | "Bson" ->
-            Bson { Sample = args.[1]
-                   SampleIsList = args.[2] |> bool.Parse
+            Bson { Path = args.[1]
+                   InferLimit = int args.[2]
                    RootName = args.[3]
-                   Culture = args.[4]
-                   Encoding = ""
                    ResolutionFolder = ""
                    EmbeddedResource = "" }
         | _ -> failwithf "Unknown: %s" args.[0]
