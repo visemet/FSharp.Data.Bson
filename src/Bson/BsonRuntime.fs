@@ -66,8 +66,18 @@ type BsonTop =
     /// [omit]
     [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
     [<CompilerMessageAttribute("This method is intended for use in generated code only.", 10001, IsHidden=true, IsError=false)>]
-    static member CreateList(stream:Stream, parseFunc) =
-        parseFunc stream
+    static member Parse(stream:Stream) =
+        seq {
+            use stream = stream
+            while stream.Position <> stream.Length do
+                yield BsonSerializer.Deserialize<BsonDocument>(stream)
+        }
+
+    /// [omit]
+    [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
+    [<CompilerMessageAttribute("This method is intended for use in generated code only.", 10001, IsHidden=true, IsError=false)>]
+    static member CreateList(stream:Stream) =
+        BsonTop.Parse stream
         |> Seq.mapi (fun i value -> BsonTop.Create(value, sprintf "[%d]" i))
         |> Seq.toArray
 

@@ -41,13 +41,6 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
         let resolutionFolder = args.[3] :?> string
         let resource = args.[4] :?> string
 
-        let parse (stream:Stream) =
-            seq {
-                use stream = stream
-                while stream.Position <> stream.Length do
-                    yield BsonSerializer.Deserialize<BsonDocument>(stream)
-            }
-
         let getSpecFromSamples samples =
 
             let inferedType =
@@ -59,7 +52,8 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
 
             { GeneratedType = tpType
               RepresentationType = result.ConvertedType
-              CreateFromStream = fun stream -> <@@ BsonTop.CreateList(%stream, parse) @@> }
+              CreateFromStream = fun stream ->
+                    result.GetConverter ctx <@@ BsonTop.CreateList(%stream) @@> }
 
         let resolver =
             { ResolutionType = DesignTime
@@ -78,7 +72,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
 
         let spec =
             File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)
-            |> parse
+            |> BsonTop.Parse
             |> maybeTruncate limit
             |> getSpecFromSamples
 
