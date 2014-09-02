@@ -1,16 +1,14 @@
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // BSON type provider - methods that are called from the generated erased code
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
 namespace BsonProvider.Runtime
 
 open System
 open System.ComponentModel
-open System.Globalization
 open System.IO
 open MongoDB.Bson
 open MongoDB.Bson.Serialization
-open FSharp.Data
-open FSharp.Data.Runtime
 open FSharp.Data.Runtime.StructuralTypes
 
 #nowarn "10001"
@@ -89,8 +87,14 @@ type BsonValueOptionAndPath =
 /// Static helper methods called from the generated code for working with BSON
 type BsonRuntime =
 
-    // --------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // bson option -> type
+    // -------------------------------------------------------------------------
+    // Note that need we to specify the conversion functions as eta-expanded,
+    // i.e. ConvertXX value = value |> Option.bind BsonConversions.AsXX
+    // (instead of ConvertYY = Option.bind BsonConversions.AsYY), so that their
+    // usage within quotations generates an Expr.Call, and not an Expr.Application
+    // since the latter cannot be with AssemblyReplacer.replaceExpr.
 
     static member ConvertString value = value |> Option.bind BsonConversions.AsString
 
@@ -106,21 +110,13 @@ type BsonRuntime =
 
     static member ConvertObjectId value = value |> Option.bind BsonConversions.AsObjectId
 
-    /// Operation that extracts the value from an option and reports a meaningful error message when the value is not there
-    /// If the originalValue is a scalar, for missing strings we return "", and for missing doubles we return NaN
-    /// For other types an error is thrown
-    static member GetNonOptionalValue<'T>(path:string, opt:option<'T>, originalValue : BsonValue option) : 'T =
-        let getTypeName() =
-            let name = typeof<'T>.Name
-            if name.StartsWith "int"
-            then "an " + name
-            else "a " + name
-        match opt, originalValue with
-        | Some value, _ -> value
-        | None, _ when typeof<'T> = typeof<string> -> "" |> unbox
-        | None, _ when typeof<'T> = typeof<float> -> Double.NaN |> unbox
+    /// Operation that extracts the value from an option and reports a meaningful
+    /// error message when the value is not present.
+    static member GetNonOptionalValue<'T>(path:string, opt:option<'T>, value:BsonValue option) : 'T =
+        match opt, value with
+        | Some x, _ -> x
         | None, None -> failwithf "'%s' is missing" path
-        | None, Some x -> failwithf "Expecting %s at '%s', got %s" (getTypeName()) path <| x.ToString()
+        | None, Some x -> failwithf "Expecting %A at '%s', but received %A" typeof<'T> path x
 
     /// Convert BSON array to array of target types
     static member ConvertArray<'T>(top:IBsonTop, mapping:Func<IBsonTop,'T>) =
@@ -138,7 +134,7 @@ type BsonRuntime =
         | BsonType.Null -> [| |]
         | _ -> failwithf "Expecting a list at '%s', got %A" (top.Path()) top
 
-    /// Optionally get bson property
+    /// Optionally get property of BsonDocument
     static member TryGetPropertyUnpacked(top:IBsonTop, name) =
         match top.BsonValue.BsonType with
         | BsonType.Document ->
@@ -151,45 +147,45 @@ type BsonRuntime =
             else None
         | _ -> None
 
-    /// Optionally get bson property and wrap it together with path
+    /// Optionally get property wrapped together with the path
     static member TryGetPropertyUnpackedWithPath(top:IBsonTop, name) =
         { BsonOpt = BsonRuntime.TryGetPropertyUnpacked(top, name)
           Path = sprintf "%s/%s" (top.Path()) name }
 
-    /// Optionally get bson property wrapped it in bson document
+    /// Optionally get property wrapped in a BsonTop
     static member TryGetPropertyPacked(top:IBsonTop, name) =
         BsonRuntime.TryGetPropertyUnpacked(top, name)
         |> Option.map (fun value -> top.Create(value, sprintf "/%s" name))
 
-    /// Get bson property and wrap it in bson document
+    /// Get property wrapped in a BsonTop
     static member GetPropertyPacked(top:IBsonTop, name) =
         match BsonRuntime.TryGetPropertyPacked(top, name) with
         | Some top -> top
         | None -> failwithf "Property '%s' not found at '%s': %A" name (top.Path()) top
 
-    /// Get bson property and wrap it in bson document, return null if not found
+    /// Get property wrapped in a BsonTop, returns null if not found
     static member GetPropertyPackedOrNull(top:IBsonTop, name) =
         match BsonRuntime.TryGetPropertyPacked(top, name) with
         | Some top -> top
         | None -> top.Create(BsonNull.Value, sprintf "/%s" name)
 
-    /// Optionall get bson property and convert it to the specified type
+    /// Optionally get property and convert it to the specified type
     static member ConvertOptionalProperty<'T>(top:IBsonTop, name, mapping:Func<IBsonTop,'T>) =
         BsonRuntime.TryGetPropertyPacked(top, name)
         |> Option.map mapping.Invoke
 
     static member private Matches = function
-        | InferedTypeTag.Boolean -> fun (value : BsonValue) ->
+        | InferedTypeTag.Boolean -> fun (value:BsonValue) ->
             value.IsBoolean
-        | InferedTypeTag.Number -> fun (value : BsonValue) ->
+        | InferedTypeTag.Number -> fun (value:BsonValue) ->
             value.IsInt32 || value.IsInt64 || value.IsDouble
-        | InferedTypeTag.String -> fun (value : BsonValue) ->
+        | InferedTypeTag.String -> fun (value:BsonValue) ->
             value.IsString
-        | InferedTypeTag.DateTime -> fun (value : BsonValue) ->
+        | InferedTypeTag.DateTime -> fun (value:BsonValue) ->
             value.IsBsonDateTime
-        | InferedTypeTag.Collection -> fun (value : BsonValue) ->
+        | InferedTypeTag.Collection -> fun (value:BsonValue) ->
             value.IsBsonArray
-        | InferedTypeTag.Record _ -> fun (value : BsonValue) ->
+        | InferedTypeTag.Record _ -> fun (value:BsonValue) ->
             value.IsBsonDocument
         | tag -> failwithf "%s type not supported" tag.NiceName
 
@@ -221,9 +217,9 @@ type BsonRuntime =
     /// Returns a single or no value by tag type
     static member TryGetValueByTypeTag<'T>(doc:IBsonTop, tagCode, mapping:Func<IBsonTop,'T>) =
         if BsonRuntime.Matches (InferedTypeTag.ParseCode tagCode) doc.BsonValue
-        then Some (mapping.Invoke doc)
-        else None
+        then Some (mapping.Invoke doc) else None
 
+    /// Converts an object to a BsonValue
     static member private ToBsonValue (value:obj) =
         let inline optionToBson f = function
             | None -> BsonNull.Value :> BsonValue
@@ -256,31 +252,26 @@ type BsonRuntime =
 
         | _ -> failwithf "Cannot create BsonValue from %A" value
 
-    /// Creates a BsonValue and wraps it in a bson top
+    /// Creates a BsonValue wrapped in a BsonTop
     static member CreateValue value =
         let bson = BsonRuntime.ToBsonValue value
         BsonTop.Create(bson, "")
 
-    /// Creates a BsonDocument and wraps it in a bson top
+    /// Creates a BsonDocument wrapped in a BsonTop
     static member CreateDocument properties =
-        let inline bDoc (x:seq<BsonElement>) = BsonDocument(x)
-        let bson =
+        let value =
             properties
             |> Array.map (fun (k, v) -> BsonElement(k, BsonRuntime.ToBsonValue v))
-            |> bDoc
+            |> Array.toSeq
+        BsonTop.Create(BsonDocument value, "")
 
-        BsonTop.Create(bson, "")
-
-    /// Creates a BsonArray and wraps it in a bson top
+    /// Creates a BsonArray wrapped in a BsonTop
     static member CreateArray elements =
-        let inline bArray (x:BsonValue[]) = BsonArray(x)
-        let bson =
+        let value =
             elements
             |> Array.collect (BsonRuntime.ToBsonValue >> (fun value ->
                 match value.BsonType with
                 | BsonType.Array -> Array.ofSeq value.AsBsonArray.Values
                 | BsonType.Null -> [| |]
                 | _ -> [| value |]))
-            |> bArray
-
-        BsonTop.Create(bson, "")
+        BsonTop.Create(BsonArray value, "")
