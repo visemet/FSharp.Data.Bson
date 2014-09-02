@@ -1,54 +1,52 @@
-﻿// --------------------------------------------------------------------------------------
-// Helper operations for converting converting bsonValue values to other types
-// --------------------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
+// Helper operations for converting BSON values to other types
+// -----------------------------------------------------------------------------
 
 namespace BsonProvider.Runtime
 
-open System
 open MongoDB.Bson
-open FSharp.Data
-open FSharp.Data.Runtime
 
-/// Conversions from BsonValue to string/int/int64/float/boolean/datetime options
+/// Conversions from a BsonValue to string, int, int64, float, boolean,
+/// DateTime, and ObjectId options.
 type BsonConversions =
 
-    static member AsString (bsonValue : BsonValue) =
-        match bsonValue.BsonType with
-        | BsonType.String -> Some bsonValue.AsString
+    static member AsString (value:BsonValue) =
+        match value.BsonType with
+        | BsonType.String -> Some value.AsString
         | _ -> None
 
-    static member AsInteger (bsonValue : BsonValue) =
-        match bsonValue.BsonType with
-        | BsonType.Int32 -> Some bsonValue.AsInt32
-        | BsonType.Int64 -> Some <| int bsonValue.AsInt64
-        | BsonType.Double -> Some <| int bsonValue.AsDouble
+    static member AsInteger (value:BsonValue) =
+        match value.BsonType with
+        | BsonType.Int32 -> Some value.AsInt32
+        | BsonType.Int64 -> Some <| int value.AsInt64
+        | BsonType.Double -> Some <| int value.AsDouble
         | _ -> None
 
-    static member AsInteger64 (bsonValue : BsonValue) =
-        match bsonValue.BsonType with
-        | BsonType.Int32 -> Some <| int64 bsonValue.AsInt32
-        | BsonType.Int64 -> Some <| bsonValue.AsInt64
-        | BsonType.Double -> Some <| int64 bsonValue.AsDouble
+    static member AsInteger64 (value:BsonValue) =
+        match value.BsonType with
+        | BsonType.Int32 -> Some <| int64 value.AsInt32
+        | BsonType.Int64 -> Some <| value.AsInt64
+        | BsonType.Double -> Some <| int64 value.AsDouble
         | _ -> None
 
-    static member AsFloat (bsonValue : BsonValue) =
-        match bsonValue.BsonType with
-        | BsonType.Int32 -> Some <| float bsonValue.AsInt32
-        | BsonType.Int64 -> Some <| float bsonValue.AsInt64
-        | BsonType.Double -> Some bsonValue.AsDouble
+    static member AsFloat (value:BsonValue) =
+        match value.BsonType with
+        | BsonType.Int32 -> Some <| float value.AsInt32
+        | BsonType.Int64 -> Some <| float value.AsInt64
+        | BsonType.Double -> Some value.AsDouble
         | _ -> None
 
-    static member AsBoolean (bsonValue : BsonValue) =
-        match bsonValue.BsonType with
-        | BsonType.Boolean -> Some bsonValue.AsBoolean
+    static member AsBoolean (value:BsonValue) =
+        match value.BsonType with
+        | BsonType.Boolean -> Some value.AsBoolean
         | _ -> None
 
-    static member AsDateTime (bsonValue : BsonValue) =
-        match bsonValue.BsonType with
-        | BsonType.DateTime -> Some <| bsonValue.AsBsonDateTime.ToUniversalTime()
+    static member AsDateTime (value:BsonValue) =
+        match value.BsonType with
+        | BsonType.DateTime -> Some <| value.AsBsonDateTime.ToUniversalTime()
         | _ -> None
 
-    static member AsObjectId (bsonValue : BsonValue) =
-        match bsonValue.BsonType with
-        | BsonType.ObjectId -> Some bsonValue.AsObjectId
+    static member AsObjectId (value:BsonValue) =
+        match value.BsonType with
+        | BsonType.ObjectId -> Some value.AsObjectId
         | _ -> None
