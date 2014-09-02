@@ -1,13 +1,12 @@
-﻿// ----------------------------------------------------------------------------------------------
-// Conversions from string to various primitive types
-// ----------------------------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
+// Conversions from BsonValue to various primitive types
+// -----------------------------------------------------------------------------
 
 module BsonProvider.ProviderImplementation.BsonConversionsGenerator
 
 open System
 open Microsoft.FSharp.Quotations
 open MongoDB.Bson
-open FSharp.Data
 open FSharp.Data.Runtime
 open FSharp.Data.Runtime.StructuralTypes
 open ProviderImplementation
@@ -61,22 +60,36 @@ let convertBsonValue (replacer:AssemblyReplacer) canPassAllConversionCallingType
             Expr.Let(var, value, getBody varExpr)
 
     let convert (value:Expr) =
-        let convert =  getConversionQuotation field.InferedType
+        let convert = getConversionQuotation field.InferedType
         match field.TypeWrapper, canPassAllConversionCallingTypes with
         | TypeWrapper.None, true ->
             wrapInLetIfNeeded value <| fun (varExpr:Expr<BsonValueOptionAndPath>) ->
-                typeof<BsonRuntime>?GetNonOptionalValue (field.RuntimeType) (<@ (%varExpr).Path @>, convert <@ (%varExpr).BsonOpt @>, <@ (%varExpr).BsonOpt @>)
+                let path = <@ (%varExpr).Path @>
+                let opt = convert <@ (%varExpr).BsonOpt @>
+                let value = <@ (%varExpr).BsonOpt @>
+                typeof<BsonRuntime>?GetNonOptionalValue (field.RuntimeType) (path, opt, value)
+
         | TypeWrapper.None, false ->
             wrapInLetIfNeeded value <| fun (varExpr:Expr<IBsonTop>) ->
-                typeof<BsonRuntime>?GetNonOptionalValue (field.RuntimeType) (<@ (%varExpr).Path() @>, convert <@ Some (%varExpr).BsonValue @>, <@ Some (%varExpr).BsonValue @>)
+                let path = <@ (%varExpr).Path() @>
+                let opt = convert <@ Some (%varExpr).BsonValue @>
+                let value = <@ Some (%varExpr).BsonValue @>
+                typeof<BsonRuntime>?GetNonOptionalValue (field.RuntimeType) (path, opt, value)
+
         | TypeWrapper.Option, true ->
             convert <@ (%%value:BsonValue option) @>
+
         | TypeWrapper.Option, false ->
             convert <@ Some (%%value:IBsonTop).BsonValue @>
+
         | TypeWrapper.Nullable, true ->
-            typeof<TextRuntime>?OptionToNullable (field.RuntimeType) (convert <@ (%%value:BsonValue option) @>)
+            let opt = convert <@ (%%value:BsonValue option) @>
+            typeof<TextRuntime>?OptionToNullable (field.RuntimeType) opt
+
         | TypeWrapper.Nullable, false ->
-            typeof<TextRuntime>?OptionToNullable (field.RuntimeType) (convert <@ Some (%%value:IBsonTop).BsonValue @>)
+            let opt = convert <@ Some (%%value:IBsonTop).BsonValue @>
+            typeof<TextRuntime>?OptionToNullable (field.RuntimeType) opt
+
         |> replacer.ToRuntime
 
     let conversionCallingType =
