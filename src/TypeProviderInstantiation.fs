@@ -37,16 +37,15 @@ type TypeProviderInstantiation =
         |> String.concat ","
 
     member x.ExpectedPath outputFolder =
-        Path.Combine(outputFolder, (x.ToString().Replace(">", "&gt;").Replace("<", "&lt;").Replace("://", "_").Replace("/", "_") + ".expected"))
+        Path.Combine(outputFolder, sprintf "%O.expected" x)
 
     member x.Dump resolutionFolder outputFolder runtimeAssembly signatureOnly ignoreOutput =
         let replace (oldValue:string) (newValue:string) (str:string) = str.Replace(oldValue, newValue)
         let output =
             x.GenerateType resolutionFolder runtimeAssembly
-            |> match x with
-               | _ -> Debug.prettyPrint signatureOnly ignoreOutput 10 100
-            |> replace "FSharp.Data.Runtime." "FDR."
-            |> if String.IsNullOrEmpty resolutionFolder then id else replace resolutionFolder "<RESOLUTION_FOLDER>"
+            |> Debug.prettyPrint signatureOnly ignoreOutput 10 100
+            |> if String.IsNullOrEmpty resolutionFolder then id
+               else replace resolutionFolder "<RESOLUTION_FOLDER>"
         if outputFolder <> "" then
             File.WriteAllText(x.ExpectedPath outputFolder, output)
         output
