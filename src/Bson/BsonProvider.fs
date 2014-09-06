@@ -39,6 +39,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
         let rootName = args.[2] :?> string
         let resolutionFolder = args.[3] :?> string
         let resource = args.[4] :?> string
+        let lookupMethod = args.[5] :?> LookupMethod
 
         let getSpecFromSamples samples =
 
@@ -76,8 +77,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
                 let flip f x y = f y x
                 flip <| Option.fold (flip Seq.truncate)
 
-            File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)
-            |> BsonTop.Parse
+            lookupSamples lookupMethod path
             |> maybeTruncate limit
 
         let spec = getSamplesFromPath path |> getSpecFromSamples
@@ -93,7 +93,8 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
           ProvidedStaticParameter("InferLimit", typeof<int>, parameterDefaultValue = 100)
           ProvidedStaticParameter("RootName", typeof<string>, parameterDefaultValue = "Root")
           ProvidedStaticParameter("ResolutionFolder", typeof<string>, parameterDefaultValue = "")
-          ProvidedStaticParameter("EmbeddedResource", typeof<string>, parameterDefaultValue = "") ]
+          ProvidedStaticParameter("EmbeddedResource", typeof<string>, parameterDefaultValue = "")
+          ProvidedStaticParameter("LookupMethod", typeof<LookupMethod>, parameterDefaultValue = LookupMethod.LocalFile) ]
 
     let helpText =
         """<summary>Typed representation of a BSON document.</summary>

@@ -55,6 +55,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonRuntime\IO.fs" />
+    <Compile Include="Bson\BsonDocumentRegistry.fs" />
+    <Compile Include="Bson\BsonLookupOptions.fs" />
     <Compile Include="Bson\BsonConversions.fs" />
     <Compile Include="Bson\BsonRuntime.fs" />
     <Compile Include="Runtime.fs" />

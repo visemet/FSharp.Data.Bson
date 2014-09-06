@@ -94,7 +94,7 @@ type BsonRuntime =
     // i.e. ConvertXX value = value |> Option.bind BsonConversions.AsXX
     // (instead of ConvertYY = Option.bind BsonConversions.AsYY), so that their
     // usage within quotations generates an Expr.Call, and not an Expr.Application
-    // since the latter cannot be with AssemblyReplacer.replaceExpr.
+    // since the latter is not transformed by AssemblyReplacer.replaceExpr.
 
     static member ConvertString value = value |> Option.bind BsonConversions.AsString
 

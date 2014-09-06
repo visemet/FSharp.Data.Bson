@@ -5,8 +5,10 @@ open System.IO
 open System.Reflection
 open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Quotations
+open MongoDB.Bson
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
+open BsonProvider.Runtime
 open BsonProvider.Runtime.IO
 
 #nowarn "10001"
@@ -22,6 +24,19 @@ module internal Helpers =
           RepresentationType : Type
           // the constructor from a stream to the representation
           CreateFromStream : Expr<Stream> -> Expr }
+
+    let lookupSamples (m:LookupMethod) path =
+        match m with
+        | LookupMethod.LocalFile ->
+            File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)
+            |> BsonTop.Parse
+
+        | LookupMethod.GlobalRegistry ->
+            match DocumentRegistry.TryGetValue path with
+            | Some samples -> samples
+            | None -> failwithf "invalid key '%s'" path
+
+        | _ -> failwith "invalid method"
 
     let invalidChars = [ for c in "\"|<>{}[]," -> c ] @ [ for i in 0..31 -> char i ] |> set
 
