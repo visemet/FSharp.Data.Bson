@@ -101,7 +101,7 @@ let private getAssembly (asmName:AssemblyName) reflectionOnly fsharpDataPaths =
         | "FSharp.Core", "2.3.5.1" -> [fsharp31Portable47AssembliesPath]
         | "FSharp.Core", "3.3.1.0" -> [fsharp31Portable7AssembliesPath]
         | "FSharp.Data", _ -> fsharpDataPaths
-        | "MongoDB.Bson", _ -> ["/Users/maxh/Documents/GitHub/FSharp.Data.Bson/packages/mongocsharpdriver.1.9.2/lib/net35"]
+        | "MongoDB.Bson", _ -> ["../../packages/mongocsharpdriver.1.9.2/lib/net35"]
         | _, "2.0.5.0" -> [portable47AssembliesPath]
         | _, _ -> []
     let asm =
