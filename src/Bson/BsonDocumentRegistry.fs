@@ -8,11 +8,11 @@ module DocumentRegistry =
 
     let private dict = Dictionary<string, seq<BsonDocument>>()
 
-    let Add = dict.Add
+    let Add key samples = dict.Add(key, samples)
 
-    let Remove = dict.Remove
+    let Remove key = dict.Remove key
 
-    let Clear = dict.Clear
+    let Clear() = dict.Clear()
 
     let GetValue key = dict.[key]
 
