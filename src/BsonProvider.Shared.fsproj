@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{4925635E-B1B4-4FB1-9843-2CB8C16CF38F}</ProjectGuid>
+    <ProjectGuid>3f679e85-001b-4685-8ff1-59d0c0301093</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BsonProvider</RootNamespace>
-    <AssemblyName>FSharp.Data.Bson</AssemblyName>
+    <RootNamespace>BsonProvider.Shared</RootNamespace>
+    <AssemblyName>FSharp.Data.Bson.Shared</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <Name>BsonProvider</Name>
+    <Name>BsonProvider.Shared</Name>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -24,7 +24,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\FSharp.Data.Bson.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.Data.Bson.Shared.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,13 +33,9 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\FSharp.Data.Bson.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.Data.Bson.Shared.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Data">
-      <HintPath>..\packages\FSharp.Data.2.0.9\lib\net40\FSharp.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\packages\mongocsharpdriver.1.9.2\lib\net35\MongoDB.Bson.dll</HintPath>
       <Private>True</Private>
@@ -54,17 +50,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="BsonProvider.Shared.fsproj">
-      <Name>BsonProvider.Shared</Name>
-      <Project>{3F679E85-001B-4685-8FF1-59D0C0301093}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="CommonRuntime\IO.fs" />
-    <Compile Include="Bson\BsonConversions.fs" />
-    <Compile Include="Bson\BsonRuntime.fs" />
-    <Compile Include="Runtime.fs" />
+    <Compile Include="Bson\BsonDocumentRegistry.fs" />
+    <Compile Include="Bson\BsonLookupOptions.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
@@ -99,7 +86,6 @@
     <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName)$(TargetExt)" DestinationFolder="$(ProjectDir)..\bin" />
     <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName).pdb" DestinationFolder="$(ProjectDir)..\bin" Condition="Exists('$(ProjectDir)$(OutDir)$(TargetName).pdb')" />
     <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName).xml" DestinationFolder="$(ProjectDir)..\bin" />
-    <Copy SourceFiles="$(ProjectDir)$(OutDir)FSharp.Data.dll" DestinationFolder="$(ProjectDir)..\bin" />
     <Copy SourceFiles="$(ProjectDir)$(OutDir)MongoDB.Bson.dll" DestinationFolder="$(ProjectDir)..\bin" />
   </Target>
 </Project>
