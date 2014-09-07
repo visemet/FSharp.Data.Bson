@@ -23,8 +23,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "library", "library", "{BD28
 		docs\content\library\BsonProvider.fsx = docs\content\library\BsonProvider.fsx
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider.Tests", "tests\BsonProvider.Tests\BsonProvider.Tests.fsproj", "{24822B6B-8EDB-48CF-950F-8325D616DAAB}"
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider.DesignTime.Tests", "tests\BsonProvider.DesignTime.Tests\BsonProvider.DesignTime.Tests.fsproj", "{1BD89248-02F0-43EA-8706-BA721BCBA9C5}"
 EndProject
 Global

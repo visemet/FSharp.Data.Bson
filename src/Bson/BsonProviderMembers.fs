@@ -25,19 +25,6 @@ module internal Helpers =
           // the constructor from a stream to the representation
           CreateFromStream : Expr<Stream> -> Expr }
 
-    let lookupSamples (m:LookupMethod) path =
-        match m with
-        | LookupMethod.LocalFile ->
-            File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)
-            |> BsonTop.Parse
-
-        | LookupMethod.GlobalRegistry ->
-            match DocumentRegistry.TryGetValue path with
-            | Some samples -> samples
-            | None -> failwithf "invalid key '%s'" path
-
-        | _ -> failwith "invalid method"
-
     let invalidChars = [ for c in "\"|<>{}[]," -> c ] @ [ for i in 0..31 -> char i ] |> set
 
     let tryGetUri str =
@@ -94,5 +81,5 @@ module internal Members =
               DefaultResolutionFolder = cfg.ResolutionFolder
               ResolutionFolder = resolutionFolder }
 
-        [ createGetSamplesMember spec path resolver :> MethodInfo
-          createReadAllMember spec :> MethodInfo ]
+        [ createGetSamplesMember spec path resolver :> MemberInfo
+          createReadAllMember spec :> MemberInfo ]

@@ -11,8 +11,7 @@ type BsonProviderArgs =
       InferLimit : int
       RootName : string
       ResolutionFolder : string
-      EmbeddedResource : string
-      LookupMethod : LookupMethod }
+      EmbeddedResource : string }
 
 type TypeProviderInstantiation =
     | Bson of BsonProviderArgs
@@ -26,8 +25,7 @@ type TypeProviderInstantiation =
                    box x.InferLimit
                    box x.RootName
                    box x.ResolutionFolder
-                   box x.EmbeddedResource
-                   box x.LookupMethod |]
+                   box x.EmbeddedResource |]
         Debug.generate resolutionFolder runtimeAssembly f args
 
     override x.ToString() =
@@ -61,8 +59,7 @@ type TypeProviderInstantiation =
                    InferLimit = int args.[2]
                    RootName = args.[3]
                    ResolutionFolder = ""
-                   EmbeddedResource = ""
-                   LookupMethod = LookupMethod.LocalFile }
+                   EmbeddedResource = "" }
         | _ -> failwithf "Unknown: %s" args.[0]
 
 open System.Runtime.CompilerServices

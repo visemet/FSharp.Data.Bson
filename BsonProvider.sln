@@ -16,8 +16,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider", "src\BsonPro
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider.DesignTime", "src\BsonProvider.DesignTime.fsproj", "{57A1D652-87DC-4A82-8700-B22E373190E4}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider.Shared", "src\BsonProvider.Shared.fsproj", "{3F679E85-001B-4685-8FF1-59D0C0301093}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
