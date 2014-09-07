@@ -109,7 +109,7 @@ let runTestTask name =
                 OutputFile = "TestResults.xml" })
     taskName ==> "RunTests" |> ignore
 
-["BsonProvider.DesignTime.Tests"]
+["BsonProvider.Tests"; "BsonProvider.DesignTime.Tests"]
 |> List.iter runTestTask
 
 // --------------------------------------------------------------------------------------

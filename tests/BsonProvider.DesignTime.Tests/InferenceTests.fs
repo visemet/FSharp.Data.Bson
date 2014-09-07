@@ -3,7 +3,7 @@
 #r "../../bin/FSharp.Data.Bson.DesignTime.dll"
 #load "../Common/FsUnit.fs"
 #else
-module FSharp.Data.DesignTime.Tests.InferenceTests
+module BsonProvider.DesignTime.Tests.InferenceTests
 #endif
 
 open FsUnit
