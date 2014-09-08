@@ -156,8 +156,8 @@
     <None Include="SignatureTestCases.config" />
     <Compile Include="SignatureTests.fs" />
     <Compile Include="DocumentationTests.fs" />
-    <Content Include="app.config" />
-    <Content Include="packages.config" />
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
