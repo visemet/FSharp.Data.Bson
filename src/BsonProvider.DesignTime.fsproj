@@ -62,7 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonRuntime\IO.fs" />
-    <Compile Include="AssemblyResolver.fs" />
     <Compile Include="Bson\BsonConversions.fs" />
     <Compile Include="Bson\BsonRuntime.fs" />
     <Compile Include="Bson\BsonInference.fs" />
