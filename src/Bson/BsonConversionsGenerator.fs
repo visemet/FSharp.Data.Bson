@@ -55,7 +55,7 @@ type BsonConversionCallingType =
 /// an expression of other type - the type is specified by `field`
 let convertBsonValue (replacer:AssemblyReplacer) canPassAllConversionCallingTypes (field:PrimitiveInferedProperty) =
 
-    assert (field.TypeWithMeasure = field.RuntimeType)
+    // assert (field.TypeWithMeasure = field.RuntimeType)
     assert (field.Name = "")
 
     let returnType =

@@ -36,6 +36,9 @@
     <DocumentationFile>bin\Release\BsonProvider.DesignTime.Tests.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BsonProvider.Resolver">
+      <HintPath>..\..\bin\FSharp.Data.Bson.Resolver.dll</HintPath>
+    </Reference>
     <Reference Include="BsonProvider.DesignTime">
       <HintPath>..\..\bin\FSharp.Data.Bson.DesignTime.dll</HintPath>
     </Reference>

@@ -40,6 +40,10 @@
       <HintPath>..\packages\FSharp.Data.2.0.9\lib\net40\FSharp.Data.DesignTime.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="FSharp.Data">
+      <HintPath>..\packages\FSharp.Data.2.0.9\lib\net40\FSharp.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\packages\mongocsharpdriver.1.9.2\lib\net35\MongoDB.Bson.dll</HintPath>
       <Private>True</Private>
@@ -49,14 +53,15 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="BsonProvider.Shared.fsproj">
-      <Name>BsonProvider.Shared</Name>
-      <Project>{3F679E85-001B-4685-8FF1-59D0C0301093}</Project>
+    <ProjectReference Include="BsonProvider.Resolver.fsproj">
+      <Name>BsonProvider.Resolver</Name>
+      <Project>{77F19909-3A20-4E2D-A2B3-55908B5B995C}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

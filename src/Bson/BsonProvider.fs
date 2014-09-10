@@ -28,6 +28,7 @@ open FSharp.Data
 open FSharp.Data.Runtime
 open FSharp.Data.Runtime.StructuralTypes
 open BsonProvider
+open BsonProvider.Internal.Configuration
 open BsonProvider.Runtime
 open BsonProvider.Runtime.IO
 open BsonProvider.ProviderImplementation.Members
@@ -39,6 +40,40 @@ open BsonProvider.ProviderImplementation.Members
 [<TypeProvider>]
 type public BsonProvider(cfg:TypeProviderConfig) as this =
     inherit DisposableTypeProviderForNamespaces()
+
+    // static do printf "%A\n" <| resolveReferencedAssembly "MongoDB.Bson, Version=1.9.2.235, Culture=neutral, PublicKeyToken=f686731cfb9cc103"
+
+    (* static do
+        // When RProvider is installed via NuGet, the RDotNet assembly and plugins
+        // will appear typically in "../../*/lib/net40". To support this, we look at
+        // RProvider.dll.config which has this pattern in custom key "ProbingLocations".
+        // Here, we resolve assemblies by looking into the specified search paths.
+        printf "adding handler for AssemblyResolve event\n"
+        AppDomain.CurrentDomain.add_AssemblyResolve(fun source args ->
+            printf "args.Name = %A\n" args.Name
+            resolveReferencedAssembly args.Name) *)
+
+    let resolve() =
+        // THIS IS NECESSARY
+        AppDomain.CurrentDomain.add_AssemblyResolve (fun _ args ->
+            printf "args.Name = %A\n" args.Name
+            let name = System.Reflection.AssemblyName(args.Name)
+            let existingAssembly =
+                System.AppDomain.CurrentDomain.GetAssemblies()
+                |> Seq.tryFind(fun a -> System.Reflection.AssemblyName.ReferenceMatchesDefinition(name, a.GetName()))
+            match existingAssembly with
+            | Some a -> a
+            | None -> null)
+
+        AppDomain.CurrentDomain.add_ReflectionOnlyAssemblyResolve (fun _ args ->
+            printf "REFLECTION ONLY args.Name = %A\n" args.Name
+            let name = System.Reflection.AssemblyName(args.Name)
+            let existingAssembly =
+                System.AppDomain.CurrentDomain.GetAssemblies()
+                |> Seq.tryFind(fun a -> System.Reflection.AssemblyName.ReferenceMatchesDefinition(name, a.GetName()))
+            match existingAssembly with
+            | Some a -> a
+            | None -> null)
 
     // Generate namespace and type 'BsonProvider.BsonProvider'
     let asm, version, replacer = AssemblyResolver.init cfg
@@ -73,7 +108,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
             { GeneratedType = tpType
               RepresentationType = result.ConvertedType
               CreateFromStream = fun stream ->
-                    result.GetConverter ctx <@@ BsonTop.CreateList(%stream) @@> }
+                result.GetConverter ctx <@@ BsonTop.CreateList(%stream) @@> }
 
         let getSamplesFromPath path =
 
