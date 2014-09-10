@@ -20,7 +20,7 @@ open System
 open System.IO
 
 /// Helper functions called from the generated code for working with files
-module internal IO =
+module IO =
 
     let private (++) a b = Path.Combine(a,b)
 

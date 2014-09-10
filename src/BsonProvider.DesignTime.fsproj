@@ -65,9 +65,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommonRuntime\IO.fs" />
-    <Compile Include="Bson\BsonConversions.fs" />
-    <Compile Include="Bson\BsonRuntime.fs" />
     <Compile Include="Bson\BsonInference.fs" />
     <Compile Include="Bson\BsonConversionsGenerator.fs" />
     <Compile Include="Bson\BsonGenerator.fs" />
