@@ -16,7 +16,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider", "src\BsonPro
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider.DesignTime", "src\BsonProvider.DesignTime.fsproj", "{57A1D652-87DC-4A82-8700-B22E373190E4}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider.Resolver", "src\BsonProvider.Resolver.fsproj", "{77F19909-3A20-4E2D-A2B3-55908B5B995C}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BsonProvider.Runtime", "src\BsonProvider.Runtime.fsproj", "{77F19909-3A20-4E2D-A2B3-55908B5B995C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
