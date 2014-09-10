@@ -19,42 +19,28 @@ namespace BsonProvider.Runtime
 open System
 open System.IO
 
-/// Helper functions called from the generated code for working with files
+/// Helpers called from the generated code for working with URIs
 module IO =
 
     let private (++) a b = Path.Combine(a,b)
 
-    let isWeb (uri:Uri) = uri.IsAbsoluteUri && not uri.IsUnc && uri.Scheme <> Uri.UriSchemeFile
+    let private isWeb (uri:Uri) = uri.IsAbsoluteUri && not uri.IsUnc
+                                                    && uri.Scheme <> Uri.UriSchemeFile
 
     type UriResolutionType =
-        | DesignTime
-        | Runtime
-        | RuntimeInFSI
+       | DesignTime
+       | Runtime
+       | RuntimeInFsi
 
-    type UriResolver =
+    type UriResolver = {
+        ResolutionType : UriResolutionType
+        DefaultResolutionFolder : string
+        ResolutionFolder : string
+    } with
 
-        { ResolutionType : UriResolutionType
-          DefaultResolutionFolder : string
-          ResolutionFolder : string }
-
-        /// Resolve the absolute location of a file (or web URL) according to the rules
-        /// used by standard F# type providers as described here:
-        /// https://github.com/fsharp/fsharpx/issues/195#issuecomment-12141785
-        ///
-        ///  * if it is web resource, just return it
-        ///  * if it is full path, just return it
-        ///  * otherwise.
-        ///
-        ///    At design-time:
-        ///      * if the user specified resolution folder, use that
-        ///      * otherwise use the default resolution folder
-        ///    At run-time:
-        ///      * if the user specified resolution folder, use that
-        ///      * if it is running in F# interactive (config.IsHostedExecution)
-        ///        use the default resolution folder
-        ///      * otherwise, use 'CurrentDomain.BaseDirectory'
-        /// returns an absolute uri * isWeb flag
-        member x.Resolve(uri:Uri) =
+        /// Resolve the absolute location of a file or web resource
+        /// according to the same rules as the standard F# type providers
+        member x.Resolve (uri:Uri) =
             if uri.IsAbsoluteUri then uri, isWeb uri
             else
                 let root =
@@ -64,12 +50,13 @@ module IO =
                         then x.DefaultResolutionFolder
                         else x.ResolutionFolder
 
-                    | RuntimeInFSI -> x.DefaultResolutionFolder
-                    | Runtime -> AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\', '/')
+                    | RuntimeInFsi -> x.DefaultResolutionFolder
+                    | Runtime -> AppDomain.CurrentDomain.BaseDirectory
 
-                Uri(root ++ uri.OriginalString, UriKind.Absolute), false
+                Uri(Uri root, uri.OriginalString), false
 
-        member x.TryResolveToPath(uri:Uri) =
+        /// Optionally resolve the absolute path of a file
+        member x.TryResolveToPath (uri:Uri) =
             match x.Resolve uri with
             | _, true -> None
             | uri, false -> Some uri.AbsolutePath
