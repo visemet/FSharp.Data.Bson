@@ -7,7 +7,11 @@ In this article, we look at a type provider that makes it possible to easily...
 
 *)
 
-#r "../../../bin/FSharp.Data.Bson.dll"
+#I "../../../bin"
+#r "FSharp.Data.Bson.Runtime.dll"
+#r "FSharp.Data.Bson.dll"
+#r "MongoDB.Bson.dll"
+
 open BsonProvider
 
 (**

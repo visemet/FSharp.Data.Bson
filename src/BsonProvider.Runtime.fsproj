@@ -59,7 +59,6 @@
     <Compile Include="CommonRuntime\IO.fs" />
     <Compile Include="Bson\BsonConversions.fs" />
     <Compile Include="Bson\BsonRuntime.fs" />
-    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
@@ -92,8 +91,9 @@
   -->
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName)$(TargetExt)" DestinationFolder="$(ProjectDir)..\bin" />
-    <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName)$(TargetExt).config" DestinationFolder="$(ProjectDir)..\bin" />
     <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName).pdb" DestinationFolder="$(ProjectDir)..\bin" Condition="Exists('$(ProjectDir)$(OutDir)$(TargetName).pdb')" />
     <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName).xml" DestinationFolder="$(ProjectDir)..\bin" />
+    <Copy SourceFiles="$(ProjectDir)$(OutDir)FSharp.Data.dll" DestinationFolder="$(ProjectDir)..\bin" />
+    <Copy SourceFiles="$(ProjectDir)$(OutDir)MongoDB.Bson.dll" DestinationFolder="$(ProjectDir)..\bin" />
   </Target>
 </Project>

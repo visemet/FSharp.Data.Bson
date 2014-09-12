@@ -36,11 +36,11 @@
     <DocumentationFile>bin\Release\BsonProvider.DesignTime.Tests.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BsonProvider.Resolver">
-      <HintPath>..\..\bin\FSharp.Data.Bson.Resolver.dll</HintPath>
-    </Reference>
     <Reference Include="BsonProvider.DesignTime">
       <HintPath>..\..\bin\FSharp.Data.Bson.DesignTime.dll</HintPath>
+    </Reference>
+    <Reference Include="BsonProvider.Runtime">
+      <HintPath>..\..\bin\FSharp.Data.Bson.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="CSharpFormat">
       <HintPath>..\..\packages\FSharp.Formatting.2.4.8\lib\net40\CSharpFormat.dll</HintPath>

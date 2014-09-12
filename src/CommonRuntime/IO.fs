@@ -53,7 +53,7 @@ module IO =
                     | RuntimeInFsi -> x.DefaultResolutionFolder
                     | Runtime -> AppDomain.CurrentDomain.BaseDirectory
 
-                Uri(Uri root, uri.OriginalString), false
+                Uri(root ++ uri.OriginalString, UriKind.Absolute), false
 
         /// Optionally resolve the absolute path of a file
         member x.TryResolveToPath (uri:Uri) =

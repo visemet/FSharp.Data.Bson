@@ -88,7 +88,5 @@
     <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName)$(TargetExt)" DestinationFolder="$(ProjectDir)..\bin" />
     <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName).pdb" DestinationFolder="$(ProjectDir)..\bin" Condition="Exists('$(ProjectDir)$(OutDir)$(TargetName).pdb')" />
     <Copy SourceFiles="$(ProjectDir)$(OutDir)$(TargetName).xml" DestinationFolder="$(ProjectDir)..\bin" />
-    <Copy SourceFiles="$(ProjectDir)$(OutDir)FSharp.Data.dll" DestinationFolder="$(ProjectDir)..\bin" />
-    <Copy SourceFiles="$(ProjectDir)$(OutDir)MongoDB.Bson.dll" DestinationFolder="$(ProjectDir)..\bin" />
   </Target>
 </Project>
