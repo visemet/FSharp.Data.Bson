@@ -55,8 +55,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonRuntime\DependencyResolver.fs" />
     <Compile Include="CommonRuntime\IO.fs" />
-    <Compile Include="Bson\Configuration.fs" />
     <Compile Include="Bson\BsonConversions.fs" />
     <Compile Include="Bson\BsonRuntime.fs" />
     <None Include="app.config" />
