@@ -13,6 +13,11 @@ In this article, we look at a type provider that makes it possible to easily...
 #r "MongoDB.Bson.dll"
 
 open BsonProvider
+open BsonProvider.Runtime
+
+type Messages = BsonProvider<"/Users/maxh/Dropbox/messages.bson">
+
+printf "%A\n" <| Messages.GetSamples().[0].Body
 
 (**
 
