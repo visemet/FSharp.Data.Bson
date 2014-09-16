@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{77f19909-3a20-4e2d-a2b3-55908b5b995c}</ProjectGuid>
+    <ProjectGuid>{77F19909-3A20-4E2D-A2B3-55908B5B995C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>BsonProvider.Runtime</RootNamespace>
     <AssemblyName>FSharp.Data.Bson.Runtime</AssemblyName>
