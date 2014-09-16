@@ -20,6 +20,7 @@ open System
 open System.IO
 open System.Reflection
 open Microsoft.FSharp.Core.CompilerServices
+open Microsoft.FSharp.Quotations
 open MongoDB.Bson
 open MongoDB.Bson.Serialization
 open ProviderImplementation
@@ -43,21 +44,15 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
     inherit DisposableTypeProviderForNamespaces()
 
     do DependencyResolver.init()
-    do printf "%A\n" <| (Assembly.ReflectionOnlyLoadFrom cfg.RuntimeAssembly).GetReferencedAssemblies()
-
-    // do printf "runtimeAssembly is %A\n" cfg.RuntimeAssembly
-    let runtimeAssembly =
-        AppDomain.CurrentDomain.GetAssemblies()
-        |> Seq.find (fun asm -> asm.FullName.StartsWith("FSharp.Data.Bson.Runtime,"))
-
-    do printf "runtime assembly is loaded reflection only? %A\n" runtimeAssembly.ReflectionOnly
-
-    // do cfg.RuntimeAssembly <- runtimeAssembly.FullName
-
-    // let fakeCfg = new TypeProviderConfig(cfg.ResolutionFolder, "", cfg.ReferencedAssemblies, cfg.TemporaryFolder)
 
     // Generate namespace and type 'BsonProvider.BsonProvider'
     let asm, version, replacer = AssemblyResolver.init cfg
+
+    let replacer = { new AssemblyReplacer with
+        member __.ToRuntime (t:Type) = replacer.ToRuntime t
+        member __.ToRuntime (e:Expr) = replacer.ToRuntime e
+        member __.ToDesignTime (e:Expr) = replacer.ToDesignTime e }
+
     let ns = "BsonProvider"
     let bsonProvTy = ProvidedTypeDefinition(asm, ns, "BsonProvider", Some typeof<BsonValue>)
 

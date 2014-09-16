@@ -106,8 +106,6 @@ let convertBsonValue (replacer:AssemblyReplacer) canPassAllConversionCallingType
             let opt = convert <@ Some (%%value:IBsonTop).BsonValue @>
             typeof<TextRuntime>?OptionToNullable (field.RuntimeType) opt
 
-        |> replacer.ToRuntime
-
     let conversionCallingType =
         if canPassAllConversionCallingTypes then
             match field.TypeWrapper with

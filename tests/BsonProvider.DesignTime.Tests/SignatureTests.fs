@@ -39,7 +39,7 @@ let testCases =
 let expectedDirectory = sourceDirectory ++ "expected"
 
 let resolutionFolder = sourceDirectory ++ "TestData"
-let assemblyName = "FSharp.Data.Bson.Runtime.dll"
+let assemblyName = "FSharp.Data.Bson.dll"
 let runtimeAssembly = sourceDirectory ++ ".." ++ ".." ++ "bin" ++ assemblyName
 
 let generateAllExpected() =
