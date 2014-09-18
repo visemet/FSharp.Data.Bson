@@ -46,13 +46,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
     do DependencyResolver.init()
 
     // Generate namespace and type 'BsonProvider.BsonProvider'
-    let asm, version, replacer = AssemblyResolver.init cfg
-
-    let replacer = { new AssemblyReplacer with
-        member __.ToRuntime (t:Type) = replacer.ToRuntime t
-        member __.ToRuntime (e:Expr) = replacer.ToRuntime e
-        member __.ToDesignTime (e:Expr) = replacer.ToDesignTime e }
-
+    let asm = Assembly.ReflectionOnlyLoadFrom cfg.RuntimeAssembly
     let ns = "BsonProvider"
     let bsonProvTy = ProvidedTypeDefinition(asm, ns, "BsonProvider", Some typeof<BsonValue>)
 
@@ -77,7 +71,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
                 if String.IsNullOrWhiteSpace rootName then "Root"
                 else NameUtils.singularize rootName
 
-            let ctx = BsonGenerationContext.Create(tpType, replacer)
+            let ctx = BsonGenerationContext.Create(tpType)
             let result = BsonTypeBuilder.generateBsonType ctx (*canPassAllConversionCallingTypes*)false
                     (*optionalityHandledByParent*)false nameOverride inferedType
 

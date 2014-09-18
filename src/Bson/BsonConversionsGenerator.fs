@@ -53,7 +53,7 @@ type BsonConversionCallingType =
 
 /// Creates a function that takes Expr<BsonValue option> and converts it to
 /// an expression of other type - the type is specified by `field`
-let convertBsonValue (replacer:AssemblyReplacer) canPassAllConversionCallingTypes (field:PrimitiveInferedProperty) =
+let convertBsonValue canPassAllConversionCallingTypes (field:PrimitiveInferedProperty) =
 
     // assert (field.TypeWithMeasure = field.RuntimeType)
     assert (field.Name = "")
@@ -63,7 +63,6 @@ let convertBsonValue (replacer:AssemblyReplacer) canPassAllConversionCallingType
         | TypeWrapper.None -> field.RuntimeType
         | TypeWrapper.Option -> typedefof<option<_>>.MakeGenericType field.RuntimeType
         | TypeWrapper.Nullable -> typedefof<Nullable<_>>.MakeGenericType field.RuntimeType
-        |> replacer.ToRuntime
 
     let wrapInLetIfNeeded (value:Expr) getBody =
         match value with
