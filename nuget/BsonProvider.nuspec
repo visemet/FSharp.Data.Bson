@@ -1,12 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>BsonProvider</id>
-    <version>0.0.0</version>
-    <authors>Max Hirschhorn</authors>
+    <id>@project@</id>
+    <title>BSON Type Provider</title>
+    <version>@build.number@</version>
+    <authors>@authors@</authors>
+    <owners>@authors@</owners>
+    <licenseUrl>http://github.com/fsharp/FSharp.Data.Bson/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>http://visemet.github.io/FSharp.Data.Bson</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A type provider for BSON.</description>
+    <summary>@summary@</summary>
+    <description>@description@</description>
+    <releaseNotes>@releaseNotes@</releaseNotes>
     <copyright>Copyright 2014</copyright>
+    <tags>@tags@</tags>
     <dependencies>
       <group targetFramework="net40">
         <dependency id="FSharp.Data" version="2.0.9" />
@@ -15,6 +22,7 @@
     </dependencies>
     <references>
       <reference file="FSharp.Data.Bson.dll" />
+      <reference file="FSharp.Data.Bson.Runtime.dll" />
     </references>
   </metadata>
   <files>
@@ -24,5 +32,8 @@
     <file src="..\bin\FSharp.Data.Bson.DesignTime.dll" target="lib/net40" />
     <file src="..\bin\FSharp.Data.Bson.DesignTime.pdb" target="lib/net40" />
     <file src="..\bin\FSharp.Data.Bson.DesignTime.xml" target="lib/net40" />
+    <file src="..\bin\FSharp.Data.Bson.Runtime.dll" target="lib/net40" />
+    <file src="..\bin\FSharp.Data.Bson.Runtime.pdb" target="lib/net40" />
+    <file src="..\bin\FSharp.Data.Bson.Runtime.xml" target="lib/net40" />
   </files>
 </package>
