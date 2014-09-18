@@ -74,7 +74,10 @@ Target "AssemblyInfo" <| fun () ->
 Target "RestorePackages" RestorePackages
 
 Target "Clean" <| fun () ->
-    CleanDirs ["bin"]
+    CleanDirs ["bin"; "src/bin"; "src/obj"]
+
+Target "CleanTests" <| fun() ->
+    CleanDirs ["tests/bin"; "tests/obj"]
 
 Target "CleanDocs" <| fun () ->
     CleanDirs ["docs/output"]
@@ -220,6 +223,8 @@ Target "Help" <| fun () ->
 Target "All" DoNothing
 
 "Clean" ==> "RestorePackages"  ==> "AssemblyInfo" ==> "Build"
+"CleanTests" ==> "BuildTests"
+
 "Build" ==> "All"
 "BuildTests" ==> "All"
 "RunTests" ==> "All"
