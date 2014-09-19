@@ -14,16 +14,15 @@
  *)
 
 #if INTERACTIVE
-#r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
-#r "../../bin/FSharp.Data.DesignTime.dll"
-#r "../../bin/BsonProvider.DesignTime.dll"
-#load "../Common/FsUnit.fs"
+#I "../../packages/NUnit.2.6.3/lib"
+#I "../../bin"
+#r "nunit.framework.dll"
+#r "FSharp.Data.Bson.DesignTime.dll"
 #else
 module BsonProvider.DesignTime.Tests.SignatureTests
 #endif
 
 open System.IO
-open FsUnit
 open NUnit.Framework
 open BsonProvider.ProviderImplementation
 
@@ -59,4 +58,4 @@ let ``Validate signature didn't change`` (testCase:TypeProviderInstantiation) =
     let output = testCase.Dump resolutionFolder "" runtimeAssembly (*signatureOnly*)false (*ignoreOutput*)false |> normalize
     if output <> expected then
         printfn "Obtained Signature:\n%s" output
-    output |> should equal expected
+    Assert.AreEqual(expected, output)

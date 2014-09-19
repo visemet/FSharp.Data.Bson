@@ -77,7 +77,8 @@ Target "Clean" <| fun () ->
     CleanDirs ["bin"; "src/bin"; "src/obj"]
 
 Target "CleanTests" <| fun() ->
-    CleanDirs ["tests/bin"; "tests/obj"]
+    CleanDirs [ "tests/BsonProvider.DesignTime.Tests/bin"
+                "tests/BsonProvider.DesignTime.Tests/obj" ]
 
 Target "CleanDocs" <| fun () ->
     CleanDirs ["docs/output"]

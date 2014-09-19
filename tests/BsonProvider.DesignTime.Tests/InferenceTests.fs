@@ -15,19 +15,19 @@
  *)
 
 #if INTERACTIVE
-#r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
-#r "../../bin/FSharp.Data.Bson.DesignTime.dll"
-#load "../Common/FsUnit.fs"
+#I "../../packages/NUnit.2.6.3/lib"
+#I "../../bin"
+#r "nunit.framework.dll"
+#r "FSharp.Data.Bson.DesignTime.dll"
 #else
 module BsonProvider.DesignTime.Tests.InferenceTests
 #endif
 
-open FsUnit
 open System
 open System.Globalization
 open System.IO
-open NUnit.Framework
 open MongoDB.Bson
+open NUnit.Framework
 open FSharp.Data
 open FSharp.Data.Runtime
 open FSharp.Data.Runtime.StructuralTypes
@@ -36,9 +36,11 @@ open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 open BsonProvider.ProviderImplementation
 
+let shouldEqual (x: 'a) (y: 'a) = Assert.AreEqual(x, y, sprintf "\n  Expected: %A\n  Actual: %A\n" x y)
+
 /// A collection containing just one type
 let SimpleCollection typ =
-    InferedType.Collection([ typeTag typ], Map.ofSeq [typeTag typ, (InferedMultiplicity.Multiple, typ)])
+    InferedType.Collection([typeTag typ], Map.ofSeq [typeTag typ, (InferedMultiplicity.Multiple, typ)])
 
 let culture = TextRuntime.GetCulture ""
 
