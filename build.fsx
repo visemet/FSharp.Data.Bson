@@ -20,7 +20,7 @@ Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 let (!!) includes = (!! includes).SetBaseDirectory __SOURCE_DIRECTORY__
 
 // -----------------------------------------------------------------------------
-// Information about the project to be used at NuGet and in AssemblyInfo files
+// Information about the project used on NuGet and in the AssemblyInfo files
 // -----------------------------------------------------------------------------
 
 let project = "BsonProvider"
@@ -33,50 +33,55 @@ let gitHome = "https://github.com/visemet"
 let gitName = "FSharp.Data.Bson"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/visemet"
 
-// Read release notes & version info from RELEASE_NOTES.md
+// Read release notes and version info from RELEASE_NOTES.md
 let release =
     File.ReadLines "RELEASE_NOTES.md"
     |> ReleaseNotesHelper.parseReleaseNotes
 
 let isAppVeyorBuild = environVar "APPVEYOR" <> null
 let nugetVersion =
-    if isAppVeyorBuild then sprintf "%s-a%s" release.NugetVersion (DateTime.UtcNow.ToString "yyMMddHHmm")
+    if isAppVeyorBuild then
+        let now = DateTime.UtcNow.ToString "yyMMddHHmm"
+        sprintf "%s-a%s" release.NugetVersion now
     else release.NugetVersion
 
-Target "AppVeyorBuildVersion" (fun _ ->
-    Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" nugetVersion) |> ignore
-)
+Target "AppVeyorBuildVersion" <| fun _ ->
+    let args = sprintf "UpdateBuild -Version \"%s\"" nugetVersion
+    Shell.Exec("appveyor", args) |> ignore
 
 // -----------------------------------------------------------------------------
-// Generate assembly info files with the right version & up-to-date information
+// Generate the AssemblyInfo files with the correct version number and
+// up-to-date information about the project
 
 Target "AssemblyInfo" <| fun () ->
     for file in !! "src/AssemblyInfo*.fs" do
-        let replace (oldValue:string) newValue (str:string) = str.Replace(oldValue, newValue)
+        let replace (oldValue:string) newValue (str:string) =
+            str.Replace(oldValue, newValue)
         let title =
             Path.GetFileNameWithoutExtension file
-            |> replace ".Portable47" ""
             |> replace "AssemblyInfo" "BsonProvider"
-        let versionSuffix =
-            if file.Contains ".Portable47" then ".47"
-            else ".0"
+        let versionSuffix = ".0"
         let version = release.AssemblyVersion + versionSuffix
         CreateFSharpAssemblyInfo file
            [ Attribute.Title title
              Attribute.Product project
              Attribute.Description summary
              Attribute.Version version
-             Attribute.FileVersion version]
+             Attribute.FileVersion version ]
 
 // -----------------------------------------------------------------------------
-// Clean build results & restore NuGet packages
+// Restore any NuGet packages
 
 Target "RestorePackages" RestorePackages
+
+// -----------------------------------------------------------------------------
+// Clean up any build artifacts from the library and test projects, as well as
+// any generated documentation
 
 Target "Clean" <| fun () ->
     CleanDirs ["bin"; "src/bin"; "src/obj"]
 
-Target "CleanTests" <| fun() ->
+Target "CleanTests" <| fun () ->
     CleanDirs [ "tests/BsonProvider.DesignTime.Tests/bin"
                 "tests/BsonProvider.DesignTime.Tests/obj" ]
 
@@ -84,7 +89,7 @@ Target "CleanDocs" <| fun () ->
     CleanDirs ["docs/output"]
 
 // -----------------------------------------------------------------------------
-// Build library & test projects
+// Build the library and test projects
 
 Target "Build" <| fun () ->
     !! "BsonProvider.sln"
@@ -97,7 +102,8 @@ Target "BuildTests" <| fun () ->
     |> ignore
 
 // -----------------------------------------------------------------------------
-// Run the unit tests using test runner
+// Run the unit tests using a sequential NUnit test runner
+
 Target "RunTests" <| ignore
 
 let runTestTask name =
@@ -117,17 +123,15 @@ let runTestTask name =
 |> List.iter runTestTask
 
 // -----------------------------------------------------------------------------
-// Source link the pdb files
+// Source link the PDB files
 
 #if MONO
-
 Target "SourceLink" <| id
-
 #else
-
 open SourceLink
 
 Target "SourceLink" <| fun () ->
+    let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw gitName
     use repo = new GitRepo(__SOURCE_DIRECTORY__)
     for file in !! "src/*.fsproj" do
         let proj = VsProj.LoadRelease file
@@ -135,10 +139,9 @@ Target "SourceLink" <| fun () ->
         let files = proj.Compiles -- "**/AssemblyInfo*.fs"
         repo.VerifyChecksums files
         proj.VerifyPdbChecksums files
-        proj.CreateSrcSrv (sprintf "%s/%s/{0}/%%var2%%" gitRaw gitName) repo.Revision (repo.Paths files)
+        proj.CreateSrcSrv baseUrl repo.Revision (repo.Paths files)
         Pdbstr.exec proj.OutputFilePdb proj.OutputFilePdbSrcSrv
     CopyFiles "bin" (!! "src/bin/Release/FSharp.Data.Bson.*")
-
 #endif
 
 // -----------------------------------------------------------------------------
@@ -166,19 +169,26 @@ Target "NuGet" <| fun () ->
 // Generate the documentation
 
 Target "GenerateDocs" <| fun () ->
-    executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"] [] |> ignore
+    executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"] []
+    |> ignore
 
 // -----------------------------------------------------------------------------
-// Release Scripts
+// Release the generated documentation or compiled binaries
 
 let publishFiles what branch fromFolder toFolder =
     let tempFolder = "temp/" + branch
     CleanDir tempFolder
-    Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") branch tempFolder
+
+    let gitUrl = gitHome + "/" + gitName + ".git"
+    Repository.cloneSingleBranch "" gitUrl branch tempFolder
+
     fullclean tempFolder
-    CopyRecursive fromFolder (tempFolder + "/" + toFolder) true |> tracefn "%A"
+    CopyRecursive fromFolder (tempFolder + "/" + toFolder) true
+    |> tracefn "%A"
+
     StageAll tempFolder
-    Commit tempFolder <| sprintf "Update %s for version %s" what release.NugetVersion
+    Commit tempFolder <| sprintf "Update %s for version %s."
+                                 what release.NugetVersion
     Branches.push tempFolder
 
 Target "ReleaseDocs" <| fun () ->
@@ -190,6 +200,7 @@ Target "ReleaseBinaries" <| fun () ->
 Target "Release" DoNothing
 
 "CleanDocs" ==> "GenerateDocs" ==> "ReleaseDocs"
+
 "ReleaseDocs" ==> "Release"
 "ReleaseBinaries" ==> "Release"
 "NuGet" ==> "Release"
@@ -199,25 +210,25 @@ Target "Release" DoNothing
 
 Target "Help" <| fun () ->
     printfn ""
-    printfn "  Please specify the target by calling 'build <Target>'"
+    printfn "  Please specify the target by calling 'build <target>'"
     printfn ""
     printfn "  Targets for building:"
-    printfn "  * Build"
-    printfn "  * BuildTests"
-    printfn "  * RunTests"
-    printfn "  * All (calls previous 3)"
+    printfn "    1) Build"
+    printfn "    2) BuildTests"
+    printfn "    3) RunTests"
+    printfn "    4) All (calls 1, 2, and 3)"
     printfn ""
-    printfn "  Targets for releasing (requires write access to the 'https://github.com/visemet/FSharp.Data.Bson.git' repository):"
-    printfn "  * GenerateDocs"
-    printfn "  * ReleaseDocs (calls previous)"
-    printfn "  * ReleaseBinaries"
-    printfn "  * NuGet (creates package only, doesn't publish)"
-    printfn "  * Release (calls previous 4)"
+    printfn "  Targets for releasing:"
+    printfn "    5) GenerateDocs"
+    printfn "    6) ReleaseDocs (calls 5)"
+    printfn "    7) ReleaseBinaries"
+    printfn "    8) NuGet (creates package only - does not publish)"
+    printfn "    9) Release (calls 5, 6, 7, and 8)"
     printfn ""
     printfn "  Other targets:"
 #if MONO
 #else
-    printfn "  * SourceLink (requires autocrlf=input)"
+    printfn "    10) SourceLink (requires autocrlf=input)"
 #endif
     printfn ""
 
