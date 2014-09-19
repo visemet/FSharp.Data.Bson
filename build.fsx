@@ -1,8 +1,8 @@
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // FAKE build script
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-#I "packages/FAKE/tools/"
+#I "packages/FAKE/tools"
 #r "FakeLib.dll"
 
 #if MONO
@@ -19,9 +19,9 @@ open Fake.Git
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 let (!!) includes = (!! includes).SetBaseDirectory __SOURCE_DIRECTORY__
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 let project = "BsonProvider"
 let authors = ["Max Hirschhorn"]
@@ -47,7 +47,7 @@ Target "AppVeyorBuildVersion" (fun _ ->
     Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" nugetVersion) |> ignore
 )
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
 
 Target "AssemblyInfo" <| fun () ->
@@ -68,7 +68,7 @@ Target "AssemblyInfo" <| fun () ->
              Attribute.Version version
              Attribute.FileVersion version]
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Clean build results & restore NuGet packages
 
 Target "RestorePackages" RestorePackages
@@ -83,7 +83,7 @@ Target "CleanTests" <| fun() ->
 Target "CleanDocs" <| fun () ->
     CleanDirs ["docs/output"]
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Build library & test projects
 
 Target "Build" <| fun () ->
@@ -96,7 +96,7 @@ Target "BuildTests" <| fun () ->
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Run the unit tests using test runner
 Target "RunTests" <| ignore
 
@@ -116,7 +116,7 @@ let runTestTask name =
 ["BsonProvider.DesignTime.Tests"]
 |> List.iter runTestTask
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Source link the pdb files
 
 #if MONO
@@ -141,7 +141,7 @@ Target "SourceLink" <| fun () ->
 
 #endif
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Build a NuGet package
 
 Target "NuGet" <| fun () ->
@@ -162,13 +162,13 @@ Target "NuGet" <| fun () ->
             Dependencies = [] })
         "nuget/BsonProvider.nuspec"
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Generate the documentation
 
 Target "GenerateDocs" <| fun () ->
     executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"] [] |> ignore
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Release Scripts
 
 let publishFiles what branch fromFolder toFolder =
@@ -194,7 +194,7 @@ Target "Release" DoNothing
 "ReleaseBinaries" ==> "Release"
 "NuGet" ==> "Release"
 
-// --------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Help
 
 Target "Help" <| fun () ->

@@ -45,17 +45,27 @@ let generateAllExpected() =
     if not <| Directory.Exists expectedDirectory then
         Directory.CreateDirectory expectedDirectory |> ignore
     for testCase in testCases do
-        testCase.Dump resolutionFolder expectedDirectory runtimeAssembly (*signatureOnly*)false (*ignoreOutput*)false
+        testCase.Dump resolutionFolder expectedDirectory runtimeAssembly
+                      (*signatureOnly*)false (*ignoreOutput*)false
         |> ignore
 
 let normalize (str:string) =
-  str.Replace("\r\n", "\n").Replace("\r", "\n").Replace("@\"<RESOLUTION_FOLDER>\"", "\"<RESOLUTION_FOLDER>\"")
+    str.Replace("\r\n", "\n").Replace("\r", "\n")
+       .Replace("@\"<RESOLUTION_FOLDER>\"", "\"<RESOLUTION_FOLDER>\"")
 
 [<Test>]
 [<TestCaseSource "testCases">]
 let ``Validate signature didn't change`` (testCase:TypeProviderInstantiation) =
-    let expected = testCase.ExpectedPath expectedDirectory |> File.ReadAllText |> normalize
-    let output = testCase.Dump resolutionFolder "" runtimeAssembly (*signatureOnly*)false (*ignoreOutput*)false |> normalize
+    let expected =
+        testCase.ExpectedPath expectedDirectory
+        |> File.ReadAllText
+        |> normalize
+
+    let output =
+        testCase.Dump resolutionFolder "" runtimeAssembly
+                      (*signatureOnly*)false (*ignoreOutput*)false
+        |> normalize
+
     if output <> expected then
         printfn "Obtained Signature:\n%s" output
     Assert.AreEqual(expected, output)
