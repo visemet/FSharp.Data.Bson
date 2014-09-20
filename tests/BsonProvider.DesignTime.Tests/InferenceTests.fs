@@ -118,7 +118,7 @@ let ``Infers heterogeneous type of InferedType.Primitives and records``() =
                     BsonInt32 1 :> BsonValue
                     BsonInt32 2 :> BsonValue ]
 
-    let prop = { Name="a"; Type=InferedType.Primitive(typeof<int>, None, false) }
+    let prop = { InferedProperty.Name="a"; Type=InferedType.Primitive(typeof<int>, None, false) }
     let expected =
         InferedType.Collection
                 ([ InferedTypeTag.Record None; InferedTypeTag.Number ],
@@ -141,7 +141,7 @@ let ``Merges types in a collection of collections``() =
         ]
 
     let expected =
-        [ { Name = "a"; Type = InferedType.Primitive(typeof<bool>, None, true) }
+        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<bool>, None, true) }
           { Name = "c"; Type = InferedType.Primitive(typeof<int32>, None, false) }
           { Name = "b"; Type = InferedType.Primitive(typeof<float>, None, true) } ]
         |> toRecord
@@ -160,7 +160,7 @@ let ``Unions properties of records in a collection``() =
                                    BsonElement("c", BsonBoolean true) ]) ]
 
     let expected =
-        [ { Name = "a"; Type = InferedType.Primitive(typeof<float>, None, false) }
+        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<float>, None, false) }
           { Name = "b"; Type = InferedType.Primitive(typeof<string>, None, true) }
           { Name = "c"; Type = InferedType.Primitive(typeof<bool>, None, true) } ]
         |> toRecord
@@ -176,7 +176,7 @@ let ``Null makes a string optional``() =
                     BsonDocument("a", BsonString "10") ]
 
     let expected =
-        [ { Name = "a"; Type = InferedType.Primitive(typeof<string>, None, true) } ]
+        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<string>, None, true) } ]
         |> toRecord
         |> SimpleCollection
 
@@ -190,7 +190,7 @@ let ``Null makes a DateTime optional``() =
                     BsonDocument("a", BsonDateTime 10L) ]
 
     let expected =
-        [ { Name = "a"; Type = InferedType.Primitive(typeof<DateTime>, None, true) } ]
+        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<DateTime>, None, true) } ]
         |> toRecord
         |> SimpleCollection
 
@@ -204,7 +204,7 @@ let ``Null makes an int optional``() =
                     BsonDocument("a", BsonInt32 10) ]
 
     let expected =
-        [ { Name = "a"; Type = InferedType.Primitive(typeof<int>, None, true) } ]
+        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<int>, None, true) } ]
         |> toRecord
         |> SimpleCollection
 
@@ -217,9 +217,9 @@ let ``Null makes a record optional``() =
         BsonArray [ BsonDocument("a", BsonNull.Value)
                     BsonDocument("a", BsonDocument("b", BsonInt32 10)) ]
 
-    let prop = { Name = "b"; Type = InferedType.Primitive(typeof<int>, None, false) }
+    let prop = { InferedProperty.Name = "b"; Type = InferedType.Primitive(typeof<int>, None, false) }
     let expected =
-        [ { Name = "a"; Type = InferedType.Record(Some "a", [prop], true) } ]
+        [ { InferedProperty.Name = "a"; Type = InferedType.Record(Some "a", [prop], true) } ]
         |> toRecord
         |> SimpleCollection
 
@@ -238,7 +238,7 @@ let ``Infers mixed fields of a record as heterogeneous type``() =
                     InferedTypeTag.Number, InferedType.Primitive(typeof<int64>, None, false) ]
 
     let expected =
-        [ { Name = "a"; Type = InferedType.Heterogeneous cases }]
+        [ { InferedProperty.Name = "a"; Type = InferedType.Heterogeneous cases }]
         |> toRecord
         |> SimpleCollection
 
@@ -252,7 +252,7 @@ let ``Inference of multiple nulls works``() =
                     BsonArray [ BsonDocument("a", BsonNull.Value)
                                 BsonDocument("a", BsonNull.Value) ] :> BsonValue ]
 
-    let prop = { Name = "a"; Type = InferedType.Null }
+    let prop = { InferedProperty.Name = "a"; Type = InferedType.Null }
     let expected =
         InferedType.Collection
             ([ InferedTypeTag.Number; InferedTypeTag.Collection ],
