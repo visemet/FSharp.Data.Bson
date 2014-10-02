@@ -36,20 +36,61 @@ open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 open BsonProvider.ProviderImplementation
 
-let shouldEqual (x: 'a) (y: 'a) = Assert.AreEqual(x, y, sprintf "\n  Expected: %A\n  Actual: %A\n" x y)
+let shouldEqual (x:'a) (y:'a) = Assert.AreEqual(x, y)
 
 /// A collection containing just one type
 let SimpleCollection typ =
     InferedType.Collection([typeTag typ], Map.ofSeq [typeTag typ, (InferedMultiplicity.Multiple, typ)])
 
-let culture = TextRuntime.GetCulture ""
-
 let toRecord fields = InferedType.Record(None, fields, false)
 
-let inferTypesFromValues = true
+[<Test>]
+let ``Infer type of empty document``() =
+    let source = BsonDocument()
+    let expected = InferedType.Record(None, [], false)
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
 
 [<Test>]
-let ``Finds common subtype of numeric types (int64)``() =
+let ``Infer type of empty array``() =
+    let source = BsonArray()
+    let expected = InferedType.Collection([], Map.empty)
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+(* [<Test>]
+let ``Infer type of empty array as field``() =
+    let source =
+        BsonArray [ BsonDocument("array", BsonArray())
+                    BsonDocument("array", BsonArray([BsonInt32 10]))
+                    BsonDocument("array", BsonArray([BsonInt32 10])) ]
+    let expected =
+        [ { InferedProperty.Name = "array"
+            Type = InferedType.Collection([InferedTypeTag.Number],
+                                          Map.ofList [InferedTypeTag.Number, (InferedMultiplicity.Single, InferedType.Primitive(typeof<int>, None, false))]) } ]
+        |> toRecord
+        |> SimpleCollection
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected *)
+
+[<Test>]
+let ``Infer type of omitted fields as optional``() =
+    let source =
+            BsonArray [ BsonDocument([ BsonElement("a", BsonBoolean true)
+                                       BsonElement("c", BsonInt32 0) ])
+                        BsonDocument([ BsonElement("b", BsonInt32 1)
+                                       BsonElement("c", BsonInt32 0) ]) ]
+    let expected =
+        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<bool>, None, true) }
+          { Name = "c"; Type = InferedType.Primitive(typeof<int32>, None, false) }
+          { Name = "b"; Type = InferedType.Primitive(typeof<int32>, None, true) } ]
+        |> toRecord
+        |> SimpleCollection
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Find common subtype of numeric values (int64)``() =
     let source =
         BsonArray [ BsonInt32 10 :> BsonValue
                     BsonInt64 10L :> BsonValue ]
@@ -59,7 +100,7 @@ let ``Finds common subtype of numeric types (int64)``() =
     actual |> shouldEqual expected
 
 [<Test>]
-let ``Finds common subtype of numeric types (float)``() =
+let ``Find common subtype of numeric values (float)``() =
     let source =
         BsonArray [ BsonInt32 10 :> BsonValue
                     BsonDouble 10.23 :> BsonValue ]
@@ -69,7 +110,7 @@ let ``Finds common subtype of numeric types (float)``() =
     actual |> shouldEqual expected
 
 [<Test>]
-let ``Finds common subtype of all numeric types (float)``() =
+let ``Find common subtype of all numeric values (float)``() =
     let source =
         BsonArray [ BsonInt32 10 :> BsonValue
                     BsonDouble 10.23 :> BsonValue

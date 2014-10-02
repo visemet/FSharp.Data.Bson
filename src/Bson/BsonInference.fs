@@ -50,7 +50,7 @@ let rec inferType parentName (bsonValue:BsonValue) =
         let fields =
             [ for elem in bsonValue.AsBsonDocument ->
                 let typ = inferType elem.Name elem.Value
-                { InferedProperty.Name = elem.Name; Type = typ} ]
+                { InferedProperty.Name = elem.Name; Type = typ } ]
         InferedType.Record (recordName, fields, false)
 
-    | _ -> InferedType.Primitive (typeof<BsonType>, None, false)
+    | _ -> InferedType.Primitive (typeof<BsonValue>, None, false)
