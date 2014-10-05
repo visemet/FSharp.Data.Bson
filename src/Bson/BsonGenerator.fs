@@ -108,8 +108,6 @@ module BsonTypeBuilder =
               |> List.map (fun { Name = name; Type = inferedType } -> { InferedProperty.Name = name; Type = normalize false inferedType })
             // optional only affects the parent, so at top level always set to true regardless of the actual value
             InferedType.Record (None, props, optional || topLevel)
-        | InferedType.Primitive (typ, unit, optional) when typ = typeof<Bit0> || typ = typeof<Bit1> -> InferedType.Primitive (typeof<int>, unit, optional)
-        | InferedType.Primitive (typ, unit, optional) when typ = typeof<Bit> -> InferedType.Primitive (typeof<bool>, unit, optional)
         | x -> x
 
         let inferedType = normalize true inferedType

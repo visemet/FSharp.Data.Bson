@@ -34,9 +34,9 @@ open BsonProvider.Runtime
 let getConversionQuotation typ (value:Expr<BsonValue option>) =
     if typ = typeof<string> then
         <@@ BsonRuntime.ConvertString(%value) @@>
-    elif typ = typeof<bool> || typ = typeof<Bit> then
+    elif typ = typeof<bool> then
         <@@ BsonRuntime.ConvertBoolean(%value) @@>
-    elif typ = typeof<int> || typ = typeof<Bit0> || typ = typeof<Bit1> then
+    elif typ = typeof<int> then
         <@@ BsonRuntime.ConvertInteger(%value) @@>
     elif typ = typeof<int64> then
         <@@ BsonRuntime.ConvertInteger64(%value) @@>
