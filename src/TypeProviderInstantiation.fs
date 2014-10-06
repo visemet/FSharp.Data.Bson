@@ -68,7 +68,7 @@ type TypeProviderInstantiation =
         output
 
     static member Parse (line:string) =
-        let args = line.Split [|','|]
+        let args = line.Split [| ',' |]
         match args.[0] with
         | "Bson" ->
             Bson { Path = args.[1]
@@ -77,8 +77,3 @@ type TypeProviderInstantiation =
                    ResolutionFolder = ""
                    EmbeddedResource = "" }
         | _ -> failwithf "Unknown: %s" args.[0]
-
-open System.Runtime.CompilerServices
-
-[<assembly:InternalsVisibleToAttribute("BsonProvider.Tests.DesignTime")>]
-do()
