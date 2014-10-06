@@ -13,16 +13,10 @@
  * limitations under the License.
  *)
 
-#if INTERACTIVE
-#I "../../packages/NUnit.2.6.3/lib"
-#I "../../bin"
-#r "nunit.framework.dll"
-#r "FSharp.Data.Bson.DesignTime.dll"
-#else
 module BsonProvider.DesignTime.Tests.SignatureTests
-#endif
 
 open System.IO
+open MongoDB.Bson
 open NUnit.Framework
 open BsonProvider.ProviderImplementation
 
@@ -30,42 +24,76 @@ let (++) a b = Path.Combine(a, b)
 
 let sourceDirectory = __SOURCE_DIRECTORY__
 
-let testCases =
-    sourceDirectory ++ "SignatureTestCases.config"
-    |> File.ReadAllLines
-    |> Array.map TypeProviderInstantiation.Parse
-
 let expectedDirectory = sourceDirectory ++ "expected"
 
-let resolutionFolder = sourceDirectory ++ "TestData"
 let assemblyName = "FSharp.Data.Bson.dll"
 let runtimeAssembly = sourceDirectory ++ ".." ++ ".." ++ "bin" ++ assemblyName
 
-let generateAllExpected() =
-    if not <| Directory.Exists expectedDirectory then
-        Directory.CreateDirectory expectedDirectory |> ignore
-    for testCase in testCases do
-        testCase.Dump resolutionFolder expectedDirectory runtimeAssembly
-                      (*signatureOnly*)false (*ignoreOutput*)false
-        |> ignore
-
 let normalize (str:string) =
-    str.Replace("\r\n", "\n").Replace("\r", "\n")
-       .Replace("@\"<RESOLUTION_FOLDER>\"", "\"<RESOLUTION_FOLDER>\"")
+    str.Replace("\r\n", "\n").TrimEnd [| '\n' |]
 
-[<Test>]
-[<TestCaseSource "testCases">]
-let ``Validate signature didn't change`` (testCase:TypeProviderInstantiation) =
+let writeBytes path (samples:BsonDocument list) =
+    async {
+        use file = File.Open(path, FileMode.CreateNew, FileAccess.Write)
+        for doc in samples do
+            do! file.AsyncWrite (doc.ToBson())
+    } |> Async.RunSynchronously
+
+let validateSignature filename (samples:BsonDocument list) =
+    let path = sourceDirectory ++ filename
+    writeBytes path samples
+
+    let testCase =
+        sprintf "Bson,%s,0," filename
+        |> TypeProviderInstantiation.Parse
+
     let expected =
         testCase.ExpectedPath expectedDirectory
         |> File.ReadAllText
         |> normalize
 
     let output =
-        testCase.Dump resolutionFolder "" runtimeAssembly
-                      (*signatureOnly*)false (*ignoreOutput*)false
+        testCase.Dump sourceDirectory "" runtimeAssembly
+                      (*signatureOnly*)true (*ignoreOutput*)false
         |> normalize
+
+    File.Delete path
 
     if output <> expected then
         printfn "Obtained Signature:\n%s" output
     Assert.AreEqual(expected, output)
+
+[<Test>]
+let ``Validate signature for empty document``() =
+    [ BsonDocument() ]
+    |> validateSignature "empty.bson"
+
+[<Test>]
+let ``Validate signature for bool type``() =
+    [ BsonDocument("key", BsonBoolean false) ]
+    |> validateSignature "bool.bson"
+
+[<Test>]
+let ``Validate signature for optional bool type``() =
+    [ BsonDocument("key", BsonBoolean false); BsonDocument() ]
+    |> validateSignature "optional-bool.bson"
+
+[<Test>]
+let ``Validate signature for int type``() =
+    [ BsonDocument("key", BsonInt32 0) ]
+    |> validateSignature "int.bson"
+
+[<Test>]
+let ``Validate signature for optional int type``() =
+    [ BsonDocument("key", BsonInt32 0); BsonDocument() ]
+    |> validateSignature "optional-int.bson"
+
+[<Test>]
+let ``Validate signature for string type``() =
+    [ BsonDocument("key", BsonString "0") ]
+    |> validateSignature "string.bson"
+
+[<Test>]
+let ``Validate signature for optional string type``() =
+    [ BsonDocument("key", BsonString "0"); BsonDocument() ]
+    |> validateSignature "optional-string.bson"
