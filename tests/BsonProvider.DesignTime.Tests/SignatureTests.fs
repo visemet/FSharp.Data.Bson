@@ -89,6 +89,26 @@ let ``Validate signature for optional int type``() =
     |> validateSignature "optional-int.bson"
 
 [<Test>]
+let ``Validate signature for int64 type``() =
+    [ BsonDocument("field", BsonInt64 0L) ]
+    |> validateSignature "int64.bson"
+
+[<Test>]
+let ``Validate signature for optional int64 type``() =
+    [ BsonDocument("field", BsonInt64 0L); BsonDocument() ]
+    |> validateSignature "optional-int64.bson"
+
+[<Test>]
+let ``Validate signature for float type``() =
+    [ BsonDocument("field", BsonDouble 0.0) ]
+    |> validateSignature "float.bson"
+
+[<Test>]
+let ``Validate signature for optional float type``() =
+    [ BsonDocument("field", BsonDouble 0.0); BsonDocument() ]
+    |> validateSignature "optional-float.bson"
+
+[<Test>]
 let ``Validate signature for string type``() =
     [ BsonDocument("field", BsonString "0") ]
     |> validateSignature "string.bson"
