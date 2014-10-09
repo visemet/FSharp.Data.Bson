@@ -3,6 +3,6 @@ class BsonProvider
     static member ReadAll: stream:System.IO.Stream -> BsonProvider+Root[]
 
 class BsonProvider+Root : BsonProvider.Runtime.IBsonTop
-    new : key:int option -> BsonProvider+Root
+    new : field:int option -> BsonProvider+Root
     new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Root
-    member Key: int option with get
+    member Field: int option with get

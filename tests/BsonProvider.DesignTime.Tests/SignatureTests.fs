@@ -70,30 +70,30 @@ let ``Validate signature for empty document``() =
 
 [<Test>]
 let ``Validate signature for bool type``() =
-    [ BsonDocument("key", BsonBoolean false) ]
+    [ BsonDocument("field", BsonBoolean false) ]
     |> validateSignature "bool.bson"
 
 [<Test>]
 let ``Validate signature for optional bool type``() =
-    [ BsonDocument("key", BsonBoolean false); BsonDocument() ]
+    [ BsonDocument("field", BsonBoolean false); BsonDocument() ]
     |> validateSignature "optional-bool.bson"
 
 [<Test>]
 let ``Validate signature for int type``() =
-    [ BsonDocument("key", BsonInt32 0) ]
+    [ BsonDocument("field", BsonInt32 0) ]
     |> validateSignature "int.bson"
 
 [<Test>]
 let ``Validate signature for optional int type``() =
-    [ BsonDocument("key", BsonInt32 0); BsonDocument() ]
+    [ BsonDocument("field", BsonInt32 0); BsonDocument() ]
     |> validateSignature "optional-int.bson"
 
 [<Test>]
 let ``Validate signature for string type``() =
-    [ BsonDocument("key", BsonString "0") ]
+    [ BsonDocument("field", BsonString "0") ]
     |> validateSignature "string.bson"
 
 [<Test>]
 let ``Validate signature for optional string type``() =
-    [ BsonDocument("key", BsonString "0"); BsonDocument() ]
+    [ BsonDocument("field", BsonString "0"); BsonDocument() ]
     |> validateSignature "optional-string.bson"
