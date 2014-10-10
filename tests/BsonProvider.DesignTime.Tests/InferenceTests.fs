@@ -58,6 +58,34 @@ let ``Infer type of empty array``() =
     let actual = BsonInference.inferType "" source
     actual |> shouldEqual expected
 
+[<Test>]
+let ``Infer type of int array``() =
+    let x : BsonValue list = [] // avoid ambiguous constructor
+    let empty = BsonArray x
+    let single = BsonArray [ BsonInt32 0 ]
+    let multiple = BsonArray [ BsonInt32 0; BsonInt32 0 ]
+    let source=
+        BsonArray [ BsonDocument([ BsonElement("field_single", single)
+                                   BsonElement("field_multiple", multiple)
+                                   BsonElement("field_optional_single", empty) ])
+                    BsonDocument([ BsonElement("field_single", single)
+                                   BsonElement("field_multiple", multiple)
+                                   BsonElement("field_optional_single", single) ]) ]
+    let expected =
+        [ { InferedProperty.Name = "field_single"
+            Type = InferedType.Collection([InferedTypeTag.Number],
+                                          Map.ofList [InferedTypeTag.Number, (InferedMultiplicity.Single, InferedType.Primitive(typeof<int>, None, false))]) }
+          { InferedProperty.Name = "field_multiple"
+            Type = InferedType.Collection([InferedTypeTag.Number],
+                                          Map.ofList [InferedTypeTag.Number, (InferedMultiplicity.Multiple, InferedType.Primitive(typeof<int>, None, false))]) }
+          { InferedProperty.Name = "field_optional_single"
+            Type = InferedType.Collection([InferedTypeTag.Number],
+                                          Map.ofList [InferedTypeTag.Number, (InferedMultiplicity.OptionalSingle, InferedType.Primitive(typeof<int>, None, false))]) } ]
+        |> toRecord
+        |> SimpleCollection
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
 (* [<Test>]
 let ``Infer type of empty array as field``() =
     let source =
