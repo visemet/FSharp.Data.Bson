@@ -1,0 +1,10 @@
+class BsonProvider
+    static member GetSamples: () -> BsonProvider+Root[]
+    static member ReadAll: stream:System.IO.Stream -> BsonProvider+Root[]
+
+class BsonProvider+Root : BsonProvider.Runtime.IBsonTop
+    new : fieldSingle:float[] -> fieldMultiple:float[] -> fieldOptionalSingle:float[] -> BsonProvider+Root
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Root
+    member FieldMultiple: float[] with get
+    member FieldOptionalSingle: float[] with get
+    member FieldSingle: float[] with get

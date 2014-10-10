@@ -117,3 +117,79 @@ let ``Validate signature for string type``() =
 let ``Validate signature for optional string type``() =
     [ BsonDocument("field", BsonString "0"); BsonDocument() ]
     |> validateSignature "optional-string.bson"
+
+[<Test>]
+let ``Validate signature for empty array type``() =
+    let x : BsonValue list = [] // avoid ambiguous constructor
+    [ BsonDocument("field", BsonArray x) ]
+    |> validateSignature "empty-array.bson"
+
+[<Test>]
+let ``Validate signature for bool array type``() =
+    let x : BsonValue list = [] // avoid ambiguous constructor
+    let empty = BsonArray x
+    let single = BsonArray [ BsonBoolean false ]
+    let multiple = BsonArray [ BsonBoolean false; BsonBoolean false ]
+    [ BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", empty) ])
+      BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", single) ]) ]
+    |> validateSignature "bool-array.bson"
+
+[<Test>]
+let ``Validate signature for int array type``() =
+    let x : BsonValue list = [] // avoid ambiguous constructor
+    let empty = BsonArray x
+    let single = BsonArray [ BsonInt32 0 ]
+    let multiple = BsonArray [ BsonInt32 0; BsonInt32 0 ]
+    [ BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", empty) ])
+      BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", single) ]) ]
+    |> validateSignature "int-array.bson"
+
+[<Test>]
+let ``Validate signature for int64 array type``() =
+    let x : BsonValue list = [] // avoid ambiguous constructor
+    let empty = BsonArray x
+    let single = BsonArray [ BsonInt64 0L ]
+    let multiple = BsonArray [ BsonInt64 0L; BsonInt64 0L ]
+    [ BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", empty) ])
+      BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", single) ]) ]
+    |> validateSignature "int64-array.bson"
+
+[<Test>]
+let ``Validate signature for float array type``() =
+    let x : BsonValue list = [] // avoid ambiguous constructor
+    let empty = BsonArray x
+    let single = BsonArray [ BsonDouble 0.0 ]
+    let multiple = BsonArray [ BsonDouble 0.0; BsonDouble 0.0 ]
+    [ BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", empty) ])
+      BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", single) ]) ]
+    |> validateSignature "float-array.bson"
+
+[<Test>]
+let ``Validate signature for string array type``() =
+    let x : BsonValue list = [] // avoid ambiguous constructor
+    let empty = BsonArray x
+    let single = BsonArray [ BsonString "0" ]
+    let multiple = BsonArray [ BsonString "0"; BsonString "0" ]
+    [ BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", empty) ])
+      BsonDocument([ BsonElement("field_single", single)
+                     BsonElement("field_multiple", multiple)
+                     BsonElement("field_optional_single", single) ]) ]
+    |> validateSignature "string-array.bson"
