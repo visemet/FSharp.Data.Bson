@@ -44,6 +44,12 @@ let SimpleCollection typ =
 
 let toRecord fields = InferedType.Record(None, fields, false)
 
+let primitiveProperty<'T> name optional =
+    {
+        Name = name
+        Type = InferedType.Primitive(typeof<'T>, None, optional)
+    }
+
 [<Test>]
 let ``Infer type of empty document``() =
     let source = BsonDocument()
@@ -59,12 +65,72 @@ let ``Infer type of empty array``() =
     actual |> shouldEqual expected
 
 [<Test>]
+let ``Infer type of bool field``() =
+    let source =
+        BsonDocument("field", BsonBoolean false)
+
+    let expected =
+        [ primitiveProperty<bool> "field" false ]
+        |> toRecord
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer type of int field``() =
+    let source =
+        BsonDocument("field", BsonInt32 0)
+
+    let expected =
+        [ primitiveProperty<int> "field" false ]
+        |> toRecord
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer type of int64 field``() =
+    let source =
+        BsonDocument("field", BsonInt64 0L)
+
+    let expected =
+        [ primitiveProperty<int64> "field" false ]
+        |> toRecord
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer type of float field``() =
+    let source =
+        BsonDocument("field", BsonDouble 0.0)
+
+    let expected =
+        [ primitiveProperty<float> "field" false ]
+        |> toRecord
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer type of string field``() =
+    let source =
+        BsonDocument("field", BsonString "0")
+
+    let expected =
+        [ primitiveProperty<string> "field" false ]
+        |> toRecord
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
 let ``Infer type of int array``() =
     let x : BsonValue list = [] // avoid ambiguous constructor
     let empty = BsonArray x
     let single = BsonArray [ BsonInt32 0 ]
     let multiple = BsonArray [ BsonInt32 0; BsonInt32 0 ]
-    let source=
+    let source =
         BsonArray [ BsonDocument([ BsonElement("field_single", single)
                                    BsonElement("field_multiple", multiple)
                                    BsonElement("field_optional_single", empty) ])
