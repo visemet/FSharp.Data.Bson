@@ -28,7 +28,9 @@ open FSharp.Data.Runtime.StructuralTypes
 /// Infer the type of a BSON value.
 let rec inferType parentName (bsonValue:BsonValue) =
     match bsonValue.BsonType with
-    | BsonType.Null -> InferedType.Null
+    | BsonType.Null
+    | BsonType.Undefined ->InferedType.Null
+
     | BsonType.Boolean -> InferedType.Primitive (typeof<bool>, None, false)
     | BsonType.Int32 -> InferedType.Primitive (typeof<int>, None, false)
     | BsonType.Int64 -> InferedType.Primitive (typeof<int64>, None, false)

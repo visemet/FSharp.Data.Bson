@@ -125,6 +125,76 @@ let ``Infer type of string field``() =
     actual |> shouldEqual expected
 
 [<Test>]
+let ``An omitted field makes the type optional``() =
+    let source =
+        BsonArray [ BsonDocument("field", BsonInt32 0)
+                    BsonDocument() ]
+
+    let expected =
+        [ primitiveProperty<int> "field" true ]
+        |> toRecord
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``An explicit null value makes the type optional``() =
+    let source =
+        BsonArray [ BsonDocument("field", BsonInt32 0)
+                    BsonDocument("field", BsonNull.Value) ]
+
+    let expected =
+        [ primitiveProperty<int> "field" true ]
+        |> toRecord
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``An explicit undefined value makes the type optional``() =
+    let source =
+        BsonArray [ BsonDocument("field", BsonInt32 0)
+                    BsonDocument("field", BsonUndefined.Value) ]
+
+    let expected =
+        [ primitiveProperty<int> "field" true ]
+        |> toRecord
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``An empty string does not make the type optional``() =
+    let source =
+        BsonArray [ BsonDocument("field", BsonString "0")
+                    BsonDocument("field", BsonString "") ]
+
+    let expected =
+        [ primitiveProperty<string> "field" false ]
+        |> toRecord
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``A NaN value does not make the type optional``() =
+    let source =
+        BsonArray [ BsonDocument("field", BsonDouble 0.0)
+                    BsonDocument("field", BsonDouble nan) ]
+
+    let expected =
+        [ primitiveProperty<float> "field" false ]
+        |> toRecord
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
 let ``Infer type of int array``() =
     let x : BsonValue list = [] // avoid ambiguous constructor
     let empty = BsonArray x
@@ -326,20 +396,6 @@ let ``Null makes a DateTime optional``() =
 
     let expected =
         [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<DateTime>, None, true) } ]
-        |> toRecord
-        |> SimpleCollection
-
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Null makes an int optional``() =
-    let source =
-        BsonArray [ BsonDocument("a", BsonNull.Value)
-                    BsonDocument("a", BsonInt32 10) ]
-
-    let expected =
-        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<int>, None, true) } ]
         |> toRecord
         |> SimpleCollection
 
