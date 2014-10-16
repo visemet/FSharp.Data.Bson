@@ -45,10 +45,8 @@ let SimpleCollection typ =
 let toRecord fields = InferedType.Record(None, fields, false)
 
 let primitiveProperty<'T> name optional =
-    {
-        Name = name
-        Type = InferedType.Primitive(typeof<'T>, None, optional)
-    }
+    { Name = name
+      Type = InferedType.Primitive(typeof<'T>, None, optional) }
 
 [<Test>]
 let ``Infer type of empty document``() =
@@ -188,6 +186,53 @@ let ``A NaN value does not make the type optional``() =
 
     let expected =
         [ primitiveProperty<float> "field" false ]
+        |> toRecord
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer common subtype (int64) of numeric field``() =
+    let source =
+        BsonArray [ BsonDocument("field", BsonInt32 0)
+                    BsonDocument("field", BsonInt64 0L) ]
+
+    let expected =
+        [ primitiveProperty<int64> "field" false ]
+        |> toRecord
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer common subtype (float) of numeric field``() =
+    let source =
+        BsonArray [ BsonDocument("field", BsonInt32 0)
+                    BsonDocument("field", BsonDouble 0.0) ]
+
+    let expected =
+        [ primitiveProperty<float> "field" false ]
+        |> toRecord
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer heterogeneous type of mixed field``() =
+    let source =
+        BsonArray [ BsonDocument("field", BsonInt32 0)
+                    BsonDocument("field", BsonString "0") ]
+
+    let cases =
+        [ InferedTypeTag.Number, InferedType.Primitive(typeof<int>, None, false)
+          InferedTypeTag.String, InferedType.Primitive(typeof<string>, None, false) ]
+        |> Map.ofList
+
+    let expected =
+        [ { Name = "field"; Type = InferedType.Heterogeneous cases }]
         |> toRecord
         |> SimpleCollection
 
