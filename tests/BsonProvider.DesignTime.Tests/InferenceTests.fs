@@ -382,83 +382,6 @@ let ``Infer heterogeneous type of mixed array fields``() =
     let actual = BsonInference.inferType "" source
     actual |> shouldEqual expected
 
-(* [<Test>]
-let ``Infer type of empty array as field``() =
-    let source =
-        BsonArray [ BsonDocument("array", BsonArray())
-                    BsonDocument("array", BsonArray([BsonInt32 10]))
-                    BsonDocument("array", BsonArray([BsonInt32 10])) ]
-    let expected =
-        [ { InferedProperty.Name = "array"
-            Type = InferedType.Collection([InferedTypeTag.Number],
-                                          Map.ofList [InferedTypeTag.Number, (InferedMultiplicity.Single, InferedType.Primitive(typeof<int>, None, false))]) } ]
-        |> toRecord
-        |> SimpleCollection
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected *)
-
-[<Test>]
-let ``Infer type of omitted fields as optional``() =
-    let source =
-            BsonArray [ BsonDocument([ BsonElement("a", BsonBoolean true)
-                                       BsonElement("c", BsonInt32 0) ])
-                        BsonDocument([ BsonElement("b", BsonInt32 1)
-                                       BsonElement("c", BsonInt32 0) ]) ]
-    let expected =
-        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<bool>, None, true) }
-          { Name = "c"; Type = InferedType.Primitive(typeof<int32>, None, false) }
-          { Name = "b"; Type = InferedType.Primitive(typeof<int32>, None, true) } ]
-        |> toRecord
-        |> SimpleCollection
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Find common subtype of numeric values (int64)``() =
-    let source =
-        BsonArray [ BsonInt32 10 :> BsonValue
-                    BsonInt64 10L :> BsonValue ]
-
-    let expected = SimpleCollection(InferedType.Primitive(typeof<int64>, None, false))
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Find common subtype of numeric values (float)``() =
-    let source =
-        BsonArray [ BsonInt32 10 :> BsonValue
-                    BsonDouble 10.23 :> BsonValue ]
-
-    let expected = SimpleCollection(InferedType.Primitive(typeof<float>, None, false))
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Find common subtype of all numeric values (float)``() =
-    let source =
-        BsonArray [ BsonInt32 10 :> BsonValue
-                    BsonDouble 10.23 :> BsonValue
-                    BsonInt64 10L :> BsonValue ]
-
-    let expected = SimpleCollection(InferedType.Primitive(typeof<float>, None, false))
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Infers heterogeneous type of InferedType.Primitives``() =
-    let source =
-        BsonArray [ BsonInt32 1 :> BsonValue
-                    BsonBoolean true :> BsonValue ]
-
-    let expected =
-        InferedType.Collection
-                ([ InferedTypeTag.Number; InferedTypeTag.Boolean ],
-                 [ InferedTypeTag.Number, (Single, InferedType.Primitive(typeof<int>, None, false))
-                   InferedTypeTag.Boolean, (Single, InferedType.Primitive(typeof<bool>, None, false)) ] |> Map.ofList)
-
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
 [<Test>]
 let ``Infers heterogeneous type of InferedType.Primitives and nulls``() =
     let source =
@@ -472,23 +395,6 @@ let ``Infers heterogeneous type of InferedType.Primitives and nulls``() =
                  [ InferedTypeTag.Null, (Single, InferedType.Null)
                    InferedTypeTag.Number, (Single, InferedType.Primitive(typeof<int>, None, false))
                    InferedTypeTag.Boolean, (Single, InferedType.Primitive(typeof<bool>, None, false)) ] |> Map.ofList)
-
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Infers heterogeneous type of InferedType.Primitives and records``() =
-    let source =
-        BsonArray [ BsonDocument("a", BsonInt32 0) :> BsonValue
-                    BsonInt32 1 :> BsonValue
-                    BsonInt32 2 :> BsonValue ]
-
-    let prop = { InferedProperty.Name="a"; Type=InferedType.Primitive(typeof<int>, None, false) }
-    let expected =
-        InferedType.Collection
-                ([ InferedTypeTag.Record None; InferedTypeTag.Number ],
-                 [ InferedTypeTag.Number, (Multiple, InferedType.Primitive(typeof<int>, None, false))
-                   InferedTypeTag.Record None, (Single, toRecord [ prop ]) ] |> Map.ofList)
 
     let actual = BsonInference.inferType "" source
     actual |> shouldEqual expected
@@ -530,85 +436,6 @@ let ``Unions properties of records in a collection``() =
           { Name = "c"; Type = InferedType.Primitive(typeof<bool>, None, true) } ]
         |> toRecord
         |> SimpleCollection
-
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Null makes a string optional``() =
-    let source =
-        BsonArray [ BsonDocument("a", BsonNull.Value)
-                    BsonDocument("a", BsonString "10") ]
-
-    let expected =
-        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<string>, None, true) } ]
-        |> toRecord
-        |> SimpleCollection
-
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Null makes a DateTime optional``() =
-    let source =
-        BsonArray [ BsonDocument("a", BsonNull.Value)
-                    BsonDocument("a", BsonDateTime 10L) ]
-
-    let expected =
-        [ { InferedProperty.Name = "a"; Type = InferedType.Primitive(typeof<DateTime>, None, true) } ]
-        |> toRecord
-        |> SimpleCollection
-
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Null makes a record optional``() =
-    let source =
-        BsonArray [ BsonDocument("a", BsonNull.Value)
-                    BsonDocument("a", BsonDocument("b", BsonInt32 10)) ]
-
-    let prop = { InferedProperty.Name = "b"; Type = InferedType.Primitive(typeof<int>, None, false) }
-    let expected =
-        [ { InferedProperty.Name = "a"; Type = InferedType.Record(Some "a", [prop], true) } ]
-        |> toRecord
-        |> SimpleCollection
-
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Infers mixed fields of a record as heterogeneous type``() =
-    let source =
-        BsonArray [ BsonDocument("a", BsonString "hi")
-                    BsonDocument("a", BsonInt32 2)
-                    BsonDocument("a", BsonInt64 2147483648L) ]
-
-    let cases =
-        Map.ofSeq [ InferedTypeTag.String, InferedType.Primitive(typeof<string>, None, false)
-                    InferedTypeTag.Number, InferedType.Primitive(typeof<int64>, None, false) ]
-
-    let expected =
-        [ { InferedProperty.Name = "a"; Type = InferedType.Heterogeneous cases }]
-        |> toRecord
-        |> SimpleCollection
-
-    let actual = BsonInference.inferType "" source
-    actual |> shouldEqual expected
-
-[<Test>]
-let ``Inference of multiple nulls works``() =
-    let source =
-        BsonArray [ BsonInt32 0 :> BsonValue
-                    BsonArray [ BsonDocument("a", BsonNull.Value)
-                                BsonDocument("a", BsonNull.Value) ] :> BsonValue ]
-
-    let prop = { InferedProperty.Name = "a"; Type = InferedType.Null }
-    let expected =
-        InferedType.Collection
-            ([ InferedTypeTag.Number; InferedTypeTag.Collection ],
-             [ InferedTypeTag.Collection, (Single, SimpleCollection(toRecord [prop]))
-               InferedTypeTag.Number, (Single, InferedType.Primitive(typeof<int>, None, false)) ] |> Map.ofList)
 
     let actual = BsonInference.inferType "" source
     actual |> shouldEqual expected
