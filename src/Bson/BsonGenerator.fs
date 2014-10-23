@@ -291,9 +291,12 @@ module BsonTypeBuilder =
 
         | InferedType.Collection (_, types) ->
 
+            let conv = fun (doc:Expr) ->
+                ctx.BsonRuntimeType?ConvertArray ctx.IBsonTopType (doc, ReflectionHelpers.makeDelegate id ctx.IBsonTopType)
+
             // Return the underlying BsonValue without change
             { ConvertedType = ctx.IBsonTopType.MakeArrayType()
-              Converter = None
+              Converter = Some conv
               ConversionCallingType = BsonTop }
 
         | InferedType.Heterogeneous _ ->
