@@ -190,51 +190,6 @@ type BsonRuntime =
         BsonRuntime.TryGetPropertyPacked(top, name)
         |> Option.map mapping.Invoke
 
-    static member private Matches = function
-        | InferedTypeTag.Boolean -> fun (value:BsonValue) ->
-            value.IsBoolean
-        | InferedTypeTag.Number -> fun (value:BsonValue) ->
-            value.IsInt32 || value.IsInt64 || value.IsDouble
-        | InferedTypeTag.String -> fun (value:BsonValue) ->
-            value.IsString
-        | InferedTypeTag.DateTime -> fun (value:BsonValue) ->
-            value.IsBsonDateTime
-        | InferedTypeTag.Collection -> fun (value:BsonValue) ->
-            value.IsBsonArray
-        | InferedTypeTag.Record _ -> fun (value:BsonValue) ->
-            value.IsBsonDocument
-        | tag -> failwithf "%s type not supported" tag.NiceName
-
-    /// Get all array values that match the specified tag
-    static member GetArrayChildrenByTypeTag<'T>(top:IBsonTop, tagCode, mapping:Func<IBsonTop,'T>) =
-        match top.BsonValue.BsonType with
-        | BsonType.Array ->
-            top.BsonValue.AsBsonArray.Values
-            |> Seq.filter (BsonRuntime.Matches (InferedTypeTag.ParseCode tagCode))
-            |> Seq.mapi (fun i value -> top.Create(value, sprintf "[%d]" i))
-            |> Seq.map mapping.Invoke
-            |> Seq.toArray
-        | BsonType.Null -> [| |]
-        | x -> failwithf "Expecting an array at '%s', got %s" (top.Path()) <| x.ToString()
-
-    /// Optionally get single array value that matches the specified tag
-    static member TryGetArrayChildByTypeTag<'T>(doc, tagCode, mapping:Func<IBsonTop,'T>) =
-        match BsonRuntime.GetArrayChildrenByTypeTag(doc, tagCode, mapping) with
-        | [| child |] -> Some child
-        | [| |] -> None
-        | _ -> failwithf "Expecting an array with single or no elements at '%s', got %A" (doc.Path()) doc
-
-    /// Get a single array value that matches the specified tag
-    static member GetArrayChildByTypeTag(doc, tagCode) =
-        match BsonRuntime.GetArrayChildrenByTypeTag(doc, tagCode, Func<_,_>(id)) with
-        | [| child |] -> child
-        | _ -> failwithf "Expecting an array with single element at '%s', got %A" (doc.Path()) doc
-
-    /// Returns a single or no value by tag type
-    static member TryGetValueByTypeTag<'T>(doc:IBsonTop, tagCode, mapping:Func<IBsonTop,'T>) =
-        if BsonRuntime.Matches (InferedTypeTag.ParseCode tagCode) doc.BsonValue
-        then Some (mapping.Invoke doc) else None
-
     /// Converts an object to a BsonValue
     static member private ToBsonValue (value:obj) =
         let inline optionToBson f = function
