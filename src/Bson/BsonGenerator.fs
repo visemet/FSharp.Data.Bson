@@ -121,7 +121,7 @@ module BsonTypeBuilder =
 
         { ConvertedType = typ
           Converter = None
-          ConversionCallingType = BsonDocument }
+          ConversionCallingType = BsonTop }
 
     let replaceDocWithBsonValue (ctx:BsonGenerationContext) (typ:Type) =
         if typ = ctx.IBsonTopType then
@@ -155,16 +155,16 @@ module BsonTypeBuilder =
 
         | InferedType.Top ->
 
-            // Return the underlying BsonDocument without change
+            // Return the underlying BsonValue without change
             { ConvertedType = ctx.IBsonTopType
               Converter = None
-              ConversionCallingType = BsonDocument }
+              ConversionCallingType = BsonTop }
 
         | InferedType.Null ->
 
             { ConvertedType = ctx.MakeOptionType ctx.IBsonTopType
               Converter = None
-              ConversionCallingType = BsonDocument }
+              ConversionCallingType = BsonTop }
 
         | InferedType.Collection (_, SingletonMap(_, (_, typ)))
         | InferedType.Collection (_, EmptyMap InferedType.Top typ) ->
@@ -176,7 +176,7 @@ module BsonTypeBuilder =
 
             { ConvertedType = elementResult.ConvertedType.MakeArrayType()
               Converter = Some conv
-              ConversionCallingType = BsonDocument }
+              ConversionCallingType = BsonTop }
 
         | InferedType.Record(name, props, optional) -> getOrCreateType ctx inferedType <| fun () ->
 
@@ -203,7 +203,7 @@ module BsonTypeBuilder =
 
                     let propResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)true (*optionalityHandledByParent*)true "" prop.Type
                     let propName = prop.Name
-                    let optionalityHandledByProperty = propResult.ConversionCallingType <> BsonDocument
+                    let optionalityHandledByProperty = propResult.ConversionCallingType <> BsonTop
 
                     let getter = fun (Singleton doc) ->
 
@@ -274,16 +274,16 @@ module BsonTypeBuilder =
 
         | InferedType.Collection (_, types) ->
 
-            // Return the underlying BsonDocument without change
+            // Return the underlying BsonValue without change
             { ConvertedType = ctx.IBsonTopType.MakeArrayType()
               Converter = None
-              ConversionCallingType = BsonDocument }
+              ConversionCallingType = BsonTop }
 
         | InferedType.Heterogeneous _ ->
 
-            // Return the underlying BsonDocument without change
+            // Return the underlying BsonValue without change
             { ConvertedType = ctx.IBsonTopType
               Converter = None
-              ConversionCallingType = BsonDocument }
+              ConversionCallingType = BsonTop }
 
         | _ -> failwith "Bson type not supported"
