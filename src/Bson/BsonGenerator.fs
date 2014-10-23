@@ -38,7 +38,7 @@ type BsonGenerationContext =
     {
         TypeProviderType : ProvidedTypeDefinition
         UniqueNiceName : string -> string // to nameclash type names
-        IBsonDocumentType : Type
+        IBsonTopType : Type
         BsonValueType : Type
         BsonRuntimeType : Type
         TypeCache : Dictionary<InferedType, ProvidedTypeDefinition>
@@ -54,7 +54,7 @@ type BsonGenerationContext =
         {
             TypeProviderType = tpType
             UniqueNiceName = uniqueNiceName
-            IBsonDocumentType = typeof<IBsonTop>
+            IBsonTopType = typeof<IBsonTop>
             BsonValueType = typeof<BsonValue>
             BsonRuntimeType = typeof<BsonRuntime>
             TypeCache = typeCache
@@ -75,16 +75,16 @@ type BsonGenerationResult =
         defaultArg x.Converter id
 
     member x.ConverterFunc ctx =
-        ReflectionHelpers.makeDelegate (x.GetConverter ctx) ctx.IBsonDocumentType
+        ReflectionHelpers.makeDelegate (x.GetConverter ctx) ctx.IBsonTopType
 
     member x.ConvertedTypeErased ctx =
         if x.ConvertedType.IsArray then
             match x.ConvertedType.GetElementType() with
-            | :? ProvidedTypeDefinition -> ctx.IBsonDocumentType.MakeArrayType()
+            | :? ProvidedTypeDefinition -> ctx.IBsonTopType.MakeArrayType()
             | _ -> x.ConvertedType
         else
             match x.ConvertedType with
-            | :? ProvidedTypeDefinition -> ctx.IBsonDocumentType
+            | :? ProvidedTypeDefinition -> ctx.IBsonTopType
             | _ -> x.ConvertedType
 
 module BsonTypeBuilder =
@@ -124,11 +124,11 @@ module BsonTypeBuilder =
           ConversionCallingType = BsonDocument }
 
     let replaceDocWithBsonValue (ctx:BsonGenerationContext) (typ:Type) =
-        if typ = ctx.IBsonDocumentType then
+        if typ = ctx.IBsonTopType then
             ctx.BsonValueType
-        elif typ.IsArray && typ.GetElementType() = ctx.IBsonDocumentType then
+        elif typ.IsArray && typ.GetElementType() = ctx.IBsonTopType then
             ctx.BsonValueType.MakeArrayType()
-        elif typ.IsGenericType && typ.GetGenericArguments() = [| ctx.IBsonDocumentType |] then
+        elif typ.IsGenericType && typ.GetGenericArguments() = [| ctx.IBsonTopType |] then
             typ.GetGenericTypeDefinition().MakeGenericType ctx.BsonValueType
         else
             typ
@@ -156,13 +156,13 @@ module BsonTypeBuilder =
         | InferedType.Top ->
 
             // Return the underlying BsonDocument without change
-            { ConvertedType = ctx.IBsonDocumentType
+            { ConvertedType = ctx.IBsonTopType
               Converter = None
               ConversionCallingType = BsonDocument }
 
         | InferedType.Null ->
 
-            { ConvertedType = ctx.MakeOptionType ctx.IBsonDocumentType
+            { ConvertedType = ctx.MakeOptionType ctx.IBsonTopType
               Converter = None
               ConversionCallingType = BsonDocument }
 
@@ -190,7 +190,7 @@ module BsonTypeBuilder =
                 |> ctx.UniqueNiceName
 
             // Generate new type for the record
-            let objectTy = ProvidedTypeDefinition(name, Some(ctx.IBsonDocumentType), HideObjectMethods = true)
+            let objectTy = ProvidedTypeDefinition(name, Some(ctx.IBsonTopType), HideObjectMethods = true)
             ctx.TypeProviderType.AddMember(objectTy)
 
             // to nameclash property names
@@ -275,14 +275,14 @@ module BsonTypeBuilder =
         | InferedType.Collection (_, types) ->
 
             // Return the underlying BsonDocument without change
-            { ConvertedType = ctx.IBsonDocumentType.MakeArrayType()
+            { ConvertedType = ctx.IBsonTopType.MakeArrayType()
               Converter = None
               ConversionCallingType = BsonDocument }
 
         | InferedType.Heterogeneous _ ->
 
             // Return the underlying BsonDocument without change
-            { ConvertedType = ctx.IBsonDocumentType
+            { ConvertedType = ctx.IBsonTopType
               Converter = None
               ConversionCallingType = BsonDocument }
 
