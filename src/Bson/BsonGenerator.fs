@@ -102,6 +102,16 @@ module BsonTypeBuilder =
 
     let (?) = QuotationBuilder.(?)
 
+    let private inferType typ =
+        { ConvertedType = typ
+          Converter = None
+          ConversionCallingType = BsonTop }
+
+    let private inferCollection (elemType:Type) conv =
+        { ConvertedType = elemType.MakeArrayType()
+          Converter = Some conv
+          ConversionCallingType = BsonTop }
+
     // check if a type was already created for the inferedType before creating a new one
     let internal getOrCreateType ctx inferedType createType =
 
@@ -157,43 +167,6 @@ module BsonTypeBuilder =
             { ConvertedType = typ
               Converter = Some conv
               ConversionCallingType = conversionCallingType }
-
-        | InferedType.Top ->
-
-            // Return the underlying BsonValue without change
-            { ConvertedType = ctx.IBsonTopType
-              Converter = None
-              ConversionCallingType = BsonTop }
-
-        | InferedType.Null ->
-
-            { ConvertedType = ctx.MakeOptionType ctx.IBsonTopType
-              Converter = None
-              ConversionCallingType = BsonTop }
-
-        | InferedType.Collection (_, SingletonMap (_, (_, typ)))
-        | InferedType.Collection (_, EmptyMap InferedType.Top typ) ->
-
-            let elementResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false nameOverride typ
-
-            let conv = fun (doc:Expr) ->
-                ctx.BsonRuntimeType?ConvertArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
-
-            { ConvertedType = elementResult.ConvertedType.MakeArrayType()
-              Converter = Some conv
-              ConversionCallingType = BsonTop }
-
-        | InferedType.Collection (_, MapWithNull (_, (_, typ))) ->
-            let elementResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false nameOverride typ
-
-            let conv = fun (doc:Expr) ->
-                ctx.BsonRuntimeType?ConvertOptionalArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
-
-            let convertedType = ctx.MakeOptionType elementResult.ConvertedType
-
-            { ConvertedType = convertedType.MakeArrayType()
-              Converter = Some conv
-              ConversionCallingType = BsonTop }
 
         | InferedType.Record(name, props, optional) -> getOrCreateType ctx inferedType <| fun () ->
 
@@ -289,21 +262,35 @@ module BsonTypeBuilder =
 
             objectTy
 
-        | InferedType.Collection (_, types) ->
+        | InferedType.Collection (_, SingletonMap (_, (_, typ)))
+        | InferedType.Collection (_, EmptyMap InferedType.Top typ) ->
+
+            let elementResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false nameOverride typ
+
+            let conv = fun (doc:Expr) ->
+                ctx.BsonRuntimeType?ConvertArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
+
+            inferCollection elementResult.ConvertedType conv
+
+        | InferedType.Collection (_, MapWithNull (_, (_, typ))) ->
+            let elementResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false nameOverride typ
+
+            let conv = fun (doc:Expr) ->
+                ctx.BsonRuntimeType?ConvertOptionalArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
+
+            let convertedType = ctx.MakeOptionType elementResult.ConvertedType
+            inferCollection convertedType conv
+
+        | InferedType.Collection _ ->
 
             let conv = fun (doc:Expr) ->
                 ctx.BsonRuntimeType?ConvertArray ctx.IBsonTopType (doc, ReflectionHelpers.makeDelegate id ctx.IBsonTopType)
 
-            // Return the underlying BsonValue without change
-            { ConvertedType = ctx.IBsonTopType.MakeArrayType()
-              Converter = Some conv
-              ConversionCallingType = BsonTop }
+            inferCollection ctx.IBsonTopType conv
 
-        | InferedType.Heterogeneous _ ->
+        | InferedType.Top
+        | InferedType.Heterogeneous _ -> inferType ctx.IBsonTopType
 
-            // Return the underlying BsonValue without change
-            { ConvertedType = ctx.IBsonTopType
-              Converter = None
-              ConversionCallingType = BsonTop }
+        | InferedType.Null -> inferType (ctx.MakeOptionType ctx.IBsonTopType)
 
-        | _ -> failwith "Bson type not supported"
+        | InferedType.Json _ -> failwith "JSON type not supported"
