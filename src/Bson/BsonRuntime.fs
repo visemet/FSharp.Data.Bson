@@ -150,6 +150,25 @@ type BsonRuntime =
         | BsonType.Null -> [| |]
         | _ -> failwithf "Expecting a list at '%s', got %A" (top.Path()) top
 
+    /// Convert BSON array to array of target types
+    static member ConvertOptionalArray<'T>(top:IBsonTop, mapping:Func<IBsonTop,'T>) =
+        match top.BsonValue.BsonType with
+        | BsonType.Array ->
+            top.BsonValue.AsBsonArray.Values
+            |> Seq.map (fun value ->
+                match value.BsonType with
+                | BsonType.Null
+                | BsonType.Undefined -> None
+                | _ -> Some value)
+            |> Seq.mapi (fun i value ->
+                let create value = top.Create(value, sprintf "[%d]" i)
+                Option.map create value)
+            |> Seq.map (Option.map mapping.Invoke)
+            |> Seq.toArray
+
+        | BsonType.Null -> [| |]
+        | _ -> failwithf "Expecting a list at '%s', got %A" (top.Path()) top
+
     /// Optionally get property of BsonDocument
     static member TryGetPropertyUnpacked(top:IBsonTop, name) =
         match top.BsonValue.BsonType with

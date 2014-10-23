@@ -87,6 +87,17 @@ type BsonGenerationResult =
             | :? ProvidedTypeDefinition -> ctx.IBsonTopType
             | _ -> x.ConvertedType
 
+[<AutoOpen>]
+module ActivePatterns =
+
+    let (|MapWithNull|_|) (map:Map<_,_>) =
+        if map.Count = 2 then
+            match Map.toList map with
+            | [ (InferedTypeTag.Null, _); elem ]
+            | [ elem; (InferedTypeTag.Null, _) ] -> Some elem
+            | _ -> None
+        else None
+
 module BsonTypeBuilder =
 
     let (?) = QuotationBuilder.(?)
@@ -123,7 +134,7 @@ module BsonTypeBuilder =
           Converter = None
           ConversionCallingType = BsonTop }
 
-    let replaceDocWithBsonValue (ctx:BsonGenerationContext) (typ:Type) =
+    let replaceWithBsonValue (ctx:BsonGenerationContext) typ =
         if typ = ctx.IBsonTopType then
             ctx.BsonValueType
         elif typ.IsArray && typ.GetElementType() = ctx.IBsonTopType then
@@ -134,12 +145,6 @@ module BsonTypeBuilder =
             typ
 
     let rec generateBsonType ctx canPassAllConversionCallingTypes optionalityHandledByParent nameOverride inferedType =
-
-        let inferedType =
-            match inferedType with
-            | InferedType.Collection (order, types) ->
-                InferedType.Collection (List.filter ((<>) InferedTypeTag.Null) order, Map.remove InferedTypeTag.Null types)
-            | x -> x
 
         match inferedType with
 
@@ -166,7 +171,7 @@ module BsonTypeBuilder =
               Converter = None
               ConversionCallingType = BsonTop }
 
-        | InferedType.Collection (_, SingletonMap(_, (_, typ)))
+        | InferedType.Collection (_, SingletonMap (_, (_, typ)))
         | InferedType.Collection (_, EmptyMap InferedType.Top typ) ->
 
             let elementResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false nameOverride typ
@@ -175,6 +180,18 @@ module BsonTypeBuilder =
                 ctx.BsonRuntimeType?ConvertArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
 
             { ConvertedType = elementResult.ConvertedType.MakeArrayType()
+              Converter = Some conv
+              ConversionCallingType = BsonTop }
+
+        | InferedType.Collection (_, MapWithNull (_, (_, typ))) ->
+            let elementResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false nameOverride typ
+
+            let conv = fun (doc:Expr) ->
+                ctx.BsonRuntimeType?ConvertOptionalArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
+
+            let convertedType = ctx.MakeOptionType elementResult.ConvertedType
+
+            { ConvertedType = convertedType.MakeArrayType()
               Converter = Some conv
               ConversionCallingType = BsonTop }
 
@@ -242,7 +259,7 @@ module BsonTypeBuilder =
                     let name = makeUnique prop.Name
                     prop.Name,
                     ProvidedProperty(name, convertedType, GetterCode = getter),
-                    ProvidedParameter(NameUtils.niceCamelName name, replaceDocWithBsonValue ctx convertedType) ]
+                    ProvidedParameter(NameUtils.niceCamelName name, replaceWithBsonValue ctx convertedType) ]
 
             let names, properties, parameters = List.unzip3 members
             objectTy.AddMembers properties

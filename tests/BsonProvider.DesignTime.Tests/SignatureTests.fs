@@ -109,6 +109,13 @@ let ``Validate signature for int array type``() =
     |> validateSignature "int-array.bson"
 
 [<Test>]
+let ``Validate signature for optional array type``() =
+    let array = BsonArray [ BsonInt32 0 :> BsonValue
+                            BsonNull.Value :> BsonValue ]
+    [ BsonDocument("field", array) ]
+    |> validateSignature "optional-array.bson"
+
+[<Test>]
 let ``Validate signature for mixed array type``() =
     let array = BsonArray [ BsonInt32 0 :> BsonValue
                             BsonString "0" :> BsonValue ]
