@@ -49,7 +49,7 @@ let getConversionQuotation typ (value:Expr<BsonValue option>) =
     else failwithf "getConversionQuotation: Unsupported primitive type '%A'" typ
 
 type BsonConversionCallingType =
-    BsonTop | BsonValueOption | BsonValueOptionAndPath
+   | BsonTop
 
 /// Creates a function that takes Expr<BsonValue option> and converts it to
 /// an expression of other type - the type is specified by `field`
@@ -105,11 +105,6 @@ let convertBsonValue canPassAllConversionCallingTypes (field:PrimitiveInferedPro
             let opt = convert <@ Some (%%value:IBsonTop).BsonValue @>
             typeof<TextRuntime>?OptionToNullable (field.RuntimeType) opt
 
-    let conversionCallingType =
-        if canPassAllConversionCallingTypes then
-            match field.TypeWrapper with
-            | TypeWrapper.None -> BsonValueOptionAndPath
-            | TypeWrapper.Option | TypeWrapper.Nullable -> BsonValueOption
-        else BsonTop
+    let conversionCallingType = BsonConversionCallingType.BsonTop
 
     returnType, convert, conversionCallingType

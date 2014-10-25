@@ -112,6 +112,32 @@ module BsonTypeBuilder =
           Converter = Some conv
           ConversionCallingType = BsonTop }
 
+    let private makeGetter (ctx:BsonGenerationContext) (doc:Expr) (prop:InferedProperty) (propResult:BsonGenerationResult) =
+        let propName = prop.Name
+        let optionalityHandledByProperty = propResult.ConversionCallingType <> BsonTop
+
+        match propResult.ConversionCallingType with
+        | BsonValueOptionAndPath ->
+            propResult.GetConverter ctx <@@ BsonRuntime.TryGetPropertyUnpackedWithPath(%%doc, propName) @@>
+        | BsonValueOption ->
+            propResult.GetConverter ctx <@@ BsonRuntime.TryGetPropertyUnpacked(%%doc, propName) @@>
+        | BsonTop when prop.Type.IsOptional ->
+            match propResult.Converter with
+            | Some _ ->
+                //TODO: not covered in tests
+                ctx.BsonRuntimeType?ConvertOptionalProperty (propResult.ConvertedTypeErased ctx) (doc, propName, propResult.ConverterFunc ctx) :> Expr
+
+            | None ->
+                <@@ BsonRuntime.TryGetPropertyPacked(%%doc, propName) @@>
+        | _ ->
+            propResult.GetConverter ctx <|
+              match prop.Type with
+              | InferedType.Collection _
+              | InferedType.Heterogeneous _
+              | InferedType.Top
+              | InferedType.Null -> <@@ BsonRuntime.GetPropertyPackedOrNull(%%doc, propName) @@>
+              | _ -> <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
+
     // check if a type was already created for the inferedType before creating a new one
     let internal getOrCreateType ctx inferedType createType =
 
@@ -189,45 +215,16 @@ module BsonTypeBuilder =
 
             // Add all record fields as properties
             let members =
-                [for prop in props ->
+                [ for prop in props ->
 
                     let propResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)true (*optionalityHandledByParent*)true "" prop.Type
                     let propName = prop.Name
                     let optionalityHandledByProperty = propResult.ConversionCallingType <> BsonTop
 
                     let getter = fun (Singleton doc) ->
+                        makeGetter ctx doc prop propResult
 
-                        if optionalityHandledByProperty then
-
-                            propResult.GetConverter ctx <|
-                                if propResult.ConversionCallingType = BsonValueOptionAndPath then
-                                    <@@ BsonRuntime.TryGetPropertyUnpackedWithPath(%%doc, propName) @@>
-                                else
-                                    <@@ BsonRuntime.TryGetPropertyUnpacked(%%doc, propName) @@>
-
-                        elif prop.Type.IsOptional then
-
-                            match propResult.Converter with
-                            | Some _ ->
-                                //TODO: not covered in tests
-                                ctx.BsonRuntimeType?ConvertOptionalProperty (propResult.ConvertedTypeErased ctx) (doc, propName, propResult.ConverterFunc ctx) :> Expr
-
-                            | None ->
-                                <@@ BsonRuntime.TryGetPropertyPacked(%%doc, propName) @@>
-
-                        else
-                            propResult.GetConverter ctx <|
-                              match prop.Type with
-                              | InferedType.Collection _
-                              | InferedType.Heterogeneous _
-                              | InferedType.Top
-                              | InferedType.Null -> <@@ BsonRuntime.GetPropertyPackedOrNull(%%doc, propName) @@>
-                              | _ -> <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
-
-                    let convertedType =
-                        if prop.Type.IsOptional && not optionalityHandledByProperty
-                        then ctx.MakeOptionType propResult.ConvertedType
-                        else propResult.ConvertedType
+                    let convertedType = propResult.ConvertedType
 
                     let name = makeUnique prop.Name
                     prop.Name,
