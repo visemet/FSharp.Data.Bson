@@ -72,7 +72,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
                 else NameUtils.singularize rootName
 
             let ctx = BsonGenerationContext.Create(tpType)
-            let result = BsonTypeBuilder.generateBsonType ctx (*canPassAllConversionCallingTypes*)false
+            let result = BsonTypeBuilder.generateBsonType ctx
                     (*optionalityHandledByParent*)false nameOverride inferedType
 
             { GeneratedType = tpType

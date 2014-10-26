@@ -48,15 +48,9 @@ let getConversionQuotation typ (value:Expr<BsonValue option>) =
         <@@ BsonRuntime.ConvertObjectId(%value) @@>
     else failwithf "getConversionQuotation: Unsupported primitive type '%A'" typ
 
-type BsonConversionCallingType =
-   | BsonTop
-
 /// Creates a function that takes Expr<BsonValue option> and converts it to
 /// an expression of other type - the type is specified by `field`
-let convertBsonValue canPassAllConversionCallingTypes (field:PrimitiveInferedProperty) =
-
-    // assert (field.TypeWithMeasure = field.RuntimeType)
-    assert (field.Name = "")
+let convertBsonValue (field:PrimitiveInferedProperty) =
 
     let returnType =
         match field.TypeWrapper with
@@ -89,6 +83,4 @@ let convertBsonValue canPassAllConversionCallingTypes (field:PrimitiveInferedPro
 
         | TypeWrapper.Nullable -> failwith "Nullable types not generated"
 
-    let conversionCallingType = BsonConversionCallingType.BsonTop
-
-    returnType, convert, conversionCallingType
+    returnType, convert

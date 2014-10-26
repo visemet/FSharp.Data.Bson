@@ -68,7 +68,6 @@ type BsonGenerationResult =
     {
         ConvertedType : Type
         Converter : (Expr -> Expr) option
-        ConversionCallingType : BsonConversionCallingType
     }
 
     member x.GetConverter ctx =
@@ -104,20 +103,16 @@ module BsonTypeBuilder =
 
     let private inferType typ =
         { ConvertedType = typ
-          Converter = None
-          ConversionCallingType = BsonTop }
+          Converter = None }
 
     let private inferCollection (elemType:Type) conv =
         { ConvertedType = elemType.MakeArrayType()
-          Converter = Some conv
-          ConversionCallingType = BsonTop }
+          Converter = Some conv }
 
     let private makeGetter (ctx:BsonGenerationContext) (doc:Expr) (prop:InferedProperty) (propResult:BsonGenerationResult) =
         let propName = prop.Name
-        let optionalityHandledByProperty = propResult.ConversionCallingType <> BsonTop
 
-        match propResult.ConversionCallingType with
-        | BsonTop when prop.Type.IsOptional ->
+        if prop.Type.IsOptional then
             match propResult.Converter with
             | Some _ ->
                 //TODO: not covered in tests
@@ -125,14 +120,14 @@ module BsonTypeBuilder =
 
             | None ->
                 <@@ BsonRuntime.TryGetPropertyPacked(%%doc, propName) @@>
-        | _ ->
+        else
             propResult.GetConverter ctx <|
-              match prop.Type with
-              | InferedType.Collection _
-              | InferedType.Heterogeneous _
-              | InferedType.Top
-              | InferedType.Null -> <@@ BsonRuntime.GetPropertyPackedOrNull(%%doc, propName) @@>
-              | _ -> <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
+                match prop.Type with
+                | InferedType.Collection _
+                | InferedType.Heterogeneous _
+                | InferedType.Top
+                | InferedType.Null -> <@@ BsonRuntime.GetPropertyPackedOrNull(%%doc, propName) @@>
+                | _ -> <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
 
     // check if a type was already created for the inferedType before creating a new one
     let internal getOrCreateType ctx inferedType createType =
@@ -163,8 +158,7 @@ module BsonTypeBuilder =
                 typ
 
         { ConvertedType = typ
-          Converter = None
-          ConversionCallingType = BsonTop }
+          Converter = None }
 
     let replaceWithBsonValue (ctx:BsonGenerationContext) typ =
         if typ = ctx.IBsonTopType then
@@ -176,19 +170,18 @@ module BsonTypeBuilder =
         else
             typ
 
-    let rec generateBsonType ctx canPassAllConversionCallingTypes optionalityHandledByParent nameOverride inferedType =
+    let rec generateBsonType ctx optionalityHandledByParent nameOverride inferedType =
 
         match inferedType with
 
         | InferedType.Primitive(inferedType, unit, optional) ->
 
-            let typ, conv, conversionCallingType =
+            let typ, conv =
                 PrimitiveInferedProperty.Create("", inferedType, optional, unit)
-                |> convertBsonValue canPassAllConversionCallingTypes
+                |> convertBsonValue
 
             { ConvertedType = typ
-              Converter = Some conv
-              ConversionCallingType = conversionCallingType }
+              Converter = Some conv }
 
         | InferedType.Record(name, props, optional) -> getOrCreateType ctx inferedType <| fun () ->
 
@@ -213,9 +206,8 @@ module BsonTypeBuilder =
             let members =
                 [ for prop in props ->
 
-                    let propResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)true (*optionalityHandledByParent*)true "" prop.Type
+                    let propResult = generateBsonType ctx (*optionalityHandledByParent*)true "" prop.Type
                     let propName = prop.Name
-                    let optionalityHandledByProperty = propResult.ConversionCallingType <> BsonTop
 
                     let getter = fun (Singleton doc) ->
                         makeGetter ctx doc prop propResult
@@ -258,7 +250,7 @@ module BsonTypeBuilder =
         | InferedType.Collection (_, SingletonMap (_, (_, typ)))
         | InferedType.Collection (_, EmptyMap InferedType.Top typ) ->
 
-            let elementResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false nameOverride typ
+            let elementResult = generateBsonType ctx (*optionalityHandledByParent*)false nameOverride typ
 
             let conv = fun (doc:Expr) ->
                 ctx.BsonRuntimeType?ConvertArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
@@ -266,7 +258,7 @@ module BsonTypeBuilder =
             inferCollection elementResult.ConvertedType conv
 
         | InferedType.Collection (_, MapWithNull (_, (_, typ))) ->
-            let elementResult = generateBsonType ctx (*canPassAllConversionCallingTypes*)false (*optionalityHandledByParent*)false nameOverride typ
+            let elementResult = generateBsonType ctx (*optionalityHandledByParent*)false nameOverride typ
 
             let conv = fun (doc:Expr) ->
                 ctx.BsonRuntimeType?ConvertOptionalArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
