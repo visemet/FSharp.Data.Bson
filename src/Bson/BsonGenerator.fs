@@ -117,10 +117,6 @@ module BsonTypeBuilder =
         let optionalityHandledByProperty = propResult.ConversionCallingType <> BsonTop
 
         match propResult.ConversionCallingType with
-        | BsonValueOptionAndPath ->
-            propResult.GetConverter ctx <@@ BsonRuntime.TryGetPropertyUnpackedWithPath(%%doc, propName) @@>
-        | BsonValueOption ->
-            propResult.GetConverter ctx <@@ BsonRuntime.TryGetPropertyUnpacked(%%doc, propName) @@>
         | BsonTop when prop.Type.IsOptional ->
             match propResult.Converter with
             | Some _ ->

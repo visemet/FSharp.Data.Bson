@@ -95,11 +95,6 @@ type BsonTop =
         |> Seq.mapi (fun i value -> BsonTop.Create(value, sprintf "[%d]" i))
         |> Seq.toArray
 
-/// [omit]
-type BsonValueOptionAndPath =
-    { BsonOpt : BsonValue option
-      Path : string }
-
 /// Static helper methods called from the generated code for working with BSON
 type BsonRuntime =
 
@@ -181,11 +176,6 @@ type BsonRuntime =
                 | _ -> Some value
             else None
         | _ -> None
-
-    /// Optionally get property wrapped together with the path
-    static member TryGetPropertyUnpackedWithPath(top:IBsonTop, name) =
-        { BsonOpt = BsonRuntime.TryGetPropertyUnpacked(top, name)
-          Path = sprintf "%s/%s" (top.Path()) name }
 
     /// Optionally get property wrapped in a BsonTop
     static member TryGetPropertyPacked(top:IBsonTop, name) =

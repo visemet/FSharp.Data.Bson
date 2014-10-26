@@ -76,34 +76,18 @@ let convertBsonValue canPassAllConversionCallingTypes (field:PrimitiveInferedPro
 
     let convert (value:Expr) =
         let convert = getConversionQuotation field.InferedType
-        match field.TypeWrapper, canPassAllConversionCallingTypes with
-        | TypeWrapper.None, true ->
-            wrapInLetIfNeeded value <| fun (varExpr:Expr<BsonValueOptionAndPath>) ->
-                let path = <@ (%varExpr).Path @>
-                let opt = convert <@ (%varExpr).BsonOpt @>
-                let value = <@ (%varExpr).BsonOpt @>
-                typeof<BsonRuntime>?GetNonOptionalValue (field.RuntimeType) (path, opt, value)
-
-        | TypeWrapper.None, false ->
+        match field.TypeWrapper with
+        | TypeWrapper.None ->
             wrapInLetIfNeeded value <| fun (varExpr:Expr<IBsonTop>) ->
                 let path = <@ (%varExpr).Path() @>
                 let opt = convert <@ Some (%varExpr).BsonValue @>
                 let value = <@ Some (%varExpr).BsonValue @>
                 typeof<BsonRuntime>?GetNonOptionalValue (field.RuntimeType) (path, opt, value)
 
-        | TypeWrapper.Option, true ->
-            convert <@ (%%value:BsonValue option) @>
-
-        | TypeWrapper.Option, false ->
+        | TypeWrapper.Option ->
             convert <@ Some (%%value:IBsonTop).BsonValue @>
 
-        | TypeWrapper.Nullable, true ->
-            let opt = convert <@ (%%value:BsonValue option) @>
-            typeof<TextRuntime>?OptionToNullable (field.RuntimeType) opt
-
-        | TypeWrapper.Nullable, false ->
-            let opt = convert <@ Some (%%value:IBsonTop).BsonValue @>
-            typeof<TextRuntime>?OptionToNullable (field.RuntimeType) opt
+        | TypeWrapper.Nullable -> failwith "Nullable types not generated"
 
     let conversionCallingType = BsonConversionCallingType.BsonTop
 
