@@ -109,26 +109,6 @@ module BsonTypeBuilder =
         { ConvertedType = elemType.MakeArrayType()
           Converter = Some conv }
 
-    let private makeGetter (ctx:BsonGenerationContext) (doc:Expr) (prop:InferedProperty) (propResult:BsonGenerationResult) =
-        let propName = prop.Name
-
-        if prop.Type.IsOptional then
-            match propResult.Converter with
-            | Some _ ->
-                //TODO: not covered in tests
-                ctx.BsonRuntimeType?ConvertOptionalProperty (propResult.ConvertedTypeErased ctx) (doc, propName, propResult.ConverterFunc ctx) :> Expr
-
-            | None ->
-                <@@ BsonRuntime.TryGetPropertyPacked(%%doc, propName) @@>
-        else
-            propResult.GetConverter ctx <|
-                match prop.Type with
-                | InferedType.Collection _
-                | InferedType.Heterogeneous _
-                | InferedType.Top
-                | InferedType.Null -> <@@ BsonRuntime.GetPropertyPackedOrNull(%%doc, propName) @@>
-                | _ -> <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
-
     // check if a type was already created for the inferedType before creating a new one
     let internal getOrCreateType ctx inferedType createType =
 
@@ -210,7 +190,10 @@ module BsonTypeBuilder =
                     let propName = prop.Name
 
                     let getter = fun (Singleton doc) ->
-                        makeGetter ctx doc prop propResult
+                        if prop.Type.IsOptional then
+                            ctx.BsonRuntimeType?ConvertOptionalProperty (propResult.ConvertedTypeErased ctx) (doc, propName, propResult.ConverterFunc ctx) :> Expr
+                        else
+                            propResult.GetConverter ctx <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
 
                     let convertedType = propResult.ConvertedType
 
