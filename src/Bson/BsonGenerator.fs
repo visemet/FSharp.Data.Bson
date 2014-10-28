@@ -154,7 +154,7 @@ module BsonTypeBuilder =
 
         match inferedType with
 
-        | InferedType.Primitive(inferedType, unit, optional) ->
+        | InferedType.Primitive (inferedType, unit, optional) ->
 
             let typ, conv =
                 PrimitiveInferedProperty.Create("", inferedType, optional, unit)
@@ -163,7 +163,7 @@ module BsonTypeBuilder =
             { ConvertedType = typ
               Converter = Some conv }
 
-        | InferedType.Record(name, props, optional) -> getOrCreateType ctx inferedType <| fun () ->
+        | InferedType.Record (name, props, optional) -> getOrCreateType ctx inferedType <| fun () ->
 
             if optional && not optionalityHandledByParent then
                 failwith "generateBsonType: optionality not handled for %A" inferedType
@@ -175,7 +175,7 @@ module BsonTypeBuilder =
                 |> ctx.UniqueNiceName
 
             // Generate new type for the record
-            let objectTy = ProvidedTypeDefinition(name, Some(ctx.IBsonTopType), HideObjectMethods = true)
+            let objectTy = ProvidedTypeDefinition(name, Some ctx.IBsonTopType, HideObjectMethods = true)
             ctx.TypeProviderType.AddMember(objectTy)
 
             // to nameclash property names
@@ -186,6 +186,11 @@ module BsonTypeBuilder =
             let members =
                 [ for prop in props ->
 
+                    let optionalityHandledByProperty =
+                        match prop.Type with
+                        | InferedType.Primitive (_, _, optional) -> optional
+                        | _ -> false
+
                     let propResult = generateBsonType ctx (*optionalityHandledByParent*)true "" prop.Type
                     let propName = prop.Name
 
@@ -195,7 +200,10 @@ module BsonTypeBuilder =
                         else
                             propResult.GetConverter ctx <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
 
-                    let convertedType = propResult.ConvertedType
+                    let convertedType =
+                        if prop.Type.IsOptional && not optionalityHandledByProperty then
+                            ctx.MakeOptionType propResult.ConvertedType
+                        else propResult.ConvertedType
 
                     let name = makeUnique prop.Name
                     prop.Name,

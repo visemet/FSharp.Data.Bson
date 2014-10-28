@@ -121,3 +121,14 @@ let ``Validate signature for mixed array type``() =
                             BsonString "0" :> BsonValue ]
     [ BsonDocument("field", array) ]
     |> validateSignature "mixed-array.bson"
+
+[<Test>]
+let ``Validate signature for nested field``() =
+    [ BsonDocument("nested", BsonDocument("field", BsonInt32 0)) ]
+    |> validateSignature "nested.bson"
+
+[<Test>]
+let ``Validate signature for optional nested field``() =
+    [ BsonDocument("nested", BsonDocument("field", BsonInt32 0))
+      BsonDocument("nested", BsonNull.Value) ]
+    |> validateSignature "optional-nested.bson"
