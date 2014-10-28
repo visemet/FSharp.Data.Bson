@@ -150,7 +150,7 @@ module BsonTypeBuilder =
         else
             typ
 
-    let rec generateBsonType ctx optionalityHandledByParent nameOverride inferedType =
+    let rec generateBsonType ctx optionalityHandledByCaller nameOverride inferedType =
 
         match inferedType with
 
@@ -165,7 +165,7 @@ module BsonTypeBuilder =
 
         | InferedType.Record (name, props, optional) -> getOrCreateType ctx inferedType <| fun () ->
 
-            if optional && not optionalityHandledByParent then
+            if optional && not optionalityHandledByCaller then
                 failwith "generateBsonType: optionality not handled for %A" inferedType
 
             let name =
@@ -191,7 +191,7 @@ module BsonTypeBuilder =
                         | InferedType.Primitive (_, _, optional) -> optional
                         | _ -> false
 
-                    let propResult = generateBsonType ctx (*optionalityHandledByParent*)true "" prop.Type
+                    let propResult = generateBsonType ctx (*optionalityHandledByCaller*)true "" prop.Type
                     let propName = prop.Name
 
                     let getter = fun (Singleton doc) ->
@@ -241,7 +241,7 @@ module BsonTypeBuilder =
         | InferedType.Collection (_, SingletonMap (_, (_, typ)))
         | InferedType.Collection (_, EmptyMap InferedType.Top typ) ->
 
-            let elementResult = generateBsonType ctx (*optionalityHandledByParent*)false nameOverride typ
+            let elementResult = generateBsonType ctx (*optionalityHandledByCaller*)false nameOverride typ
 
             let conv = fun (doc:Expr) ->
                 ctx.BsonRuntimeType?ConvertArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
@@ -249,7 +249,7 @@ module BsonTypeBuilder =
             inferCollection elementResult.ConvertedType conv
 
         | InferedType.Collection (_, MapWithNull (_, (_, typ))) ->
-            let elementResult = generateBsonType ctx (*optionalityHandledByParent*)false nameOverride typ
+            let elementResult = generateBsonType ctx (*optionalityHandledByCaller*)false nameOverride typ
 
             let conv = fun (doc:Expr) ->
                 ctx.BsonRuntimeType?ConvertOptionalArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
