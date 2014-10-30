@@ -253,21 +253,25 @@ module BsonTypeBuilder =
 
     | SingletonCollection typ ->
         failIfOptionalRecord typ
-        let elementResult = generateBsonType ctx nameOverride typ
+        let elemResult = generateBsonType ctx nameOverride typ
 
         let conv = fun (doc:Expr) ->
-            ctx.BsonRuntimeType?ConvertArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
+            let t = elemResult.ConvertedTypeErased ctx
+            let args = (doc, elemResult.ConverterFunc ctx)
+            ctx.BsonRuntimeType?ConvertArray t args
 
-        inferCollection elementResult.ConvertedType conv
+        inferCollection elemResult.ConvertedType conv
 
     | CollectionOfOptionals typ ->
         failIfOptionalRecord typ
-        let elementResult = generateBsonType ctx nameOverride typ
+        let elemResult = generateBsonType ctx nameOverride typ
 
         let conv = fun (doc:Expr) ->
-            ctx.BsonRuntimeType?ConvertOptionalArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
+            let t = elemResult.ConvertedTypeErased ctx
+            let args = (doc, elemResult.ConverterFunc ctx)
+            ctx.BsonRuntimeType?ConvertOptionalArray t args
 
-        let convertedType = ctx.MakeOptionType elementResult.ConvertedType
+        let convertedType = ctx.MakeOptionType elemResult.ConvertedType
         inferCollection convertedType conv
 
     | EmptyCollection _
