@@ -87,15 +87,30 @@ type BsonGenerationResult =
             | _ -> x.ConvertedType
 
 [<AutoOpen>]
-module ActivePatterns =
+module private ActivePatterns =
 
-    let (|MapWithNull|_|) (map:Map<_,_>) =
-        if map.Count = 2 then
-            match Map.toList map with
-            | [ (InferedTypeTag.Null, _); elem ]
-            | [ elem; (InferedTypeTag.Null, _) ] -> Some elem
-            | _ -> None
-        else None
+    let (|EmptyCollection|_|) = function
+    | InferedType.Collection (_, EmptyMap InferedType.Top typ) -> Some typ
+    | _ -> None
+
+    let (|SingletonCollection|_|) = function
+    | InferedType.Collection (_, SingletonMap (_, (_, typ))) -> Some typ
+    | _ -> None
+
+    let (|CollectionOfOptionals|_|) inferedType =
+
+        let (|MapWithNull|_|) (map:Map<_,_>) =
+            if map.Count = 2 then
+                match Map.toList map with
+                | [ (InferedTypeTag.Null, _); elem ]
+                | [ elem; (InferedTypeTag.Null, _) ] -> Some elem
+                | _ -> None
+            else None
+
+        match inferedType with
+        | InferedType.Collection (_, MapWithNull (_, (_, typ))) -> Some typ
+        | _ -> None
+
 
 module BsonTypeBuilder =
 
@@ -238,8 +253,8 @@ module BsonTypeBuilder =
 
             objectTy
 
-        | InferedType.Collection (_, SingletonMap (_, (_, typ)))
-        | InferedType.Collection (_, EmptyMap InferedType.Top typ) ->
+        | SingletonCollection typ
+        | EmptyCollection typ ->
 
             let elementResult = generateBsonType ctx (*optionalityHandledByCaller*)false nameOverride typ
 
@@ -248,7 +263,7 @@ module BsonTypeBuilder =
 
             inferCollection elementResult.ConvertedType conv
 
-        | InferedType.Collection (_, MapWithNull (_, (_, typ))) ->
+        | CollectionOfOptionals typ ->
             let elementResult = generateBsonType ctx (*optionalityHandledByCaller*)false nameOverride typ
 
             let conv = fun (doc:Expr) ->
