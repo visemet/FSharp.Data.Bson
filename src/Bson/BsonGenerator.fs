@@ -111,10 +111,9 @@ module private ActivePatterns =
         | InferedType.Collection (_, MapWithNull (_, (_, typ))) -> Some typ
         | _ -> None
 
-
 module BsonTypeBuilder =
 
-    let (?) = QuotationBuilder.(?)
+    let private (?) = QuotationBuilder.(?)
 
     let private inferType typ =
         { ConvertedType = typ
@@ -123,6 +122,11 @@ module BsonTypeBuilder =
     let private inferCollection (elemType:Type) conv =
         { ConvertedType = elemType.MakeArrayType()
           Converter = Some conv }
+
+    let private failIfOptionalRecord = function
+    | InferedType.Record (_, _, true) as inferedType ->
+        failwithf "expected non-optional record, but received %A" inferedType
+    | _ -> ()
 
     // check if a type was already created for the inferedType before creating a new one
     let internal getOrCreateType ctx inferedType createType =
@@ -165,7 +169,7 @@ module BsonTypeBuilder =
         else
             typ
 
-    let rec generateBsonType ctx optionalityHandledByCaller nameOverride inferedType =
+    let rec generateBsonType ctx nameOverride inferedType =
 
         match inferedType with
 
@@ -179,9 +183,6 @@ module BsonTypeBuilder =
               Converter = Some conv }
 
         | InferedType.Record (name, props, optional) -> getOrCreateType ctx inferedType <| fun () ->
-
-            if optional && not optionalityHandledByCaller then
-                failwith "generateBsonType: optionality not handled for %A" inferedType
 
             let name =
                 if String.IsNullOrEmpty nameOverride
@@ -206,7 +207,7 @@ module BsonTypeBuilder =
                         | InferedType.Primitive (_, _, optional) -> optional
                         | _ -> false
 
-                    let propResult = generateBsonType ctx (*optionalityHandledByCaller*)true "" prop.Type
+                    let propResult = generateBsonType ctx "" prop.Type
                     let propName = prop.Name
 
                     let getter = fun (Singleton doc) ->
@@ -254,8 +255,8 @@ module BsonTypeBuilder =
             objectTy
 
         | SingletonCollection typ ->
-
-            let elementResult = generateBsonType ctx (*optionalityHandledByCaller*)false nameOverride typ
+            failIfOptionalRecord typ
+            let elementResult = generateBsonType ctx nameOverride typ
 
             let conv = fun (doc:Expr) ->
                 ctx.BsonRuntimeType?ConvertArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
@@ -263,7 +264,8 @@ module BsonTypeBuilder =
             inferCollection elementResult.ConvertedType conv
 
         | CollectionOfOptionals typ ->
-            let elementResult = generateBsonType ctx (*optionalityHandledByCaller*)false nameOverride typ
+            failIfOptionalRecord typ
+            let elementResult = generateBsonType ctx nameOverride typ
 
             let conv = fun (doc:Expr) ->
                 ctx.BsonRuntimeType?ConvertOptionalArray (elementResult.ConvertedTypeErased ctx) (doc, elementResult.ConverterFunc ctx)
