@@ -149,7 +149,7 @@ type BsonRuntime =
         BsonRuntime.ConvertArray<IBsonTop>(top, Func<_,_> id)
 
     /// Convert BSON array to array of target types
-    static member ConvertOptionalArray<'T>(top:IBsonTop, mapping:Func<IBsonTop,'T>) =
+    static member ConvertArrayOfOptionals<'T>(top:IBsonTop, mapping:Func<IBsonTop,'T>) =
         match top.BsonValue.BsonType with
         | BsonType.Array ->
             top.BsonValue.AsBsonArray.Values

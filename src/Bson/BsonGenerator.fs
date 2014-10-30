@@ -89,15 +89,15 @@ type BsonGenerationResult =
 [<AutoOpen>]
 module private ActivePatterns =
 
-    let (|EmptyCollection|_|) = function
+    let (|EmptyArray|_|) = function
     | InferedType.Collection (_, EmptyMap InferedType.Top typ) -> Some typ
     | _ -> None
 
-    let (|SingletonCollection|_|) = function
+    let (|SingletonArray|_|) = function
     | InferedType.Collection (_, SingletonMap (_, (_, typ))) -> Some typ
     | _ -> None
 
-    let (|CollectionOfOptionals|_|) inferedType =
+    let (|ArrayOfOptionals|_|) inferedType =
 
         let (|MapWithNull|_|) (map:Map<_,_>) =
             if map.Count = 2 then
@@ -253,7 +253,7 @@ module BsonTypeBuilder =
 
         objectTy
 
-    | SingletonCollection typ ->
+    | SingletonArray typ ->
         failIfOptionalRecord typ
         let elemResult = generateBsonType ctx nameOverride typ
 
@@ -264,19 +264,19 @@ module BsonTypeBuilder =
 
         inferCollection elemResult.ConvertedType conv
 
-    | CollectionOfOptionals typ ->
+    | ArrayOfOptionals typ ->
         failIfOptionalRecord typ
         let elemResult = generateBsonType ctx nameOverride typ
 
         let conv = fun (doc:Expr) ->
             let t = elemResult.ConvertedTypeErased ctx
             let args = (doc, elemResult.ConverterFunc ctx)
-            ctx.BsonRuntimeType?ConvertOptionalArray t args
+            ctx.BsonRuntimeType?ConvertArrayOfOptionals t args
 
         let convertedType = ctx.MakeOptionType elemResult.ConvertedType
         inferCollection convertedType conv
 
-    | EmptyCollection _
+    | EmptyArray _
     | InferedType.Collection _ ->
 
         let conv = fun (doc:Expr) -> <@@ BsonRuntime.ConvertArray(%%doc) @@>
