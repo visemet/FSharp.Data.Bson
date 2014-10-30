@@ -125,7 +125,7 @@ module BsonTypeBuilder =
 
     let private failIfOptionalRecord = function
     | InferedType.Record (_, _, true) as inferedType ->
-        failwithf "expected non-optional record, but received %A" inferedType
+        failwithf "Expected non-optional record, but received %A" inferedType
     | _ -> ()
 
     // check if a type was already created for the inferedType before creating a new one

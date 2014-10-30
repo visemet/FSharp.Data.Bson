@@ -46,7 +46,7 @@ let getConversionQuotation typ (value:Expr<BsonValue option>) =
         <@@ BsonRuntime.ConvertDateTime(%value) @@>
     elif typ = typeof<ObjectId> then
         <@@ BsonRuntime.ConvertObjectId(%value) @@>
-    else failwithf "getConversionQuotation: Unsupported primitive type '%A'" typ
+    else invalidArg "typ" "unsupported primitive type '%A'" typ
 
 /// Creates a function that takes Expr<BsonValue option> and converts it to
 /// an expression of other type - the type is specified by `field`
@@ -55,8 +55,10 @@ let convertBsonValue (field:PrimitiveInferedProperty) =
     let returnType =
         match field.TypeWrapper with
         | TypeWrapper.None -> field.RuntimeType
-        | TypeWrapper.Option -> typedefof<option<_>>.MakeGenericType field.RuntimeType
-        | TypeWrapper.Nullable -> typedefof<Nullable<_>>.MakeGenericType field.RuntimeType
+        | TypeWrapper.Option ->
+            typedefof<option<_>>.MakeGenericType field.RuntimeType
+        | TypeWrapper.Nullable ->
+            typedefof<Nullable<_>>.MakeGenericType field.RuntimeType
 
     let wrapInLetIfNeeded (value:Expr) getBody =
         match value with
@@ -72,15 +74,17 @@ let convertBsonValue (field:PrimitiveInferedProperty) =
         let convert = getConversionQuotation field.InferedType
         match field.TypeWrapper with
         | TypeWrapper.None ->
-            wrapInLetIfNeeded value <| fun (varExpr:Expr<IBsonTop>) ->
-                let path = <@ (%varExpr).Path() @>
-                let opt = convert <@ Some (%varExpr).BsonValue @>
-                let value = <@ Some (%varExpr).BsonValue @>
-                typeof<BsonRuntime>?GetNonOptionalValue (field.RuntimeType) (path, opt, value)
+            wrapInLetIfNeeded value <| fun (top:Expr<IBsonTop>) ->
+                let t = field.RuntimeType
+                let path = <@ (%top).Path() @>
+                let opt = convert <@ Some (%top).BsonValue @>
+                let value = <@ Some (%top).BsonValue @>
+                typeof<BsonRuntime>?GetNonOptionalValue t (path, opt, value)
 
         | TypeWrapper.Option ->
             convert <@ Some (%%value:IBsonTop).BsonValue @>
 
-        | TypeWrapper.Nullable -> failwith "Nullable types not generated"
+        | TypeWrapper.Nullable ->
+            invalidOp "conversion to Nullable type not supported"
 
     returnType, convert
