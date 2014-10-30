@@ -253,8 +253,7 @@ module BsonTypeBuilder =
 
             objectTy
 
-        | SingletonCollection typ
-        | EmptyCollection typ ->
+        | SingletonCollection typ ->
 
             let elementResult = generateBsonType ctx (*optionalityHandledByCaller*)false nameOverride typ
 
@@ -272,11 +271,10 @@ module BsonTypeBuilder =
             let convertedType = ctx.MakeOptionType elementResult.ConvertedType
             inferCollection convertedType conv
 
+        | EmptyCollection _
         | InferedType.Collection _ ->
 
-            let conv = fun (doc:Expr) ->
-                ctx.BsonRuntimeType?ConvertArray ctx.IBsonTopType (doc, ReflectionHelpers.makeDelegate id ctx.IBsonTopType)
-
+            let conv = fun (doc:Expr) -> <@@ BsonRuntime.ConvertArray(%%doc) @@>
             inferCollection ctx.IBsonTopType conv
 
         | InferedType.Top

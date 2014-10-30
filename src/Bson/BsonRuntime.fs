@@ -145,6 +145,9 @@ type BsonRuntime =
         | BsonType.Null -> [| |]
         | _ -> failwithf "Expecting a list at '%s', got %A" (top.Path()) top
 
+    static member ConvertArray(top) =
+        BsonRuntime.ConvertArray<IBsonTop>(top, Func<_,_> id)
+
     /// Convert BSON array to array of target types
     static member ConvertOptionalArray<'T>(top:IBsonTop, mapping:Func<IBsonTop,'T>) =
         match top.BsonValue.BsonType with
