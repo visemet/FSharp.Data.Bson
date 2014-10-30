@@ -129,37 +129,39 @@ module BsonTypeBuilder =
     | _ -> ()
 
     // check if a type was already created for the inferedType before creating a new one
-    let internal getOrCreateType ctx inferedType createType =
+    let private getOrCreateType ctx inferedType createType =
 
         // normalize properties of the inferedType which don't affect code generation
         let rec normalize topLevel = function
-        | InferedType.Heterogeneous map ->
-            map
+        | InferedType.Record (_, props, optional) ->
+            let props = props |> List.map (fun prop ->
+                { prop with Type = normalize false prop.Type })
+
+            // Optionality of records only affects their container,
+            // so always set it to true at the top level
+            InferedType.Record (None, props, optional || topLevel)
+
+        | InferedType.Collection (order, types) ->
+            let types = types |> Map.map (fun _ (mult, inferedType) ->
+                mult, normalize false inferedType)
+            InferedType.Collection (order, types)
+
+        | InferedType.Heterogeneous cases ->
+            cases
             |> Map.map (fun _ inferedType -> normalize false inferedType)
             |> InferedType.Heterogeneous
-        | InferedType.Collection (order, types) ->
-            InferedType.Collection (order, Map.map (fun _ (multiplicity, inferedType) -> multiplicity, normalize false inferedType) types)
-        | InferedType.Record (_, props, optional) ->
-            let props =
-              props
-              |> List.map (fun { Name = name; Type = inferedType } -> { InferedProperty.Name = name; Type = normalize false inferedType })
-            // optional only affects the parent, so at top level always set to true regardless of the actual value
-            InferedType.Record (None, props, optional || topLevel)
-        | x -> x
+
+        | inferedType -> inferedType
 
         let inferedType = normalize true inferedType
-        let typ =
-            match ctx.TypeCache.TryGetValue inferedType with
-            | true, typ -> typ
-            | _ ->
-                let typ = createType()
-                ctx.TypeCache.Add(inferedType, typ)
-                typ
+        match ctx.TypeCache.TryGetValue inferedType with
+        | true, typ -> inferType typ
+        | false, _ ->
+            let typ = createType()
+            ctx.TypeCache.Add(inferedType, typ)
+            inferType typ
 
-        { ConvertedType = typ
-          Converter = None }
-
-    let replaceWithBsonValue (ctx:BsonGenerationContext) typ =
+    let private replaceWithBsonValue (ctx:BsonGenerationContext) typ =
         if typ = ctx.IBsonTopType then
             ctx.BsonValueType
         elif typ.IsArray && typ.GetElementType() = ctx.IBsonTopType then
