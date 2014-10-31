@@ -101,25 +101,20 @@ type BsonRuntime =
     // -------------------------------------------------------------------------
     // bson option -> type
     // -------------------------------------------------------------------------
-    // Note that need we to specify the conversion functions as eta-expanded,
-    // i.e. ConvertXX value = value |> Option.bind BsonConversions.AsXX
-    // (instead of ConvertYY = Option.bind BsonConversions.AsYY), so that their
-    // usage within quotations generates an Expr.Call, and not an Expr.Application
-    // since the latter is not transformed by AssemblyReplacer.replaceExpr.
 
-    static member ConvertString value = value |> Option.bind BsonConversions.AsString
+    static member ConvertBoolean = Option.bind BsonConversions.AsBoolean
 
-    static member ConvertBoolean value = value |> Option.bind BsonConversions.AsBoolean
+    static member ConvertInteger = Option.bind BsonConversions.AsInteger
 
-    static member ConvertInteger value = value |> Option.bind BsonConversions.AsInteger
+    static member ConvertInteger64 = Option.bind BsonConversions.AsInteger64
 
-    static member ConvertInteger64 value = value |> Option.bind BsonConversions.AsInteger64
+    static member ConvertFloat = Option.bind BsonConversions.AsFloat
 
-    static member ConvertFloat value = value |> Option.bind BsonConversions.AsFloat
+    static member ConvertString = Option.bind BsonConversions.AsString
 
-    static member ConvertDateTime value = value |> Option.bind BsonConversions.AsDateTime
+    static member ConvertDateTime = Option.bind BsonConversions.AsDateTime
 
-    static member ConvertObjectId value = value |> Option.bind BsonConversions.AsObjectId
+    static member ConvertObjectId = Option.bind BsonConversions.AsObjectId
 
     /// Operation that extracts the value from an option and reports a meaningful
     /// error message when the value is not present.
