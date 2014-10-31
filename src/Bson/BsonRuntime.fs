@@ -233,25 +233,10 @@ type BsonRuntime =
 
         | _ -> failwithf "Cannot create BsonValue from %A" value
 
-    /// Creates a BsonValue wrapped in a BsonTop
-    static member CreateValue value =
-        let bson = BsonRuntime.ToBsonValue value
-        BsonTop.Create(bson, "")
-
     /// Creates a BsonDocument wrapped in a BsonTop
     static member CreateDocument properties =
         let value =
             properties
-            |> Array.map (fun (k, v) -> BsonElement(k, BsonRuntime.ToBsonValue v))
-            |> Array.toSeq
+            |> Array.map (fun (k, v) ->
+                BsonElement(k, BsonRuntime.ToBsonValue v))
         BsonTop.Create(BsonDocument value, "")
-
-    /// Creates a BsonArray wrapped in a BsonTop
-    static member CreateArray elements =
-        let value =
-            elements
-            |> Array.collect (BsonRuntime.ToBsonValue >> (fun value ->
-                match value.BsonType with
-                | BsonType.Array -> Array.ofSeq value.AsBsonArray.Values
-                | _ -> [| value |]))
-        BsonTop.Create(BsonArray value, "")
