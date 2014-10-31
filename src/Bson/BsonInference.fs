@@ -24,13 +24,11 @@ open System
 open MongoDB.Bson
 open FSharp.Data.Runtime
 open FSharp.Data.Runtime.StructuralTypes
+open BsonProvider.Runtime
 
 /// Infer the type of a BSON value.
 let rec inferType parentName (bsonValue:BsonValue) =
     match bsonValue.BsonType with
-    | BsonType.Null
-    | BsonType.Undefined ->InferedType.Null
-
     | BsonType.Boolean -> InferedType.Primitive (typeof<bool>, None, false)
     | BsonType.Int32 -> InferedType.Primitive (typeof<int>, None, false)
     | BsonType.Int64 -> InferedType.Primitive (typeof<int64>, None, false)
@@ -55,4 +53,5 @@ let rec inferType parentName (bsonValue:BsonValue) =
                 { InferedProperty.Name = elem.Name; Type = typ } ]
         InferedType.Record (recordName, fields, false)
 
+    | OptionalBsonType _ -> InferedType.Null
     | _ -> InferedType.Primitive (typeof<BsonValue>, None, false)

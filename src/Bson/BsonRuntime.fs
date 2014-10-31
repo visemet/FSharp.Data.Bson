@@ -95,6 +95,14 @@ type BsonTop =
         |> Seq.mapi (fun i value -> BsonTop.Create(value, sprintf "[%d]" i))
         |> Seq.toArray
 
+[<AutoOpen>]
+module ActivePatterns =
+
+    let (|OptionalBsonType|_|) = function
+    | BsonType.Null
+    | BsonType.Undefined as bsonType -> Some bsonType
+    | _ -> None
+
 /// Static helper methods called from the generated code for working with BSON
 type BsonRuntime =
 
@@ -129,15 +137,10 @@ type BsonRuntime =
         match top.BsonValue.BsonType with
         | BsonType.Array ->
             top.BsonValue.AsBsonArray.Values
-            |> Seq.filter (fun value ->
-                match value.BsonType with
-                | BsonType.Null -> false
-                | _ -> true)
             |> Seq.mapi (fun i value -> top.Create(value, sprintf "[%d]" i))
             |> Seq.map mapping.Invoke
             |> Seq.toArray
 
-        | BsonType.Null -> [| |]
         | _ -> failwithf "Expecting a list at '%s', got %A" (top.Path()) top
 
     static member ConvertArray(top) =
@@ -150,8 +153,7 @@ type BsonRuntime =
             top.BsonValue.AsBsonArray.Values
             |> Seq.map (fun value ->
                 match value.BsonType with
-                | BsonType.Null
-                | BsonType.Undefined -> None
+                | OptionalBsonType _ -> None
                 | _ -> Some value)
             |> Seq.mapi (fun i value ->
                 let create value = top.Create(value, sprintf "[%d]" i)
@@ -159,7 +161,6 @@ type BsonRuntime =
             |> Seq.map (Option.map mapping.Invoke)
             |> Seq.toArray
 
-        | BsonType.Null -> [| |]
         | _ -> failwithf "Expecting a list at '%s', got %A" (top.Path()) top
 
     /// Optionally get property of BsonDocument
@@ -170,7 +171,7 @@ type BsonRuntime =
             if doc.Contains name then
                 let value = doc.GetValue name
                 match value.BsonType with
-                | BsonType.Null -> None
+                | OptionalBsonType _ -> None
                 | _ -> Some value
             else None
         | _ -> None
@@ -250,6 +251,5 @@ type BsonRuntime =
             |> Array.collect (BsonRuntime.ToBsonValue >> (fun value ->
                 match value.BsonType with
                 | BsonType.Array -> Array.ofSeq value.AsBsonArray.Values
-                | BsonType.Null -> [| |]
                 | _ -> [| value |]))
         BsonTop.Create(BsonArray value, "")
