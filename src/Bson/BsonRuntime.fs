@@ -200,34 +200,36 @@ type BsonRuntime =
 
     /// Converts an object to a BsonValue
     static member private ToBsonValue (value:obj) =
-        let inline optionToBson f = function
-            | None -> BsonNull.Value :> BsonValue
-            | Some v -> f v :> BsonValue
+        let optionToBsonValue = function
+        | Some v -> BsonRuntime.ToBsonValue v
+        | None -> BsonNull.Value :> BsonValue
 
         match value with
         | null -> BsonNull.Value :> BsonValue
 
-        | :? IBsonTop as v -> v.BsonValue
-        | :? Array as v ->
-            BsonArray [| for elem in v -> BsonRuntime.ToBsonValue elem |] :> BsonValue
-
         // primitive types
-        | :? string    as v -> BsonString v :> BsonValue
+        | :? bool      as v -> BsonBoolean  v :> BsonValue
+        | :? int       as v -> BsonInt32    v :> BsonValue
+        | :? int64     as v -> BsonInt64    v :> BsonValue
+        | :? float     as v -> BsonDouble   v :> BsonValue
         | :? DateTime  as v -> BsonDateTime v :> BsonValue
-        | :? int       as v -> BsonInt32 v :> BsonValue
-        | :? int64     as v -> BsonInt64 v :> BsonValue
-        | :? float     as v -> BsonDouble v :> BsonValue
-        | :? bool      as v -> BsonBoolean v :> BsonValue
+        | :? string    as v -> BsonString   v :> BsonValue
         | :? BsonValue as v -> v
+        | :? IBsonTop  as v -> v.BsonValue
 
         // option types
-        | :? option<string>    as v -> optionToBson (fun x -> BsonString x) v
-        | :? option<DateTime>  as v -> optionToBson (fun (x : DateTime) -> BsonDateTime x) v
-        | :? option<int>       as v -> optionToBson (fun x -> BsonInt32 x) v
-        | :? option<int64>     as v -> optionToBson (fun x -> BsonInt64 x) v
-        | :? option<float>     as v -> optionToBson (fun x -> BsonDouble x) v
-        | :? option<bool>      as v -> optionToBson (fun x -> BsonBoolean x) v
-        | :? option<BsonValue> as v -> optionToBson id v
+        | :? option<bool>      as v -> optionToBsonValue v
+        | :? option<int>       as v -> optionToBsonValue v
+        | :? option<int64>     as v -> optionToBsonValue v
+        | :? option<float>     as v -> optionToBsonValue v
+        | :? option<DateTime>  as v -> optionToBsonValue v
+        | :? option<string>    as v -> optionToBsonValue v
+        | :? option<BsonValue> as v -> optionToBsonValue v
+        | :? option<IBsonTop>  as v -> optionToBsonValue v
+
+        | :? Array as v ->
+            let elems = [ for elem in v -> BsonRuntime.ToBsonValue elem ]
+            BsonArray elems :> BsonValue
 
         | _ -> failwithf "Cannot create BsonValue from %A" value
 
