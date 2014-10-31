@@ -212,7 +212,8 @@ module BsonTypeBuilder =
             let convertedType = getConvertedType ctx prop result
             ProvidedParameter(name, replaceWithBsonValue ctx convertedType)
 
-        let mkCtor (names:string list) parameters =
+        let mkCtor (parameters:ProvidedParameter list) =
+            let names = parameters |> List.map (fun parameter -> parameter.Name)
             let ctor args =
                 let properties =
                     let t = typeof<string * obj>
@@ -227,6 +228,9 @@ module BsonTypeBuilder =
                 <@@ BsonRuntime.CreateDocument(%%properties) @@>
 
             ProvidedConstructor(parameters, InvokeCode = ctor)
+
+        let mkDefaultCtor (ctx:BsonGenerationContext) =
+            mkCtor [ ProvidedParameter("bsonValue", ctx.BsonValueType) ]
 
         let mkRecord() =
             let name =
@@ -248,28 +252,19 @@ module BsonTypeBuilder =
                 [ for prop in props ->
                     let result = generateBsonType ctx "" prop.Type
                     let name = makeUnique prop.Name
-                    prop.Name,
                     mkProperty name ctx prop result,
                     mkParameter (NameUtils.niceCamelName name) ctx prop result ]
 
-            let names, properties, parameters = List.unzip3 members
+            let properties, parameters = List.unzip members
 
             objectTy.AddMembers properties
 
             if ctx.GenerateConstructors then
-                objectTy.AddMember <| mkCtor names parameters
+                objectTy.AddMember <| mkDefaultCtor ctx
 
-                let hasBsonValueType =
-                    match parameters with
-                    | [ prop ] -> prop.ParameterType = ctx.BsonValueType
-                    | _ -> false
-
-                if not hasBsonValueType then
-                    objectTy.AddMember <|
-                            ProvidedConstructor(
-                                [ProvidedParameter("bsonValue", ctx.BsonValueType)],
-                                InvokeCode = fun (Singleton arg) ->
-                                    <@@ BsonTop.Create((%%arg:BsonValue), "") @@>)
+                match parameters with
+                | [ prop ] when prop.ParameterType = ctx.BsonValueType -> ()
+                | _ -> objectTy.AddMember <| mkCtor parameters
 
             objectTy
 

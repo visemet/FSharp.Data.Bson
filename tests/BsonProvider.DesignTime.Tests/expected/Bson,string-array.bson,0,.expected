@@ -3,8 +3,8 @@ class BsonProvider
     static member ReadAll: stream:System.IO.Stream -> BsonProvider+Root[]
 
 class BsonProvider+Root : BsonProvider.Runtime.IBsonTop
-    new : fieldSingle:string[] -> fieldMultiple:string[] -> fieldOptionalSingle:string[] -> BsonProvider+Root
     new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Root
+    new : fieldSingle:string[] -> fieldMultiple:string[] -> fieldOptionalSingle:string[] -> BsonProvider+Root
     member FieldMultiple: string[] with get
     member FieldOptionalSingle: string[] with get
     member FieldSingle: string[] with get
