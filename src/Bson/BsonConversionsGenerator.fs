@@ -26,10 +26,11 @@ open MongoDB.Bson
 open FSharp.Data.Runtime
 open FSharp.Data.Runtime.StructuralTypes
 open ProviderImplementation
-open ProviderImplementation.QuotationBuilder
 open BsonProvider.Runtime
 
 #nowarn "10001"
+
+let private (?) = QuotationBuilder.(?)
 
 let getConversionQuotation typ (value:Expr<BsonValue option>) =
     if typ = typeof<string> then
