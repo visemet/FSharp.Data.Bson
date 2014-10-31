@@ -183,6 +183,35 @@ module BsonTypeBuilder =
 
     | InferedType.Record (name, props, optional) as inferedType ->
 
+        let getConvertedType (ctx:BsonGenerationContext) prop result =
+            let optionalityHandledByProperty =
+                match prop.Type with
+                | InferedType.Primitive (_, _, optional) -> optional
+                | _ -> false
+
+            if prop.Type.IsOptional && not optionalityHandledByProperty then
+                ctx.MakeOptionType result.ConvertedType
+            else result.ConvertedType
+
+        let mkProperty name ctx (prop:InferedProperty) (result:BsonGenerationResult) =
+            let getter =
+                let propName = prop.Name
+                if prop.Type.IsOptional then
+                    fun (Singleton top) ->
+                        let t = result.ConvertedTypeErased ctx
+                        let args = (top, propName, result.ConverterFunc ctx)
+                        ctx.BsonRuntimeType?ConvertOptionalProperty t args
+                else
+                    fun (Singleton top) ->
+                        result.GetConverter ctx <@@ BsonRuntime.GetPropertyPacked(%%top, propName) @@>
+
+            let convertedType = getConvertedType ctx prop result
+            ProvidedProperty(name, convertedType, GetterCode = getter)
+
+        let mkParameter name ctx prop result =
+            let convertedType = getConvertedType ctx prop result
+            ProvidedParameter(name, replaceWithBsonValue ctx convertedType)
+
         let mkRecord() =
             let name =
                 if String.IsNullOrEmpty nameOverride
@@ -201,30 +230,11 @@ module BsonTypeBuilder =
             // Add all record fields as properties
             let members =
                 [ for prop in props ->
-
-                    let optionalityHandledByProperty =
-                        match prop.Type with
-                        | InferedType.Primitive (_, _, optional) -> optional
-                        | _ -> false
-
-                    let propResult = generateBsonType ctx "" prop.Type
-                    let propName = prop.Name
-
-                    let getter = fun (Singleton doc) ->
-                        if prop.Type.IsOptional then
-                            ctx.BsonRuntimeType?ConvertOptionalProperty (propResult.ConvertedTypeErased ctx) (doc, propName, propResult.ConverterFunc ctx) :> Expr
-                        else
-                            propResult.GetConverter ctx <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
-
-                    let convertedType =
-                        if prop.Type.IsOptional && not optionalityHandledByProperty then
-                            ctx.MakeOptionType propResult.ConvertedType
-                        else propResult.ConvertedType
-
+                    let result = generateBsonType ctx "" prop.Type
                     let name = makeUnique prop.Name
                     prop.Name,
-                    ProvidedProperty(name, convertedType, GetterCode = getter),
-                    ProvidedParameter(NameUtils.niceCamelName name, replaceWithBsonValue ctx convertedType) ]
+                    mkProperty name ctx prop result,
+                    mkParameter (NameUtils.niceCamelName name) ctx prop result ]
 
             let names, properties, parameters = List.unzip3 members
             objectTy.AddMembers properties
