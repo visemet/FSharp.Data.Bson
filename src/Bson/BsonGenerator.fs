@@ -212,6 +212,22 @@ module BsonTypeBuilder =
             let convertedType = getConvertedType ctx prop result
             ProvidedParameter(name, replaceWithBsonValue ctx convertedType)
 
+        let mkCtor (names:string list) parameters =
+            let ctor args =
+                let properties =
+                    let t = typeof<string * obj>
+                    let elems =
+                        args
+                        |> List.zip names
+                        |> List.mapi (fun i (name, arg) ->
+                            Expr.NewTuple [ Expr.Value name
+                                            Expr.Coerce(arg, typeof<obj>) ])
+                    Expr.NewArray(t, elems)
+
+                <@@ BsonRuntime.CreateDocument(%%properties) @@>
+
+            ProvidedConstructor(parameters, InvokeCode = ctor)
+
         let mkRecord() =
             let name =
                 if String.IsNullOrEmpty nameOverride
@@ -237,18 +253,11 @@ module BsonTypeBuilder =
                     mkParameter (NameUtils.niceCamelName name) ctx prop result ]
 
             let names, properties, parameters = List.unzip3 members
+
             objectTy.AddMembers properties
 
             if ctx.GenerateConstructors then
-
-                objectTy.AddMember <|
-                    ProvidedConstructor(parameters, InvokeCode = fun args ->
-                        let properties =
-                            Expr.NewArray(typeof<string * obj>,
-                                          args
-                                          |> List.mapi (fun i a -> Expr.NewTuple [ Expr.Value names.[i]
-                                                                                   Expr.Coerce(a, typeof<obj>) ]))
-                        <@@ BsonRuntime.CreateDocument(%%properties) @@>)
+                objectTy.AddMember <| mkCtor names parameters
 
                 let hasBsonValueType =
                     match parameters with
