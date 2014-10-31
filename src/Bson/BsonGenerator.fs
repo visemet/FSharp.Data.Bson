@@ -181,77 +181,80 @@ module BsonTypeBuilder =
         { ConvertedType = typ
           Converter = Some conv }
 
-    | InferedType.Record (name, props, optional) as inferedType -> getOrCreateType ctx inferedType <| fun () ->
+    | InferedType.Record (name, props, optional) as inferedType ->
 
-        let name =
-            if String.IsNullOrEmpty nameOverride
-            then match name with Some name -> name | _ -> "Record"
-            else nameOverride
-            |> ctx.UniqueNiceName
+        let mkRecord() =
+            let name =
+                if String.IsNullOrEmpty nameOverride
+                then match name with Some name -> name | _ -> "Record"
+                else nameOverride
+                |> ctx.UniqueNiceName
 
-        // Generate new type for the record
-        let objectTy = ProvidedTypeDefinition(name, Some ctx.IBsonTopType, HideObjectMethods = true)
-        ctx.TypeProviderType.AddMember(objectTy)
+            // Generate new type for the record
+            let objectTy = ProvidedTypeDefinition(name, Some ctx.IBsonTopType, HideObjectMethods = true)
+            ctx.TypeProviderType.AddMember(objectTy)
 
-        // to nameclash property names
-        let makeUnique = NameUtils.uniqueGenerator NameUtils.nicePascalName
-        makeUnique "BsonValue" |> ignore
+            // to nameclash property names
+            let makeUnique = NameUtils.uniqueGenerator NameUtils.nicePascalName
+            makeUnique "BsonValue" |> ignore
 
-        // Add all record fields as properties
-        let members =
-            [ for prop in props ->
+            // Add all record fields as properties
+            let members =
+                [ for prop in props ->
 
-                let optionalityHandledByProperty =
-                    match prop.Type with
-                    | InferedType.Primitive (_, _, optional) -> optional
+                    let optionalityHandledByProperty =
+                        match prop.Type with
+                        | InferedType.Primitive (_, _, optional) -> optional
+                        | _ -> false
+
+                    let propResult = generateBsonType ctx "" prop.Type
+                    let propName = prop.Name
+
+                    let getter = fun (Singleton doc) ->
+                        if prop.Type.IsOptional then
+                            ctx.BsonRuntimeType?ConvertOptionalProperty (propResult.ConvertedTypeErased ctx) (doc, propName, propResult.ConverterFunc ctx) :> Expr
+                        else
+                            propResult.GetConverter ctx <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
+
+                    let convertedType =
+                        if prop.Type.IsOptional && not optionalityHandledByProperty then
+                            ctx.MakeOptionType propResult.ConvertedType
+                        else propResult.ConvertedType
+
+                    let name = makeUnique prop.Name
+                    prop.Name,
+                    ProvidedProperty(name, convertedType, GetterCode = getter),
+                    ProvidedParameter(NameUtils.niceCamelName name, replaceWithBsonValue ctx convertedType) ]
+
+            let names, properties, parameters = List.unzip3 members
+            objectTy.AddMembers properties
+
+            if ctx.GenerateConstructors then
+
+                objectTy.AddMember <|
+                    ProvidedConstructor(parameters, InvokeCode = fun args ->
+                        let properties =
+                            Expr.NewArray(typeof<string * obj>,
+                                          args
+                                          |> List.mapi (fun i a -> Expr.NewTuple [ Expr.Value names.[i]
+                                                                                   Expr.Coerce(a, typeof<obj>) ]))
+                        <@@ BsonRuntime.CreateDocument(%%properties) @@>)
+
+                let hasBsonValueType =
+                    match parameters with
+                    | [ prop ] -> prop.ParameterType = ctx.BsonValueType
                     | _ -> false
 
-                let propResult = generateBsonType ctx "" prop.Type
-                let propName = prop.Name
+                if not hasBsonValueType then
+                    objectTy.AddMember <|
+                            ProvidedConstructor(
+                                [ProvidedParameter("bsonValue", ctx.BsonValueType)],
+                                InvokeCode = fun (Singleton arg) ->
+                                    <@@ BsonTop.Create((%%arg:BsonValue), "") @@>)
 
-                let getter = fun (Singleton doc) ->
-                    if prop.Type.IsOptional then
-                        ctx.BsonRuntimeType?ConvertOptionalProperty (propResult.ConvertedTypeErased ctx) (doc, propName, propResult.ConverterFunc ctx) :> Expr
-                    else
-                        propResult.GetConverter ctx <@@ BsonRuntime.GetPropertyPacked(%%doc, propName) @@>
+            objectTy
 
-                let convertedType =
-                    if prop.Type.IsOptional && not optionalityHandledByProperty then
-                        ctx.MakeOptionType propResult.ConvertedType
-                    else propResult.ConvertedType
-
-                let name = makeUnique prop.Name
-                prop.Name,
-                ProvidedProperty(name, convertedType, GetterCode = getter),
-                ProvidedParameter(NameUtils.niceCamelName name, replaceWithBsonValue ctx convertedType) ]
-
-        let names, properties, parameters = List.unzip3 members
-        objectTy.AddMembers properties
-
-        if ctx.GenerateConstructors then
-
-            objectTy.AddMember <|
-                ProvidedConstructor(parameters, InvokeCode = fun args ->
-                    let properties =
-                        Expr.NewArray(typeof<string * obj>,
-                                      args
-                                      |> List.mapi (fun i a -> Expr.NewTuple [ Expr.Value names.[i]
-                                                                               Expr.Coerce(a, typeof<obj>) ]))
-                    <@@ BsonRuntime.CreateDocument(%%properties) @@>)
-
-            let hasBsonValueType =
-                match parameters with
-                | [ prop ] -> prop.ParameterType = ctx.BsonValueType
-                | _ -> false
-
-            if not hasBsonValueType then
-                objectTy.AddMember <|
-                        ProvidedConstructor(
-                            [ProvidedParameter("bsonValue", ctx.BsonValueType)],
-                            InvokeCode = fun (Singleton arg) ->
-                                <@@ BsonTop.Create((%%arg:BsonValue), "") @@>)
-
-        objectTy
+        getOrCreateType ctx inferedType mkRecord
 
     | SingletonArray typ ->
         failIfOptionalRecord typ
