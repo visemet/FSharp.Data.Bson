@@ -80,7 +80,7 @@ type BsonTop =
     /// [omit]
     [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
     [<CompilerMessageAttribute("This method is intended for use in generated code only.", 10001, IsHidden=true, IsError=false)>]
-    static member Parse(stream:Stream) =
+    static member ParseSeq(stream:Stream) =
         seq {
             use stream = stream
             while stream.Position <> stream.Length do
@@ -90,9 +90,9 @@ type BsonTop =
     /// [omit]
     [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
     [<CompilerMessageAttribute("This method is intended for use in generated code only.", 10001, IsHidden=true, IsError=false)>]
-    static member CreateList(stream:Stream) =
-        BsonTop.Parse stream
-        |> Seq.mapi (fun i value -> BsonTop.Create(value, sprintf "[%d]" i))
+    static member ParseList(stream:Stream) =
+        BsonTop.ParseSeq stream
+        |> Seq.map (fun value -> BsonTop.Create(value, "$"))
         |> Seq.toArray
 
 [<AutoOpen>]
@@ -124,30 +124,33 @@ type BsonRuntime =
 
     static member ConvertObjectId = Option.bind BsonConversions.AsObjectId
 
-    /// Operation that extracts the value from an option and reports a meaningful
-    /// error message when the value is not present.
-    static member GetNonOptionalValue<'T>(path:string, opt:option<'T>, value:BsonValue option) : 'T =
-        match opt, value with
-        | Some x, _ -> x
-        | None, None -> failwithf "'%s' is missing" path
-        | None, Some x -> failwithf "Expecting %A at '%s', but received %A" typeof<'T> path x
+    /// Operation that extracts the value from an option and reports a
+    /// meaningful error message if the value is not present.
+    static member GetNonOptionalValue<'T>(top:IBsonTop,
+                                          converted:option<'T>) =
+        match converted with
+        | Some x -> x
+        | None -> failwithf "Expecting a %A at '%s' : %A"
+                            typeof<'T> (top.Path()) top.BsonValue
 
     /// Convert BSON array to array of target types
-    static member ConvertArray<'T>(top:IBsonTop, mapping:Func<IBsonTop,'T>) =
+    static member ConvertArray<'T>(top:IBsonTop, func:Func<IBsonTop,'T>) =
         match top.BsonValue.BsonType with
         | BsonType.Array ->
             top.BsonValue.AsBsonArray.Values
-            |> Seq.mapi (fun i value -> top.Create(value, sprintf "[%d]" i))
-            |> Seq.map mapping.Invoke
+            |> Seq.mapi (fun i value -> top.Create(value, sprintf ".%d" i))
+            |> Seq.map func.Invoke
             |> Seq.toArray
 
-        | _ -> failwithf "Expecting a list at '%s', got %A" (top.Path()) top
+        | _ -> failwithf "Expecting a list at '%s' : %A"
+                         (top.Path()) top.BsonValue
 
     static member ConvertArray(top) =
         BsonRuntime.ConvertArray<IBsonTop>(top, Func<_,_> id)
 
     /// Convert BSON array to array of target types
-    static member ConvertArrayOfOptionals<'T>(top:IBsonTop, mapping:Func<IBsonTop,'T>) =
+    static member ConvertArrayOfOptionals<'T>(top:IBsonTop,
+                                              func:Func<IBsonTop,'T>) =
         match top.BsonValue.BsonType with
         | BsonType.Array ->
             top.BsonValue.AsBsonArray.Values
@@ -156,20 +159,21 @@ type BsonRuntime =
                 | OptionalBsonType _ -> None
                 | _ -> Some value)
             |> Seq.mapi (fun i value ->
-                let create value = top.Create(value, sprintf "[%d]" i)
+                let create value = top.Create(value, sprintf ".%d" i)
                 Option.map create value)
-            |> Seq.map (Option.map mapping.Invoke)
+            |> Seq.map (Option.map func.Invoke)
             |> Seq.toArray
 
-        | _ -> failwithf "Expecting a list at '%s', got %A" (top.Path()) top
+        | _ -> failwithf "Expecting a list at '%s' : %A"
+                         (top.Path()) top.BsonValue
 
     /// Optionally get property of BsonDocument
-    static member TryGetPropertyUnpacked(top:IBsonTop, name) =
+    static member TryGetPropertyUnpacked(top:IBsonTop, field) =
         match top.BsonValue.BsonType with
         | BsonType.Document ->
             let doc = top.BsonValue.AsBsonDocument
-            if doc.Contains name then
-                let value = doc.GetValue name
+            if doc.Contains field then
+                let value = doc.GetValue field
                 match value.BsonType with
                 | OptionalBsonType _ -> None
                 | _ -> Some value
@@ -177,26 +181,22 @@ type BsonRuntime =
         | _ -> None
 
     /// Optionally get property wrapped in a BsonTop
-    static member TryGetPropertyPacked(top:IBsonTop, name) =
-        BsonRuntime.TryGetPropertyUnpacked(top, name)
-        |> Option.map (fun value -> top.Create(value, sprintf "/%s" name))
+    static member TryGetPropertyPacked(top:IBsonTop, field) =
+        BsonRuntime.TryGetPropertyUnpacked(top, field)
+        |> Option.map (fun value -> top.Create(value, sprintf ".%s" field))
 
     /// Get property wrapped in a BsonTop
-    static member GetPropertyPacked(top:IBsonTop, name) =
-        match BsonRuntime.TryGetPropertyPacked(top, name) with
+    static member GetPropertyPacked(top:IBsonTop, field) =
+        match BsonRuntime.TryGetPropertyPacked(top, field) with
         | Some top -> top
-        | None -> failwithf "Property '%s' not found at '%s': %A" name (top.Path()) top
-
-    /// Get property wrapped in a BsonTop, returns null if not found
-    static member GetPropertyPackedOrNull(top:IBsonTop, name) =
-        match BsonRuntime.TryGetPropertyPacked(top, name) with
-        | Some top -> top
-        | None -> top.Create(BsonNull.Value, sprintf "/%s" name)
+        | None -> failwithf "Property '%s' not found at '%s' : %A"
+                            field (top.Path()) top.BsonValue
 
     /// Optionally get property and convert it to the specified type
-    static member ConvertOptionalProperty<'T>(top:IBsonTop, name, mapping:Func<IBsonTop,'T>) =
-        BsonRuntime.TryGetPropertyPacked(top, name)
-        |> Option.map mapping.Invoke
+    static member ConvertOptionalProperty<'T>(top:IBsonTop, field,
+                                              func:Func<IBsonTop,'T>) =
+        BsonRuntime.TryGetPropertyPacked(top, field)
+        |> Option.map func.Invoke
 
     /// Converts an object to a BsonValue
     static member private ToBsonValue (value:obj) =
@@ -239,4 +239,4 @@ type BsonRuntime =
             properties
             |> Array.map (fun (k, v) ->
                 BsonElement(k, BsonRuntime.ToBsonValue v))
-        BsonTop.Create(BsonDocument value, "")
+        BsonTop.Create(BsonDocument(value :> seq<BsonElement>), "$")

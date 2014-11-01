@@ -32,7 +32,7 @@ open BsonProvider.Runtime
 
 let private (?) = QuotationBuilder.(?)
 
-let getConversionQuotation typ (value:Expr<BsonValue option>) =
+let private getConversionQuotation typ (value:Expr<BsonValue option>) =
     if typ = typeof<string> then
         <@@ BsonRuntime.ConvertString(%value) @@>
     elif typ = typeof<bool> then
@@ -77,10 +77,8 @@ let convertBsonValue (field:PrimitiveInferedProperty) =
         | TypeWrapper.None ->
             wrapInLetIfNeeded value <| fun (top:Expr<IBsonTop>) ->
                 let t = field.RuntimeType
-                let path = <@ (%top).Path() @>
-                let opt = convert <@ Some (%top).BsonValue @>
-                let value = <@ Some (%top).BsonValue @>
-                typeof<BsonRuntime>?GetNonOptionalValue t (path, opt, value)
+                let converted = convert <@ Some (%top).BsonValue @>
+                typeof<BsonRuntime>?GetNonOptionalValue t (top, converted)
 
         | TypeWrapper.Option ->
             convert <@ Some (%%value:IBsonTop).BsonValue @>

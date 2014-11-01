@@ -77,7 +77,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
             { GeneratedType = tpType
               RepresentationType = result.ConvertedType
               CreateFromStream = fun stream ->
-                result.GetConverter ctx <@@ BsonTop.CreateList(%stream) @@> }
+                result.GetConverter ctx <@@ BsonTop.ParseList(%stream) @@> }
 
         let getSamplesFromPath path =
 
@@ -97,7 +97,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
                 flip <| Option.fold (flip Seq.truncate)
 
             File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)
-            |> BsonTop.Parse
+            |> BsonTop.ParseSeq
             |> maybeTruncate limit
 
         let spec = getSamplesFromPath path |> getSpecFromSamples
