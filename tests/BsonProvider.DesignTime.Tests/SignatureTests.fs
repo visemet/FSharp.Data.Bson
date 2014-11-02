@@ -80,7 +80,8 @@ let ``Validate signature for int type``() =
 
 [<Test>]
 let ``Validate signature for optional int type``() =
-    [ BsonDocument("field", BsonInt32 0); BsonDocument() ]
+    [ BsonDocument("field", BsonInt32 0)
+      BsonDocument("field", BsonNull.Value :> BsonValue) ]
     |> validateSignature "optional-int.bson"
 
 [<Test>]
@@ -123,6 +124,11 @@ let ``Validate signature for mixed array type``() =
     |> validateSignature "mixed-array.bson"
 
 [<Test>]
+let ``Validate signature for empty nested field``() =
+    [ BsonDocument("nested", BsonDocument()) ]
+    |> validateSignature "empty-nested.bson"
+
+[<Test>]
 let ``Validate signature for nested field``() =
     [ BsonDocument("nested", BsonDocument("field", BsonInt32 0)) ]
     |> validateSignature "nested.bson"
@@ -132,3 +138,9 @@ let ``Validate signature for optional nested field``() =
     [ BsonDocument("nested", BsonDocument("field", BsonInt32 0))
       BsonDocument("nested", BsonNull.Value) ]
     |> validateSignature "optional-nested.bson"
+
+[<Test>]
+let ``Validate signature for mixed nested field``() =
+    [ BsonDocument("nested", BsonDocument("field", BsonInt32 0))
+      BsonDocument("nested", BsonDocument("field", BsonString "0")) ]
+    |> validateSignature "mixed-nested.bson"

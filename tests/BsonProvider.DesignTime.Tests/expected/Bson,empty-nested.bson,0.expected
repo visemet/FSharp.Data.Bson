@@ -1,0 +1,10 @@
+class BsonProvider : BsonProvider.Runtime.IBsonTop
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider
+    new : nested:BsonProvider+Nested -> BsonProvider
+    static member GetSamples: () -> BsonProvider[]
+    member Nested: BsonProvider+Nested with get
+    static member ReadAll: stream:System.IO.Stream -> BsonProvider[]
+
+class BsonProvider+Nested : BsonProvider.Runtime.IBsonTop
+    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider+Nested
+    new : () -> BsonProvider+Nested
