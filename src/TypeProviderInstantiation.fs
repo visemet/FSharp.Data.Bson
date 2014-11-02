@@ -39,9 +39,7 @@ type TypeProviderInstantiation =
                 (fun cfg -> new BsonProvider(cfg) :> TypeProviderForNamespaces),
                 [| box x.Path
                    box x.InferLimit
-                   box x.RootName
-                   box x.ResolutionFolder
-                   box x.EmbeddedResource |]
+                   box x.ResolutionFolder |]
         Debug.generate resolutionFolder runtimeAssembly f args
 
     override x.ToString() =
@@ -49,8 +47,7 @@ type TypeProviderInstantiation =
         | Bson x ->
             [ "Bson"
               x.Path
-              x.InferLimit.ToString()
-              x.RootName ]
+              sprintf "%d" x.InferLimit ]
         |> String.concat ","
 
     member x.ExpectedPath outputFolder =

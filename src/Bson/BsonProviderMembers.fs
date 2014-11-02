@@ -90,7 +90,7 @@ module internal Members =
         m
 
     let createAllMembers (cfg:TypeProviderConfig) (spec:TypeProviderSpec)
-                         path resolutionFolder resource =
+                         path resolutionFolder =
 
         let resolver =
             { ResolutionType = Runtime

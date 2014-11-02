@@ -171,7 +171,7 @@ module BsonTypeBuilder =
         else
             typ
 
-    let rec generateBsonType ctx nameOverride = function
+    let rec private generateBsonType ctx topLevel = function
     | InferedType.Primitive (typ, unit, optional) ->
 
         let typ, conv =
@@ -233,15 +233,16 @@ module BsonTypeBuilder =
             mkCtor [ ProvidedParameter("bsonValue", ctx.BsonValueType) ]
 
         let mkRecord() =
-            let name =
-                if String.IsNullOrEmpty nameOverride
-                then match name with Some name -> name | _ -> "Record"
-                else nameOverride
-                |> ctx.UniqueNiceName
-
             // Generate new type for the record
-            let objectTy = ProvidedTypeDefinition(name, Some ctx.IBsonTopType, HideObjectMethods = true)
-            ctx.TypeProviderType.AddMember(objectTy)
+            let ctx =
+                if not topLevel then
+                    let name = defaultArg name "Record" |> ctx.UniqueNiceName
+                    let objectTy = ProvidedTypeDefinition(name, Some ctx.IBsonTopType, HideObjectMethods = true)
+                    ctx.TypeProviderType.AddMember(objectTy)
+
+                    { ctx with TypeProviderType = objectTy
+                               UniqueNiceName = NameUtils.uniqueGenerator NameUtils.nicePascalName }
+                else ctx
 
             // to nameclash property names
             let makeUnique = NameUtils.uniqueGenerator NameUtils.nicePascalName
@@ -250,29 +251,29 @@ module BsonTypeBuilder =
             // Add all record fields as properties
             let members =
                 [ for prop in props ->
-                    let result = generateBsonType ctx "" prop.Type
+                    let result = generateBsonType ctx false prop.Type
                     let name = makeUnique prop.Name
                     mkProperty name ctx prop result,
                     mkParameter (NameUtils.niceCamelName name) ctx prop result ]
 
             let properties, parameters = List.unzip members
 
-            objectTy.AddMembers properties
+            ctx.TypeProviderType.AddMembers properties
 
             if ctx.GenerateConstructors then
-                objectTy.AddMember <| mkDefaultCtor ctx
+                ctx.TypeProviderType.AddMember <| mkDefaultCtor ctx
 
                 match parameters with
                 | [ prop ] when prop.ParameterType = ctx.BsonValueType -> ()
-                | _ -> objectTy.AddMember <| mkCtor parameters
+                | _ -> ctx.TypeProviderType.AddMember <| mkCtor parameters
 
-            objectTy
+            ctx.TypeProviderType
 
         getOrCreateType ctx inferedType mkRecord
 
     | SingletonArray typ ->
         failIfOptionalRecord typ
-        let elemResult = generateBsonType ctx nameOverride typ
+        let elemResult = generateBsonType ctx false typ
 
         let conv = fun (doc:Expr) ->
             let t = elemResult.ConvertedTypeErased ctx
@@ -283,7 +284,7 @@ module BsonTypeBuilder =
 
     | ArrayOfOptionals typ ->
         failIfOptionalRecord typ
-        let elemResult = generateBsonType ctx nameOverride typ
+        let elemResult = generateBsonType ctx false typ
 
         let conv = fun (doc:Expr) ->
             let t = elemResult.ConvertedTypeErased ctx
@@ -305,3 +306,8 @@ module BsonTypeBuilder =
     | InferedType.Null -> inferType (ctx.MakeOptionType ctx.IBsonTopType)
 
     | InferedType.Json _ -> failwith "JSON type not supported"
+
+    let generateRecordType ctx inferedType =
+        match inferedType with
+        | InferedType.Record _ -> generateBsonType ctx true inferedType
+        | _ -> failwithf "Expected record type at top level : %A" inferedType
