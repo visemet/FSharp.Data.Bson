@@ -383,6 +383,50 @@ let ``Infer heterogeneous type of mixed array fields``() =
     actual |> shouldEqual expected
 
 [<Test>]
+let ``Infer type of int array``() =
+    let source = BsonArray [ BsonInt32 0; BsonInt32 0 ]
+    let expected =
+        InferedType.Primitive (typeof<int>, None, false)
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer common subtype (int64[]) of numeric array``() =
+    let source = BsonArray [ BsonInt32 0 :> BsonValue
+                             BsonInt64 0L :> BsonValue ]
+    let expected =
+        InferedType.Primitive (typeof<int64>, None, false)
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer heterogeneous type of mixed array``() =
+    let source = BsonArray [ BsonInt32 0 :> BsonValue
+                             BsonString "0" :> BsonValue ]
+    let expected =
+        [ (InferedMultiplicity.Single, InferedType.Primitive (typeof<int>, None, false))
+          (InferedMultiplicity.Single, InferedType.Primitive (typeof<string>, None, false)) ]
+        |> toCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``Infer common subtype (float[]) of numeric array``() =
+    let source = BsonArray [ BsonInt32 0 :> BsonValue
+                             BsonDouble 0.0 :> BsonValue ]
+    let expected =
+        InferedType.Primitive (typeof<float>, None, false)
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
 let ``Infers heterogeneous type of InferedType.Primitives and nulls``() =
     let source =
         BsonArray [ BsonInt32 1 :> BsonValue
