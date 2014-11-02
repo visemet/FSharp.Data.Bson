@@ -90,7 +90,7 @@ type BsonTop =
     /// [omit]
     [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
     [<CompilerMessageAttribute("This method is intended for use in generated code only.", 10001, IsHidden=true, IsError=false)>]
-    static member ParseList(stream:Stream) =
+    static member ParseArray(stream:Stream) =
         BsonTop.ParseSeq stream
         |> Seq.map (fun value -> BsonTop.Create(value, "$"))
         |> Seq.toArray

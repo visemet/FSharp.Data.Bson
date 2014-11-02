@@ -71,7 +71,7 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
             { GeneratedType = tpType
               RepresentationType = result.ConvertedType
               CreateFromStream = fun stream ->
-                result.GetConverter ctx <@@ BsonTop.ParseList(%stream) @@> }
+                result.GetConverter ctx <@@ BsonTop.ParseArray(%stream) @@> }
 
         let getSamplesFromPath path =
 
