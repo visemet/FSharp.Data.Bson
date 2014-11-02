@@ -427,6 +427,26 @@ let ``Infer common subtype (float[]) of numeric array``() =
     actual |> shouldEqual expected
 
 [<Test>]
+let ``An empty string does not make the array type optional``() =
+    let source = BsonArray [ BsonString "0"; BsonString "" ]
+    let expected =
+        InferedType.Primitive (typeof<string>, None, false)
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
+let ``A NaN value does not make the array type optional``() =
+    let source = BsonArray [ BsonDouble 0.0; BsonDouble nan ]
+    let expected =
+        InferedType.Primitive (typeof<float>, None, false)
+        |> SimpleCollection
+
+    let actual = BsonInference.inferType "" source
+    actual |> shouldEqual expected
+
+[<Test>]
 let ``Infers heterogeneous type of InferedType.Primitives and nulls``() =
     let source =
         BsonArray [ BsonInt32 1 :> BsonValue
