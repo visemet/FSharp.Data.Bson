@@ -37,29 +37,20 @@ open BsonProvider.ProviderImplementation.BsonConversionsGenerator
 type BsonGenerationContext =
     {
         TypeProviderType : ProvidedTypeDefinition
-        UniqueNiceName : string -> string // to nameclash type names
-        IBsonTopType : Type
-        BsonValueType : Type
-        BsonRuntimeType : Type
         TypeCache : Dictionary<InferedType, ProvidedTypeDefinition>
-        GenerateConstructors : bool
+        UniqueTypeName : string -> string
+        BsonRuntimeType : Type
+        BsonValueType : Type
+        IBsonTopType : Type
     }
 
-    static member Create(tpType, ?uniqueNiceName, ?typeCache) =
-        let uniqueNiceName = defaultArg uniqueNiceName (NameUtils.uniqueGenerator NameUtils.nicePascalName)
-        let typeCache = defaultArg typeCache (Dictionary())
-        BsonGenerationContext.Create(tpType, uniqueNiceName, typeCache, true)
-
-    static member Create(tpType, uniqueNiceName, typeCache, generateConstructors) =
-        {
-            TypeProviderType = tpType
-            UniqueNiceName = uniqueNiceName
-            IBsonTopType = typeof<IBsonTop>
-            BsonValueType = typeof<BsonValue>
-            BsonRuntimeType = typeof<BsonRuntime>
-            TypeCache = typeCache
-            GenerateConstructors = generateConstructors
-        }
+    static member Create(tpType) =
+        { TypeProviderType = tpType
+          TypeCache = Dictionary()
+          UniqueTypeName = NameUtils.uniqueGenerator NameUtils.nicePascalName
+          BsonRuntimeType = typeof<BsonRuntime>
+          BsonValueType = typeof<BsonValue>
+          IBsonTopType = typeof<IBsonTop> }
 
     member x.MakeOptionType(typ:Type) =
         typedefof<option<_>>.MakeGenericType typ
@@ -236,12 +227,10 @@ module BsonTypeBuilder =
             // Generate new type for the record
             let ctx =
                 if not topLevel then
-                    let name = defaultArg name "Record" |> ctx.UniqueNiceName
+                    let name = defaultArg name "Record" |> ctx.UniqueTypeName
                     let objectTy = ProvidedTypeDefinition(name, Some ctx.IBsonTopType, HideObjectMethods = true)
                     ctx.TypeProviderType.AddMember(objectTy)
-
-                    { ctx with TypeProviderType = objectTy
-                               UniqueNiceName = NameUtils.uniqueGenerator NameUtils.nicePascalName }
+                    BsonGenerationContext.Create(objectTy)
                 else ctx
 
             // to nameclash property names
@@ -260,12 +249,12 @@ module BsonTypeBuilder =
 
             ctx.TypeProviderType.AddMembers properties
 
-            if ctx.GenerateConstructors then
-                ctx.TypeProviderType.AddMember <| mkDefaultCtor ctx
+            // Generate constructors
+            ctx.TypeProviderType.AddMember <| mkDefaultCtor ctx
 
-                match parameters with
-                | [ prop ] when prop.ParameterType = ctx.BsonValueType -> ()
-                | _ -> ctx.TypeProviderType.AddMember <| mkCtor parameters
+            match parameters with
+            | [ prop ] when prop.ParameterType = ctx.BsonValueType -> ()
+            | _ -> ctx.TypeProviderType.AddMember <| mkCtor parameters
 
             ctx.TypeProviderType
 
