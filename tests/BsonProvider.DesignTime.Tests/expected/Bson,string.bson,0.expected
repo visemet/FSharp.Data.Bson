@@ -1,6 +1,0 @@
-class BsonProvider : BsonProvider.Runtime.IBsonTop
-    new : bsonValue:MongoDB.Bson.BsonValue -> BsonProvider
-    new : field:string -> BsonProvider
-    member Field: string with get
-    static member GetSamples: () -> BsonProvider[]
-    static member ReadAll: stream:System.IO.Stream -> BsonProvider[]
