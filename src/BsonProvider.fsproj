@@ -53,7 +53,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Runtime.fs" />
+    <Compile Include="TypeProviderAttribute.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
