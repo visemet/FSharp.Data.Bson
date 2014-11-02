@@ -41,9 +41,7 @@ open BsonProvider.ProviderImplementation.Members
 
 [<TypeProvider>]
 type public BsonProvider(cfg:TypeProviderConfig) as this =
-    inherit DisposableTypeProviderForNamespaces()
-
-    do DependencyResolver.init()
+    inherit TypeProviderForNamespaces()
 
     // Generate namespace and type 'BsonProvider.BsonProvider'
     let asm = Assembly.ReflectionOnlyLoadFrom cfg.RuntimeAssembly
