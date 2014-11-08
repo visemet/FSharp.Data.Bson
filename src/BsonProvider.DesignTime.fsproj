@@ -71,7 +71,6 @@
     <Compile Include="Bson\BsonProviderMembers.fs" />
     <Compile Include="Bson\BsonProvider.fs" />
     <Compile Include="TypeProviderInstantiation.fs" />
-    <None Include="Script.fsx" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
