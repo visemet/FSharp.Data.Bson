@@ -59,4 +59,4 @@ module IO =
         member x.TryResolveToPath (uri:Uri) =
             match x.Resolve uri with
             | _, true -> None
-            | uri, false -> Some uri.AbsolutePath
+            | uri, false -> Some (Uri.UnescapeDataString uri.AbsolutePath)
