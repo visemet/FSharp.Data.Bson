@@ -14,14 +14,7 @@
  * limitations under the License.
  *)
 
-#if INTERACTIVE
-#I "../../packages/NUnit.2.6.3/lib"
-#I "../../bin"
-#r "nunit.framework.dll"
-#r "FSharp.Data.Bson.DesignTime.dll"
-#else
 module BsonProvider.DesignTime.Tests.InferenceTests
-#endif
 
 open System
 open System.Globalization
@@ -50,7 +43,7 @@ let SimpleCollection typ =
     |> toCollection
 
 let primitiveProperty<'T> name optional =
-    { Name = name
+    { InferedProperty.Name = name
       Type = InferedType.Primitive (typeof<'T>, None, optional) }
 
 let collectionProperty<'T> name mult =
@@ -264,7 +257,7 @@ let ``Infer heterogeneous type of mixed field``() =
         |> Map.ofList
 
     let expected =
-        [ { Name = "field"; Type = InferedType.Heterogeneous cases } ]
+        [ { InferedProperty.Name = "field"; Type = InferedType.Heterogeneous cases } ]
         |> toRecord
         |> SimpleCollection
 
@@ -374,7 +367,7 @@ let ``Infer heterogeneous type of mixed array fields``() =
         |> toCollection
 
     let expected =
-        [ { Name = "field_single"; Type = singleCollection }
+        [ { InferedProperty.Name = "field_single"; Type = singleCollection }
           { Name = "field_multiple"; Type = multipleCollection } ]
         |> toRecord
         |> SimpleCollection
