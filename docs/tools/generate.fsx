@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------------------
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "BsonProvider.dll" ]
+let referenceBinaries = [ "FSharp.Data.Bson.dll"; "FSharp.Data.Bson.Runtime.dll" ]
 // Web site location for the generated documentation
 let repo = "https://github.com/visemet/FSharp.Data.Bson/tree/master/"
 let website = "/BsonProvider"
@@ -50,6 +50,7 @@ let root = "file://" + (__SOURCE_DIRECTORY__ @@ "../output")
 let bin        = __SOURCE_DIRECTORY__ @@ "../../bin"
 let content    = __SOURCE_DIRECTORY__ @@ "../content"
 let output     = __SOURCE_DIRECTORY__ @@ "../output"
+let data       = __SOURCE_DIRECTORY__ @@ "../content/data"
 let templates  = __SOURCE_DIRECTORY__ @@ "templates"
 let formatting = __SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting.2.4.8/"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
@@ -62,6 +63,9 @@ let layoutRoots =
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
+  ensureDirectory (output @@ "data")
+  CopyRecursive data (output @@ "data") true |> Log "Copying data files: "
+
   ensureDirectory (output @@ "content")
   CopyRecursive (formatting @@ "styles") (output @@ "content") true
     |> Log "Copying styles and scripts: "
@@ -90,5 +94,5 @@ let buildDocumentation () =
 
 // Generate
 copyFiles()
-buildDocumentation()
 buildReference()
+buildDocumentation()
