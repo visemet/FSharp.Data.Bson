@@ -286,7 +286,7 @@ module BsonTypeBuilder =
     | EmptyArray _
     | InferedType.Collection _ ->
 
-        let conv = fun (doc:Expr) -> <@@ BsonRuntime.ConvertArray(%%doc) @@>
+        let conv = fun (doc:Expr) -> <@@ BsonRuntime.ConvertArrayId(%%doc) @@>
         inferCollection ctx.IBsonTopType conv
 
     | InferedType.Top

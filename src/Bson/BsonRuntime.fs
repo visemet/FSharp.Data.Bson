@@ -145,7 +145,7 @@ type BsonRuntime =
         | _ -> failwithf "Expecting a list at '%s' : %A"
                          (top.Path()) top.BsonValue
 
-    static member ConvertArray(top) =
+    static member ConvertArrayId(top) =
         BsonRuntime.ConvertArray<IBsonTop>(top, Func<_,_> id)
 
     /// Convert BSON array to array of target types
