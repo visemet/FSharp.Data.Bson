@@ -4,23 +4,20 @@ Bson Provider
 The Bson Provider library (`FSharp.Data.Bson.dll`) contains a type provider
 for working with [BSON][bson_spec].
 
-Library license
----------------
+### Library license
 
 The library is available under Apache 2.0. For more information see the
 [license file][license] in the GitHub repository.
 
   - - -
 
-Accessing the library
----------------------
+### Accessing the library
 
 Check out the [repository hosted on GitHub][repo].
 
   - - -
 
-Using the library
------------------
+### Using the library
 
 The BSON type provider provides statically typed access to `BsonDocument`s.
 It takes as input a sequence of sample documents (e.g. the output from the

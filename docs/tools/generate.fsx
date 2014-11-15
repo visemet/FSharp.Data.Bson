@@ -7,7 +7,7 @@
 let referenceBinaries = [ "FSharp.Data.Bson.dll"; "FSharp.Data.Bson.Runtime.dll" ]
 // Web site location for the generated documentation
 let repo = "https://github.com/visemet/FSharp.Data.Bson/tree/master/"
-let website = "/BsonProvider"
+let website = "/FSharp.Data.Bson"
 
 // Specify more information about your project
 let info =
@@ -15,7 +15,7 @@ let info =
     "project-author", "Max Hirschhorn"
     "project-summary", "A type provider for BSON."
     "project-github", "http://github.com/visemet/FSharp.Data.Bson"
-    "project-nuget", "https://nuget.org/packages/BsonProvider" ]
+    "project-nuget", "https://nuget.org/packages/FSharp.Data.Bson" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below
@@ -85,7 +85,6 @@ let buildReference () =
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
   let subdirs = Directory.EnumerateDirectories(content, "*", SearchOption.AllDirectories)
-                |> Seq.filter (fun x -> not <| x.Contains "ja")
   for dir in Seq.append [content] subdirs do
     let sub = if dir.Length > content.Length then dir.Substring(content.Length + 1) else "."
     Literate.ProcessDirectory
