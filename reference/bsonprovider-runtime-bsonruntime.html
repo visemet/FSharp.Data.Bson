@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>BsonRuntime - Bson Provider</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Max Hirschhorn">
+
+    <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Data.Bson/content/style.css" />
+    <script type="text/javascript" src="/FSharp.Data.Bson/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://fsharp.github.io/FSharp.Data/"><img height="16" width="16" src="http://fsharp.org/images/thumbs/FSharp.Data.png"/> F# Data</a></li>
+        </ul>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>BsonRuntime</h1>
+<div class="xmldoc">
+<p>Static helper methods called from the generated code for working with BSON</p>
+</div>
+  <h3>Static members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Static member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '22', 22)" onmouseover="showTip(event, '22', 22)">
+            ConvertArray(top, func)
+          </code>
+          <div class="tip" id="22">
+            <strong>Signature:</strong> (top:IBsonTop * func:Func&lt;IBsonTop,&#39;T&gt;) -&gt; &#39;T []<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L137-137" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Convert BSON array to array of target types</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
+            ConvertArrayId(top)
+          </code>
+          <div class="tip" id="23">
+            <strong>Signature:</strong> top:IBsonTop -&gt; IBsonTop []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L148-148" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
+            ConvertArrayOfOptionals(top, func)
+          </code>
+          <div class="tip" id="24">
+            <strong>Signature:</strong> (top:IBsonTop * func:Func&lt;IBsonTop,&#39;T&gt;) -&gt; &#39;T option []<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L152-152" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Convert BSON array to array of target types</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '25', 25)" onmouseover="showTip(event, '25', 25)">
+            ConvertBoolean
+          </code>
+          <div class="tip" id="25">
+            <strong>Signature:</strong> BsonValue option -&gt; bool option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L113-113" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '26', 26)" onmouseover="showTip(event, '26', 26)">
+            ConvertBoolean
+          </code>
+          <div class="tip" id="26">
+            <strong>Signature:</strong> BsonValue option -&gt; bool option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L113-113" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '27', 27)" onmouseover="showTip(event, '27', 27)">
+            ConvertDateTime
+          </code>
+          <div class="tip" id="27">
+            <strong>Signature:</strong> BsonValue option -&gt; DateTime option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L123-123" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '28', 28)" onmouseover="showTip(event, '28', 28)">
+            ConvertDateTime
+          </code>
+          <div class="tip" id="28">
+            <strong>Signature:</strong> BsonValue option -&gt; DateTime option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L123-123" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '29', 29)" onmouseover="showTip(event, '29', 29)">
+            ConvertFloat
+          </code>
+          <div class="tip" id="29">
+            <strong>Signature:</strong> BsonValue option -&gt; float option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L119-119" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '30', 30)" onmouseover="showTip(event, '30', 30)">
+            ConvertFloat
+          </code>
+          <div class="tip" id="30">
+            <strong>Signature:</strong> BsonValue option -&gt; float option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L119-119" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '31', 31)" onmouseover="showTip(event, '31', 31)">
+            ConvertInteger
+          </code>
+          <div class="tip" id="31">
+            <strong>Signature:</strong> BsonValue option -&gt; int option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L115-115" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '32', 32)" onmouseover="showTip(event, '32', 32)">
+            ConvertInteger
+          </code>
+          <div class="tip" id="32">
+            <strong>Signature:</strong> BsonValue option -&gt; int option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L115-115" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
+            ConvertInteger64
+          </code>
+          <div class="tip" id="33">
+            <strong>Signature:</strong> BsonValue option -&gt; int64 option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L117-117" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
+            ConvertInteger64
+          </code>
+          <div class="tip" id="34">
+            <strong>Signature:</strong> BsonValue option -&gt; int64 option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L117-117" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
+            ConvertObjectId
+          </code>
+          <div class="tip" id="35">
+            <strong>Signature:</strong> BsonValue option -&gt; ObjectId option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L125-125" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
+            ConvertObjectId
+          </code>
+          <div class="tip" id="36">
+            <strong>Signature:</strong> BsonValue option -&gt; ObjectId option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L125-125" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '37', 37)" onmouseover="showTip(event, '37', 37)">
+            ConvertOptionalProperty(...)
+          </code>
+          <div class="tip" id="37">
+            <strong>Signature:</strong> (top:IBsonTop * field:string * func:Func&lt;IBsonTop,&#39;T&gt;) -&gt; &#39;T option<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L196-196" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Optionally get property and convert it to the specified type</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '38', 38)" onmouseover="showTip(event, '38', 38)">
+            ConvertString
+          </code>
+          <div class="tip" id="38">
+            <strong>Signature:</strong> BsonValue option -&gt; string option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L121-121" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
+            ConvertString
+          </code>
+          <div class="tip" id="39">
+            <strong>Signature:</strong> BsonValue option -&gt; string option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L121-121" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '40', 40)" onmouseover="showTip(event, '40', 40)">
+            CreateDocument(properties)
+          </code>
+          <div class="tip" id="40">
+            <strong>Signature:</strong> (properties:(string * &#39;?6135) []) -&gt; IBsonTop<br />
+                          <strong>Type parameters:</strong> '?6135          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L237-237" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a BsonDocument wrapped in a BsonTop</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+            GetNonOptionalValue(top, converted)
+          </code>
+          <div class="tip" id="41">
+            <strong>Signature:</strong> (top:IBsonTop * converted:&#39;T option) -&gt; &#39;T<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L129-129" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Operation that extracts the value from an option and reports a
+meaningful error message if the value is not present.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+            GetPropertyPacked(top, field)
+          </code>
+          <div class="tip" id="42">
+            <strong>Signature:</strong> (top:IBsonTop * field:string) -&gt; IBsonTop<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L189-189" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get property wrapped in a BsonTop</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '43', 43)" onmouseover="showTip(event, '43', 43)">
+            TryGetPropertyPacked(top, field)
+          </code>
+          <div class="tip" id="43">
+            <strong>Signature:</strong> (top:IBsonTop * field:string) -&gt; IBsonTop option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L184-184" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Optionally get property wrapped in a BsonTop</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
+            TryGetPropertyUnpacked(top, field)
+          </code>
+          <div class="tip" id="44">
+            <strong>Signature:</strong> (top:IBsonTop * field:string) -&gt; BsonValue option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/visemet/FSharp.Data.Bson/tree/master//src/Bson/BsonRuntime.fs#L171-171" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Optionally get property of BsonDocument</p>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">Bson Provider</li>
+            <li class="divider"></li>
+
+            <li><a href="http://github.com/visemet/FSharp.Data.Bson">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/visemet/FSharp.Data.Bson/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/visemet/FSharp.Data.Bson/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FSharp.Data.Bson">Introduction</a></li>
+            <li><a href="/FSharp.Data.Bson/library/BsonProvider.html">BSON Type Provider</a></li>
+
+            <li class="nav-header">Reference</li>
+            <li><a href="/FSharp.Data.Bson/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/visemet/FSharp.Data.Bson"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>
