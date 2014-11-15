@@ -50,6 +50,7 @@ let root = "file://" + (__SOURCE_DIRECTORY__ @@ "../output")
 let bin        = __SOURCE_DIRECTORY__ @@ "../../bin"
 let content    = __SOURCE_DIRECTORY__ @@ "../content"
 let output     = __SOURCE_DIRECTORY__ @@ "../output"
+let files       = __SOURCE_DIRECTORY__ @@ "../files"
 let data       = __SOURCE_DIRECTORY__ @@ "../content/data"
 let templates  = __SOURCE_DIRECTORY__ @@ "templates"
 let formatting = __SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting.2.4.8/"
@@ -65,6 +66,7 @@ let layoutRoots =
 let copyFiles () =
   ensureDirectory (output @@ "data")
   CopyRecursive data (output @@ "data") true |> Log "Copying data files: "
+  CopyRecursive files output true |> Log "Copying files: "
 
   ensureDirectory (output @@ "content")
   CopyRecursive (formatting @@ "styles") (output @@ "content") true
