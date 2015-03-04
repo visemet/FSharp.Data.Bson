@@ -40,6 +40,8 @@ module internal Helpers =
           RepresentationType : Type
           // the constructor from a stream to the representation
           CreateFromStream : Expr<Stream> -> Expr }
+          // the constructor from a sequence of BsonDocuments to the representation
+          // CreateFromDocuments : Expr<seq<BsonDocument>> -> Expr }
 
     let invalidChars = [ for c in "\"|<>{}[]," -> c ] @ [ for i in 0..31 -> char i ] |> set
 

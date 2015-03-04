@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InferenceTests.fs" />
+    <Compile Include="SerializationTests.fs" />
     <Compile Include="SignatureTests.fs" />
     <Compile Include="DocumentationTests.fs" />
     <None Include="app.config" />

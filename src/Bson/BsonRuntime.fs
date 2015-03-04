@@ -95,6 +95,14 @@ type BsonTop =
         |> Seq.map (fun value -> BsonTop.Create(value, "$"))
         |> Seq.toArray
 
+    /// [omit]
+    [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
+    [<CompilerMessageAttribute("This method is intended for use in generated code only.", 10001, IsHidden=true, IsError=false)>]
+    static member ParseDocuments(docs:#seq<BsonDocument>) =
+        docs
+        |> Seq.map (fun value -> BsonTop.Create(value, "$"))
+        |> Seq.toArray
+
 [<AutoOpen>]
 module ActivePatterns =
 
