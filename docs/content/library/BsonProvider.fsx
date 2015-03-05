@@ -25,6 +25,9 @@ load it in F# Interactive as follows:
 #r "FSharp.Data.Bson.dll"
 #r "MongoDB.Bson.dll"
 
+open MongoDB.Bson
+open MongoDB.Bson.Serialization
+
 open BsonProvider
 
 (**
@@ -49,6 +52,8 @@ zip0.Loc       |> ignore
 zip0.Pop       |> ignore
 zip0.State     |> ignore
 zip0.BsonValue |> ignore
+
+let zip1 : ZipCode = BsonSerializer.Deserialize(BsonDocument("_id", BsonString("12345")))
 
 (**
 
