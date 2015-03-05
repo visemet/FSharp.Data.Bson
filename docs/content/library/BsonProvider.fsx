@@ -53,7 +53,10 @@ zip0.Pop       |> ignore
 zip0.State     |> ignore
 zip0.BsonValue |> ignore
 
-let zip1 : ZipCode = BsonSerializer.Deserialize(BsonDocument("_id", BsonString("12345")))
+BsonProvider.Runtime.Serialization.register()
+BsonSerializer.LookupSerializer(typeof<ZipCode>)
+
+let zip1 = BsonSerializer.Deserialize<ZipCode>(BsonDocument("_id", BsonString("12345")))
 
 (**
 

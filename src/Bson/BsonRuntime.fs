@@ -25,12 +25,15 @@ open System.ComponentModel
 open System.IO
 open MongoDB.Bson
 open MongoDB.Bson.Serialization
+open MongoDB.Bson.Serialization.Serializers
 open FSharp.Data.Runtime.StructuralTypes
 
 #nowarn "10001"
 
 /// [omit]
 type IBsonTop =
+    inherit IBsonSerializable
+
     abstract BsonValue : BsonValue
 
     [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
@@ -56,6 +59,17 @@ type BsonTop =
         member x.Path() = x.Path
         member x.Create(value, pathIncrement) =
             BsonTop.Create(value, x.Path + pathIncrement)
+
+        member x.Serialize(writer, nominalType, options) =
+            BsonSerializer.Serialize(writer, nominalType, x.BsonValue, options)
+
+        member x.Deserialize(reader, nominalType, options) =
+            let value = BsonSerializer.Deserialize(reader, nominalType, options)
+            BsonTop.Create(value :?> BsonValue, "$") |> box
+
+        member x.GetDocumentId(id, nominalType, idGenerator) = false
+
+        member x.SetDocumentId(id) = ()
 
     /// The underlying BsonValue
     member x.BsonValue = x.Value
@@ -102,6 +116,15 @@ type BsonTop =
         docs
         |> Seq.map (fun value -> BsonTop.Create(value, "$"))
         |> Seq.toArray
+
+module Serialization =
+    let mutable private registered = false
+
+    let register() =
+        if not registered then
+            registered <- true
+            let serializer = BsonIBsonSerializableSerializer()
+            BsonSerializer.RegisterSerializer(typeof<IBsonTop>, serializer)
 
 [<AutoOpen>]
 module ActivePatterns =

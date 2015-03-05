@@ -58,7 +58,6 @@
     <Compile Include="CommonRuntime\IO.fs" />
     <Compile Include="Bson\BsonConversions.fs" />
     <Compile Include="Bson\BsonRuntime.fs" />
-    <Compile Include="Bson\BsonSerializer.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>

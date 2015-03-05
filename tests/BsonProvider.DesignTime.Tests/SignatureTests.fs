@@ -34,7 +34,7 @@ let normalize (str:string) =
 
 let writeBytes path (samples:BsonDocument list) =
     async {
-        use file = File.Open(path, FileMode.CreateNew, FileAccess.Write)
+        use file = File.Open(path, FileMode.Create, FileAccess.Write)
         for doc in samples do
             do! file.AsyncWrite (doc.ToBson())
     } |> Async.RunSynchronously
@@ -56,8 +56,6 @@ let validateSignature filename (samples:BsonDocument list) =
         testCase.Dump sourceDirectory "" runtimeAssembly
                       (*signatureOnly*)true (*ignoreOutput*)false
         |> normalize
-
-    File.Delete path
 
     if output <> expected then
         printfn "Obtained Signature:\n%s" output

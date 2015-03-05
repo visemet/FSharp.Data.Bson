@@ -23,6 +23,7 @@ open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Quotations
 open MongoDB.Bson
 open MongoDB.Bson.Serialization
+open MongoDB.Bson.Serialization.Serializers
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 open ProviderImplementation.ProviderHelpers
@@ -65,6 +66,12 @@ type public BsonProvider(cfg:TypeProviderConfig) as this =
 
             let ctx = BsonGenerationContext.Create(tpType)
             let result = BsonTypeBuilder.generateRecordType ctx inferedType
+
+            // printfn "converted type is %A" result.ConvertedType
+            // BsonSerializer.RegisterSerializer(result.ConvertedType, MySerializer())
+
+            // printfn "converted type erased is %A" (result.ConvertedTypeErased ctx)
+            // BsonSerializer.RegisterSerializer(result.ConvertedTypeErased ctx, MySerializer())
 
             { GeneratedType = tpType
               RepresentationType = result.ConvertedType

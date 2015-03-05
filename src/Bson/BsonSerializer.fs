@@ -13,7 +13,7 @@
  * limitations under the License.
  *)
 
-namespace BsonProvider.Runtime.Serialization
+namespace BsonProvider.ProviderImplementation
 
 open MongoDB.Bson
 open MongoDB.Bson.Serialization
