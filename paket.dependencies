@@ -1,0 +1,19 @@
+framework: net45
+source http://nuget.org/api/v2
+
+nuget FSharp.Data
+nuget MongoDB.Bson 2.0.0-beta2
+
+// for building the project
+nuget FAKE
+nuget SourceLink.Fake
+
+// for executing tests
+nuget NUnit
+nuget NUnit.Runners
+
+// for generating documentation
+nuget FSharp.Formatting
+
+// for updating the GitHub repository
+github fsharp/FAKE modules/Octokit/Octokit.fsx
