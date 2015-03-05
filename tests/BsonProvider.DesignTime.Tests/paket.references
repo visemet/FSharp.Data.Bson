@@ -1,0 +1,5 @@
+FSharp.Data
+FSharp.Formatting
+MongoDB.Bson
+nuget NUnit
+nuget NUnit.Runners
