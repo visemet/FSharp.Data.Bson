@@ -118,13 +118,21 @@ type BsonTop =
         |> Seq.toArray
 
 module Serialization =
+
+    type BsonProviderSerializationProvider() =
+
+        interface IBsonSerializationProvider with
+            member __.GetSerializer typ =
+                if typ = typeof<IBsonTop> then
+                    BsonIBsonSerializableSerializer() :> IBsonSerializer
+                else null
+
     let mutable private registered = false
 
     let register() =
         if not registered then
             registered <- true
-            let serializer = BsonIBsonSerializableSerializer()
-            BsonSerializer.RegisterSerializer(typeof<IBsonTop>, serializer)
+            BsonSerializer.RegisterSerializationProvider(BsonProviderSerializationProvider())
 
 [<AutoOpen>]
 module ActivePatterns =
