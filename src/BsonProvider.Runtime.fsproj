@@ -41,7 +41,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="MongoDB.Bson">
-      <HintPath>..\packages\mongocsharpdriver.1.9.2\lib\net35\MongoDB.Bson.dll</HintPath>
+      <HintPath>..\packages\MongoDB.Bson.2.0.0-beta2\lib\net45\MongoDB.Bson.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />

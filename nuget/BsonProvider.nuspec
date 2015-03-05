@@ -17,7 +17,7 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="FSharp.Data" version="2.0.9" />
-        <dependency id="mongocsharpdriver" version="1.9.2" />
+        <dependency id="MongoDB.Bson" version="2.0.0-beta2" />
       </group>
     </dependencies>
     <references>

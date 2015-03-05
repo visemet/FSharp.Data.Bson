@@ -39,7 +39,7 @@
       <HintPath>..\..\packages\FSharp.Data.2.0.9\lib\net40\FSharp.Data.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Bson">
-      <HintPath>..\..\packages\mongocsharpdriver.1.9.2\lib\net35\MongoDB.Bson.dll</HintPath>
+      <HintPath>..\..\packages\MongoDB.Bson.2.0.0-beta2\lib\net45\MongoDB.Bson.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="nunit.framework">
