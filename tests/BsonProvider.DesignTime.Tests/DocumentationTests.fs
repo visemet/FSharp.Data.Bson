@@ -14,11 +14,11 @@
  *)
 
 #if INTERACTIVE
-#I "../../packages/FSharp.Compiler.Service.0.0.44/lib/net40"
-#I "../../packages/FSharp.Formatting.2.4.8/lib/net40"
-#I "../../packages/Microsoft.AspNet.Razor.2.0.30506.0/lib/net40"
-#I "../../packages/NUnit.2.6.3/lib"
-#I "../../packages/RazorEngine.3.3.0/lib/net40"
+#I "../../packages/FSharp.Compiler.Service/lib/net40"
+#I "../../packages/FSharp.Formatting/lib/net40"
+#I "../../packages/Microsoft.AspNet.Razor/lib/net40"
+#I "../../packages/NUnit/lib"
+#I "../../packages/RazorEngine/lib/net40"
 #r "FSharp.Compiler.Service.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Literate.dll"
