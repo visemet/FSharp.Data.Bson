@@ -57,6 +57,8 @@ let validateSignature filename (samples:BsonDocument list) =
                       (*signatureOnly*)true (*ignoreOutput*)false
         |> normalize
 
+    File.Delete path
+
     if output <> expected then
         printfn "Obtained Signature:\n%s" output
     Assert.AreEqual(expected, output)
