@@ -36,21 +36,6 @@
     <DocumentationFile>bin\Release\FSharp.Data.Bson.DesignTime.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Data">
-      <HintPath>..\packages\FSharp.Data\lib\net40\FSharp.Data.dll</HintPath>
-      <Private>True</Private>
-      <Paket>True</Paket>
-    </Reference>
-    <Reference Include="FSharp.Data.DesignTime">
-      <HintPath>..\packages\FSharp.Data\lib\net40\FSharp.Data.DesignTime.dll</HintPath>
-      <Private>True</Private>
-      <Paket>True</Paket>
-    </Reference>
-    <Reference Include="MongoDB.Bson">
-      <HintPath>..\packages\MongoDB.Bson\lib\net45\MongoDB.Bson.dll</HintPath>
-      <Private>True</Private>
-      <Paket>True</Paket>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -111,4 +96,31 @@
     <Copy SourceFiles="$(ProjectDir)$(OutDir)FSharp.Data.DesignTime.dll" DestinationFolder="$(ProjectDir)..\bin" />
     <Copy SourceFiles="$(ProjectDir)$(OutDir)MongoDB.Bson.dll" DestinationFolder="$(ProjectDir)..\bin" />
   </Target>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="FSharp.Data">
+          <HintPath>..\packages\FSharp.Data\lib\net40\FSharp.Data.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="FSharp.Data.DesignTime">
+          <HintPath>..\packages\FSharp.Data\lib\net40\FSharp.Data.DesignTime.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="MongoDB.Bson">
+          <HintPath>..\packages\MongoDB.Bson\lib\net45\MongoDB.Bson.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
 </Project>
