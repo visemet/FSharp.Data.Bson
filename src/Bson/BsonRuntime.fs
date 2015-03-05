@@ -32,8 +32,6 @@ open FSharp.Data.Runtime.StructuralTypes
 
 /// [omit]
 type IBsonTop =
-    inherit IBsonSerializable
-
     abstract BsonValue : BsonValue
 
     [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
@@ -59,17 +57,6 @@ type BsonTop =
         member x.Path() = x.Path
         member x.Create(value, pathIncrement) =
             BsonTop.Create(value, x.Path + pathIncrement)
-
-        member x.Serialize(writer, nominalType, options) =
-            BsonSerializer.Serialize(writer, nominalType, x.BsonValue, options)
-
-        member x.Deserialize(reader, nominalType, options) =
-            let value = BsonSerializer.Deserialize(reader, nominalType, options)
-            BsonTop.Create(value :?> BsonValue, "$") |> box
-
-        member x.GetDocumentId(id, nominalType, idGenerator) = false
-
-        member x.SetDocumentId(id) = ()
 
     /// The underlying BsonValue
     member x.BsonValue = x.Value
@@ -119,12 +106,24 @@ type BsonTop =
 
 module Serialization =
 
+    type IBsonTopSerializer() =
+        inherit SerializerBase<IBsonTop>()
+
+        let bsonValueSerializer = BsonValueSerializer()
+
+        override __.Serialize(context, args, value) =
+            bsonValueSerializer.Serialize(context, args, value.BsonValue)
+
+        override __.Deserialize(context, args) =
+            let bsonValue = bsonValueSerializer.Deserialize(context, args)
+            BsonTop.Create(bsonValue, "$")
+
     type BsonProviderSerializationProvider() =
 
         interface IBsonSerializationProvider with
             member __.GetSerializer typ =
                 if typ = typeof<IBsonTop> then
-                    BsonIBsonSerializableSerializer() :> IBsonSerializer
+                    IBsonTopSerializer() :> IBsonSerializer
                 else null
 
     let mutable private registered = false
