@@ -118,20 +118,12 @@ module Serialization =
             let bsonValue = bsonValueSerializer.Deserialize(context, args)
             BsonTop.Create(bsonValue, "$")
 
-    type BsonProviderSerializationProvider() =
-
-        interface IBsonSerializationProvider with
-            member __.GetSerializer typ =
-                if typ = typeof<IBsonTop> then
-                    IBsonTopSerializer() :> IBsonSerializer
-                else null
-
     let mutable private registered = false
 
     let register() =
         if not registered then
             registered <- true
-            BsonSerializer.RegisterSerializationProvider(BsonProviderSerializationProvider())
+            BsonSerializer.RegisterSerializer<IBsonTop>(IBsonTopSerializer())
 
 [<AutoOpen>]
 module ActivePatterns =
