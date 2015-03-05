@@ -1,17 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1BD89248-02F0-43EA-8706-BA721BCBA9C5}</ProjectGuid>
+    <ProjectGuid>{8C557C72-B8C4-4440-84F7-F0ABF0E2D6B8}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BsonProvider.DesignTime.Tests</RootNamespace>
-    <AssemblyName>BsonProvider.DesignTime.Tests</AssemblyName>
+    <RootNamespace>BsonProvider.Tests</RootNamespace>
+    <AssemblyName>BsonProvider.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <Name>BsonProvider.DesignTime.Tests</Name>
+    <Name>BsonProvider.Tests</Name>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -24,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\BsonProvider.DesignTime.Tests.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\BsonProvider.Tests.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,76 +32,32 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\BsonProvider.DesignTime.Tests.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\BsonProvider.Tests.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BsonProvider.DesignTime">
-      <HintPath>..\..\bin\FSharp.Data.Bson.DesignTime.dll</HintPath>
-    </Reference>
-    <Reference Include="BsonProvider.Runtime">
-      <HintPath>..\..\bin\FSharp.Data.Bson.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="CSharpFormat">
-      <HintPath>..\..\packages\FSharp.Formatting.2.4.8\lib\net40\CSharpFormat.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.CodeFormat">
-      <HintPath>..\..\packages\FSharp.Formatting.2.4.8\lib\net40\FSharp.CodeFormat.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.Compiler.Service">
-      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.44\lib\net40\FSharp.Compiler.Service.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
     <Reference Include="FSharp.Data">
       <HintPath>..\..\packages\FSharp.Data.2.0.9\lib\net40\FSharp.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.Data.DesignTime">
-      <HintPath>..\..\packages\FSharp.Data.2.0.9\lib\net40\FSharp.Data.DesignTime.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.Literate">
-      <HintPath>..\..\packages\FSharp.Formatting.2.4.8\lib\net40\FSharp.Literate.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.Markdown">
-      <HintPath>..\..\packages\FSharp.Formatting.2.4.8\lib\net40\FSharp.Markdown.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.MetadataFormat">
-      <HintPath>..\..\packages\FSharp.Formatting.2.4.8\lib\net40\FSharp.MetadataFormat.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\..\packages\mongocsharpdriver.1.9.2\lib\net35\MongoDB.Bson.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="RazorEngine">
-      <HintPath>..\..\packages\RazorEngine.3.3.0\lib\net40\RazorEngine.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web.Razor">
-      <HintPath>..\..\packages\Microsoft.AspNet.Razor.2.0.30506.0\lib\net40\System.Web.Razor.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="FSharp.Data.Bson.Runtime">
+      <HintPath>..\..\bin\FSharp.Data.Bson.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core">
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InferenceTests.fs" />
-    <Compile Include="SignatureTests.fs" />
-    <Compile Include="DocumentationTests.fs" />
+    <Compile Include="SerializationTests.fs" />
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
