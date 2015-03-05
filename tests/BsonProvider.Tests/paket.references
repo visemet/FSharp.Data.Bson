@@ -1,4 +1,4 @@
 FSharp.Data
 MongoDB.Bson
-nuget NUnit
-nuget NUnit.Runners
+NUnit
+NUnit.Runners
