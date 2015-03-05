@@ -4,7 +4,7 @@ NUGET
   specs:
     FAKE (3.18.0)
     FSharp.Compiler.Service (0.0.85)
-    FSharp.Data (2.1.1)
+    FSharp.Data (2.0.14)
     FSharp.Formatting (2.7.4)
       FSharp.Compiler.Service (>= 0.0.82)
       FSharpVSPowerTools.Core (>= 1.7.0)

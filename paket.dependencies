@@ -1,7 +1,10 @@
 framework: net45
 source http://nuget.org/api/v2
 
-nuget FSharp.Data
+// Debug.fs uses GetCustomAttributesData(), which returns null in Mono.
+// Refer to https://github.com/fsharp/FSharp.Data/issues/678. Until
+// version 2.2.0 is released, just use an older version.
+nuget FSharp.Data 2.0.14
 nuget MongoDB.Bson 2.0.0-beta2
 
 // for building the project
