@@ -25,7 +25,10 @@ type MySerializer() =
     inherit BsonBaseSerializer()
 
     override __.Serialize(writer, nominalType, value, options) =
-        BsonSerializer.Serialize(writer, typeof<obj>, null, options)
+        match value with
+        | :? IBsonTop as top ->
+            BsonSerializer.Serialize(writer, typeof<BsonValue>, top.BsonValue, options)
+        | _ -> failwith "Expected an IBsonTop"
 
     override __.Deserialize(reader, nominalType, actualType, options) =
         let value = BsonSerializer.Deserialize(reader, nominalType, options)
