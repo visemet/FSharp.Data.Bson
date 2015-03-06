@@ -17,6 +17,3 @@ nuget NUnit.Runners
 
 // for generating documentation
 nuget FSharp.Formatting
-
-// for updating the GitHub repository
-github fsharp/FAKE modules/Octokit/Octokit.fsx
