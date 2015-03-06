@@ -12,7 +12,12 @@ Building
     You can also use the FAKE script:
 
       * Windows: Run _build.cmd_
+
+          - [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/vsejbf4jwp2ua2mo)](https://ci.appveyor.com/project/visemet/fsharp-data-bson)
+
       * Mono: Run _build.sh_
+
+          - [![Travis build status](https://travis-ci.org/visemet/FSharp.Data.Bson.png)](https://travis-ci.org/visemet/FSharp.Data.Bson)
 
 Supported platforms
 -------------------
